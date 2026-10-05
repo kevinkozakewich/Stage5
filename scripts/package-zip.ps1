@@ -41,7 +41,10 @@ $SourceFiles = Get-PackageFiles $AssignmentRoot | Where-Object {
 $Hashes = [ordered]@{}
 foreach ($SourceFile in $SourceFiles) {
     $Relative = $SourceFile.FullName.Substring($AssignmentRoot.Length + 1).Replace('\', '/')
-    $Hashes[$Relative] = (Get-FileHash -LiteralPath $SourceFile.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+    $SourceStream = [IO.File]::OpenRead($SourceFile.FullName)
+    $Hasher = [Security.Cryptography.SHA256]::Create()
+    try { $Hashes[$Relative] = [BitConverter]::ToString($Hasher.ComputeHash($SourceStream)).Replace('-', '').ToLowerInvariant() }
+    finally { $SourceStream.Dispose(); $Hasher.Dispose() }
 }
 $Manifest = [ordered]@{
     schema_version = 1
@@ -63,7 +66,9 @@ try {
     Copy-Item -LiteralPath (Join-Path $AssignmentRoot 'package-integrity.json') -Destination $StagingAssignment
     # Existing ZIP is a generated artifact at an explicitly verified workspace path.
     Assert-InTaskRoot $ZipPath | Out-Null
-    Compress-Archive -LiteralPath $StagingAssignment -DestinationPath $ZipPath -Force
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    if (Test-Path -LiteralPath $ZipPath) { Remove-Item -LiteralPath $ZipPath -Force }
+    [IO.Compression.ZipFile]::CreateFromDirectory($StageRoot, $ZipPath, [IO.Compression.CompressionLevel]::Optimal, $false)
     Write-Host "Wrote $ZipPath with $($Hashes.Count) source files and SHA-256 manifest."
 } finally {
     $VerifiedStage = Assert-InTaskRoot $StageRoot
