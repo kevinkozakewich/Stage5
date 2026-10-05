@@ -1,0 +1,352 @@
+{
+  "description": "Lossless JSON snapshot of vars parsed from the archived YAML tests; source hashes bind each snapshot to its original file. No model inference.",
+  "contexts": {
+    "spec-parser/01-batchcampaign-iud.yaml": {
+      "source_sha256": "f55b676efa2fe05d1a2ad6f4d6b8cc12202f300678de3e68315f6015df3bd833",
+      "vars": {
+        "scenario": "batchcampaign-iud",
+        "expected_table": "BatchCampaign",
+        "expected_schema": "PurinaNA",
+        "expected_pk": "scm_id",
+        "expect_pk_scalar": true,
+        "expected_trigger_type": "AFTER INSERT, UPDATE, DELETE",
+        "brief_md": "# Migration Brief — BatchCampaign\n\n## Target Table\n| Field | Value |\n| Schema | PurinaNA |\n| Table | BatchCampaign |\n| Primary key | scm_id (single column) |\n\n## Trigger Specification\n- **Type:** AFTER INSERT, UPDATE, DELETE\n- **Operations:** Full IUD — derive command from inserted / deleted\n"
+      }
+    },
+    "spec-parser/02-vendor-composite-pk.yaml": {
+      "source_sha256": "9567cc74e1dfa976ec42bdc1ea2ba38e2d94da0f6d6d6f670b072a7f87f22ea0",
+      "vars": {
+        "scenario": "vendor-composite-pk",
+        "expected_table": "VendorContact",
+        "expected_schema": "PurinaNA",
+        "expected_pk": "[\"vendor_id\", \"contact_seq\"]",
+        "expected_trigger_type": "AFTER INSERT, UPDATE, DELETE",
+        "brief_md": "# Migration Brief — VendorContact\n\n## Target Table\n| Schema | PurinaNA |\n| Table | VendorContact |\n| Primary key | vendor_id, contact_seq (composite) |\n\n## Trigger Specification\n- **Type:** AFTER INSERT, UPDATE, DELETE\n- Composite PK must fan out via prep SP\n"
+      }
+    },
+    "spec-parser/03-insert-only.yaml": {
+      "source_sha256": "5386566e543d164bb4271e3d6ac4006e57c3b403944fb2da6372dc1d79349382",
+      "vars": {
+        "scenario": "insert-only",
+        "expected_table": "CampaignMember",
+        "expected_schema": "PurinaNA",
+        "expected_pk": "cm_id",
+        "expect_pk_scalar": true,
+        "expected_trigger_type": "AFTER INSERT",
+        "brief_md": "# Migration Brief — CampaignMember INSERT Only\n\n## Target Table\nSchema: PurinaNA\nTable: CampaignMember\nPrimary key: cm_id\n\n## Trigger Specification\n- **Type:** AFTER INSERT\n- **Command:** Hard-code @Command = 'RI' for insert-only workload\n"
+      }
+    },
+    "spec-parser/04-update-only.yaml": {
+      "source_sha256": "1a2d555e1b70507b6102396e2cb66757b058e8d613ded58897f01c597b916d43",
+      "vars": {
+        "scenario": "update-only",
+        "expected_table": "PriceHistory",
+        "expected_schema": "PurinaNA",
+        "expected_pk": "price_id",
+        "expect_pk_scalar": true,
+        "expected_trigger_type": "AFTER UPDATE",
+        "brief_md": "# Migration Brief — PriceHistory UPDATE Only\n\nTarget table PurinaNA.PriceHistory with primary key price_id.\nTrigger fires AFTER UPDATE only. No insert or delete handling required.\n"
+      }
+    },
+    "spec-parser/05-delete-only.yaml": {
+      "source_sha256": "fdbe611b35e0386e472e459017e8b53bdecd4c058e1650522601cbb866fc85c8",
+      "vars": {
+        "scenario": "delete-only",
+        "expected_table": "ArchiveRow",
+        "expected_schema": "PurinaNA",
+        "expected_pk": "archive_id",
+        "expect_pk_scalar": true,
+        "expected_trigger_type": "AFTER DELETE",
+        "brief_md": "# Migration Brief — ArchiveRow DELETE Only\n\n## Target Table\n| Schema | PurinaNA |\n| Table | ArchiveRow |\n| Primary key | archive_id |\n\nTrigger type: AFTER DELETE. Purge audit path only on delete.\n"
+      }
+    },
+    "spec-parser/06-explicit-schema.yaml": {
+      "source_sha256": "77c29a189f0c7c39b33292014ef2b43dfd1bbf086061696bdf239da2baa8f412",
+      "vars": {
+        "scenario": "explicit-schema",
+        "expected_table": "ProductCatalog",
+        "expected_schema": "DMOCore",
+        "expected_pk": "product_id",
+        "expect_pk_scalar": true,
+        "expected_trigger_type": "AFTER INSERT, UPDATE, DELETE",
+        "brief_md": "# Migration Brief — ProductCatalog\n\n## Target Table\n| Field | Value |\n| Schema | DMOCore |\n| Table | ProductCatalog |\n| Primary key | product_id |\n\nFull IUD downstream migration trigger required.\n"
+      }
+    },
+    "spec-parser/07-with-constraints.yaml": {
+      "source_sha256": "643e447bdd07125efc2388e2b46f544b65b358631246dc9d8ac39012c1d9e6be",
+      "vars": {
+        "scenario": "with-constraints",
+        "expected_table": "BatchCampaign",
+        "expected_schema": "PurinaNA",
+        "expected_pk": "scm_id",
+        "expect_pk_scalar": true,
+        "expected_trigger_type": "AFTER INSERT, UPDATE, DELETE",
+        "expected_constraints": "[\"no_hardcoded_columns\", \"no_direct_queue_insert\"]",
+        "brief_md": "# Migration Brief — BatchCampaign with Constraints\n\nTarget: PurinaNA.BatchCampaign, PK scm_id, AFTER INSERT UPDATE DELETE.\n\n## Constraints\n- No hard-coded business column names in static SQL\n- No direct INSERT into DownstreamMigrationQueue\n"
+      }
+    },
+    "spec-parser/08-qualified-table-name.yaml": {
+      "source_sha256": "95b38433ad47aed282ed55429e4be4a3c3407eb250a5f938f294b94c0279cba5",
+      "vars": {
+        "scenario": "qualified-table-name",
+        "expected_table": "LoyaltyAccount",
+        "expected_schema": "PurinaNA",
+        "expected_pk": "account_id",
+        "expect_pk_scalar": true,
+        "expected_trigger_type": "AFTER INSERT, UPDATE, DELETE",
+        "brief_md": "# Migration Brief — LoyaltyAccount\n\nDeploy downstream trigger on [PurinaNA].[LoyaltyAccount].\nPrimary key column: account_id.\nTrigger events: INSERT, UPDATE, DELETE (full IUD).\n"
+      }
+    },
+    "trigger-codegen/01-batchcampaign-iud.yaml": {
+      "source_sha256": "bc78cbab426d6b384fce53cee5066d5a9535f1e969a4127c646f7634b1bcef58",
+      "vars": {
+        "scenario": "batchcampaign-iud",
+        "requirements_json": "{\n  \"table\": \"BatchCampaign\",\n  \"schema\": \"PurinaNA\",\n  \"pk\": \"scm_id\",\n  \"trigger_type\": \"AFTER INSERT, UPDATE, DELETE\"\n}\n"
+      }
+    },
+    "trigger-codegen/02-composite-pk.yaml": {
+      "source_sha256": "7d668b5b05530306f428c202657e0ebbd09e7d6467fcf8423775904e1aab11e4",
+      "vars": {
+        "scenario": "composite-pk",
+        "requirements_json": "{\n  \"table\": \"VendorContact\",\n  \"schema\": \"PurinaNA\",\n  \"pk\": [\"vendor_id\", \"contact_seq\"],\n  \"trigger_type\": \"AFTER INSERT, UPDATE, DELETE\"\n}\n"
+      }
+    },
+    "trigger-codegen/03-insert-only.yaml": {
+      "source_sha256": "a4729f6923d64d8e780b148b6d66faf791b2a6059d16e2896d19cdf918ed68a8",
+      "vars": {
+        "scenario": "insert-only",
+        "expect_command_detection": false,
+        "requirements_json": "{\n  \"table\": \"CampaignMember\",\n  \"schema\": \"PurinaNA\",\n  \"pk\": \"cm_id\",\n  \"trigger_type\": \"AFTER INSERT\"\n}\n"
+      }
+    },
+    "trigger-codegen/04-update-only.yaml": {
+      "source_sha256": "67a187aba40dd74964c2dca27a7417647d2fe4d7a52494eab398139efe29c7c4",
+      "vars": {
+        "scenario": "update-only",
+        "expect_command_detection": false,
+        "requirements_json": "{\n  \"table\": \"PriceHistory\",\n  \"schema\": \"PurinaNA\",\n  \"pk\": \"price_id\",\n  \"trigger_type\": \"AFTER UPDATE\"\n}\n"
+      }
+    },
+    "trigger-codegen/05-delete-only.yaml": {
+      "source_sha256": "4f38c3b2728a0ee93a1a26fdbd954a8fef52e21b300e51d4c055a5f9d4a631c6",
+      "vars": {
+        "scenario": "delete-only",
+        "expect_command_detection": false,
+        "requirements_json": "{\n  \"table\": \"ArchiveRow\",\n  \"schema\": \"PurinaNA\",\n  \"pk\": \"archive_id\",\n  \"trigger_type\": \"AFTER DELETE\"\n}\n"
+      }
+    },
+    "trigger-codegen/06-custom-schema.yaml": {
+      "source_sha256": "53060c84e33e9ac0e0b0f8d9b58062d6c23bb3a2cf72281adac565d46b210ae4",
+      "vars": {
+        "scenario": "custom-schema",
+        "requirements_json": "{\n  \"table\": \"ProductCatalog\",\n  \"schema\": \"DMOCore\",\n  \"pk\": \"product_id\",\n  \"trigger_type\": \"AFTER INSERT, UPDATE, DELETE\"\n}\n"
+      }
+    },
+    "trigger-codegen/07-minimal-fields.yaml": {
+      "source_sha256": "d7d995253c78876e5e4b7caf2cda254d9ac3fbe853891704046e8f526a2c5dc8",
+      "vars": {
+        "scenario": "minimal-fields",
+        "expect_table_ref": true,
+        "requirements_json": "{\n  \"table\": \"LoyaltyAccount\",\n  \"pk\": \"account_id\",\n  \"trigger_type\": \"AFTER INSERT, UPDATE, DELETE\"\n}\n"
+      }
+    },
+    "trigger-codegen/08-with-constraints.yaml": {
+      "source_sha256": "0514a39704de07b4d52e99a8f9882aed38ecdb367da40d8f8cad22085a85cf6a",
+      "vars": {
+        "scenario": "with-constraints",
+        "requirements_json": "{\n  \"table\": \"BatchCampaign\",\n  \"schema\": \"PurinaNA\",\n  \"pk\": \"scm_id\",\n  \"trigger_type\": \"AFTER INSERT, UPDATE, DELETE\",\n  \"constraints\": [\"no_direct_queue_insert\", \"no_hardcoded_columns\"]\n}\n"
+      }
+    },
+    "trigger-review/01-good-reference.yaml": {
+      "source_sha256": "d47ad90c80f618774adb2d7c0b416facbcba5596d2012c35ffe6121475f0bca8",
+      "vars": {
+        "scenario": "good-reference",
+        "expected_command": "RU",
+        "expected_verdict": "PASS",
+        "expect_forbidden_clean": true,
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "trigger-review/02-composite-pk-good.yaml": {
+      "source_sha256": "e43cb5931abac764250164234e61cad283490b5e5f90e2010ade19eb6c17f818",
+      "vars": {
+        "scenario": "composite-pk-good",
+        "expected_command": "RU",
+        "expected_verdict": "PASS",
+        "expect_forbidden_clean": true,
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[OrderLine_DownstreamMigration]\nON [PurinaNA].[OrderLine]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'OrderLine';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'OrderLine_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "trigger-review/03-insert-only-good.yaml": {
+      "source_sha256": "8160474b67c22b2df1e42470d505505beaeb7d2303d92fead8c0ad87a3c45782",
+      "vars": {
+        "scenario": "insert-only",
+        "expected_command": "RI",
+        "expected_verdict": "PASS",
+        "expect_forbidden_clean": true,
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[AuditEvent_DownstreamMigration]\nON [PurinaNA].[AuditEvent]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'AuditEvent';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'AuditEvent_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "trigger-review/04-missing-trycatch.yaml": {
+      "source_sha256": "9b11bd3d2eeb9058aebf413d79f4a05001996df9c7643ead809eb0dc89505e62",
+      "vars": {
+        "scenario": "missing-trycatch",
+        "expected_command": "RU",
+        "expected_verdict": "FAIL",
+        "expect_forbidden_clean": true,
+        "expected_failed_elements": "[\"BEGIN TRY / BEGIN CATCH\", \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\", \"IF XACT_STATE() = -1 rethrow pattern\"]",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    DECLARE @Schema SYSNAME = N'PurinaNA';\n    DECLARE @Table SYSNAME = N'BatchCampaign';\n    DECLARE @Sql NVARCHAR(MAX);\n    EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n        @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n    EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n        @TableName = @Table, @Command = @Command;\nEND\n"
+      }
+    },
+    "trigger-review/05-missing-source.yaml": {
+      "source_sha256": "33812c6945b654f7958e0dd4855bce9157cf59bab28c7669fe9ec8d006ddfa58",
+      "vars": {
+        "scenario": "missing-source",
+        "expected_command": "RI",
+        "expected_verdict": "FAIL",
+        "expect_forbidden_clean": false,
+        "expected_failed_elements": "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        INSERT INTO [NAF].[DownstreamMigrationQueue]\n            (SchemaName, TableName, Command, PayloadJson, CreatedUtc)\n        SELECT N'PurinaNA', N'BatchCampaign', @Command, NULL, SYSUTCDATETIME()\n        FROM inserted;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "trigger-review/06-hardcoded-columns.yaml": {
+      "source_sha256": "de40dbe43b5c9952a29b3c97647f97bf2a677ffe22652cabd012f535412ce3c5",
+      "vars": {
+        "scenario": "hardcoded-columns",
+        "expected_command": "RI",
+        "expected_verdict": "FAIL",
+        "expect_forbidden_clean": false,
+        "expected_failed_elements": "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[CampaignMember_DownstreamMigration]\nON [PurinaNA].[CampaignMember]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        INSERT INTO [NAF].[DownstreamMigrationQueue]\n            (SchemaName, TableName, Command, scm_id, cm_id, @Source)\n        SELECT N'PurinaNA', N'CampaignMember', @Command, i.[scm_id], i.[cm_id], N'Trigger'\n        FROM inserted i;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'CampaignMember_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "trigger-review/07-missing-xact-abort-off.yaml": {
+      "source_sha256": "ed44efaa53f8591b436951136d1c61a8d60ebf2cdfd5c4a118482f46d8333ed8",
+      "vars": {
+        "scenario": "missing-xact-abort-off",
+        "expected_command": "RU",
+        "expected_verdict": "FAIL",
+        "expect_forbidden_clean": true,
+        "expected_failed_elements": "SET XACT_ABORT OFF",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "trigger-review/08-catch-rethrows-all.yaml": {
+      "source_sha256": "2b43e1f33889d14951a7edc003043c91a490da6203085e98f2ca417763a16663",
+      "vars": {
+        "scenario": "catch-rethrows-all",
+        "expected_command": "RU",
+        "expected_verdict": "FAIL",
+        "expect_forbidden_clean": false,
+        "expected_failed_elements": "IF XACT_STATE() = -1 rethrow pattern",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = 0, @ErrProc = NULL;\n        THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "trigger-review/09-update-wrong-command.yaml": {
+      "source_sha256": "ee795e8d6f14fbf662ec3b87ad264acc3fca6221a82df999819e29fc34f7628d",
+      "vars": {
+        "scenario": "update",
+        "expected_command": "RU",
+        "expected_verdict": "FAIL",
+        "expect_command_correct": false,
+        "expect_forbidden_clean": true,
+        "expected_failed_elements": "Command detection block (inserted/deleted → RI/RU/RD)",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "trigger-review/10-delete-missing-error-logging.yaml": {
+      "source_sha256": "0dfc0f8d682ab523658176bb9152687620cc43d39b2d7c996a760698c095a56f",
+      "vars": {
+        "scenario": "delete",
+        "expected_command": "RD",
+        "expected_verdict": "FAIL",
+        "expect_forbidden_clean": true,
+        "expected_failed_elements": "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "remediator/01-missing-trycatch.yaml": {
+      "source_sha256": "6a88d988d0bd353cd5d2f62625228fdd6f9b99221175c16a173387f775b56171",
+      "vars": {
+        "scenario": "missing-trycatch",
+        "expected_resolved_elements": "[\"BEGIN TRY / BEGIN CATCH\", \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\", \"IF XACT_STATE() = -1 rethrow pattern\"]",
+        "review_json": "{\n  \"verdict\": \"FAIL\",\n  \"structure_checklist\": {\n    \"passed\": [\"SET NOCOUNT ON\", \"SET XACT_ABORT OFF\", \"Command detection block (inserted/deleted → RI/RU/RD)\", \"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"],\n    \"failed\": [],\n    \"missing\": [\"BEGIN TRY / BEGIN CATCH\", \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\", \"IF XACT_STATE() = -1 rethrow pattern\"]\n  },\n  \"violations\": [{\"id\": \"V1\", \"severity\": \"critical\", \"detail\": \"Enqueue not wrapped in TRY/CATCH\", \"fix\": \"Wrap prep SP + sp_executesql in BEGIN TRY; add CATCH with ToGpmq_LogTriggerError and IF XACT_STATE() = -1 THROW\"}]\n}\n",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    DECLARE @Schema SYSNAME = N'PurinaNA';\n    DECLARE @Table SYSNAME = N'BatchCampaign';\n    DECLARE @Sql NVARCHAR(MAX);\n    EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n        @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n    EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n        @TableName = @Table, @Command = @Command;\nEND\n",
+        "golden_remediated_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "remediator/02-missing-xact-abort.yaml": {
+      "source_sha256": "2bb8bd6f2281c5ae37be82275e55977abf554cd1a184d422d9af2374b07c308f",
+      "vars": {
+        "scenario": "missing-xact-abort",
+        "expected_resolved_elements": "[\"SET XACT_ABORT OFF\"]",
+        "review_json": "{\n  \"verdict\": \"FAIL\",\n  \"structure_checklist\": {\n    \"passed\": [\"SET NOCOUNT ON\", \"Command detection block (inserted/deleted → RI/RU/RD)\", \"BEGIN TRY / BEGIN CATCH\", \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\", \"IF XACT_STATE() = -1 rethrow pattern\", \"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"],\n    \"failed\": [],\n    \"missing\": [\"SET XACT_ABORT OFF\"]\n  },\n  \"violations\": [{\"id\": \"V1\", \"severity\": \"critical\", \"detail\": \"Missing SET XACT_ABORT OFF\", \"fix\": \"Add SET XACT_ABORT OFF immediately after SET NOCOUNT ON\"}]\n}\n",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+        "golden_remediated_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "remediator/03-direct-queue-insert.yaml": {
+      "source_sha256": "9ca5ef79776d819cd529f372669fb9b623cab976c092abd418d90b57b705f48c",
+      "vars": {
+        "scenario": "direct-queue-insert",
+        "expect_forbidden_clean": true,
+        "expected_resolved_elements": "[\"@Source = N'Trigger' OR source = N'Trigger' in queue insert\", \"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"]",
+        "review_json": "{\n  \"verdict\": \"FAIL\",\n  \"forbidden_patterns\": {\"found\": [\"Direct INSERT INTO DownstreamMigrationQueue\"], \"clean\": false},\n  \"structure_checklist\": {\n    \"passed\": [\"SET NOCOUNT ON\", \"SET XACT_ABORT OFF\", \"BEGIN TRY / BEGIN CATCH\", \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\", \"IF XACT_STATE() = -1 rethrow pattern\"],\n    \"failed\": [\"@Source = N'Trigger' OR source = N'Trigger' in queue insert\", \"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"],\n    \"missing\": []\n  },\n  \"violations\": [{\"id\": \"V1\", \"severity\": \"critical\", \"detail\": \"Direct INSERT INTO DownstreamMigrationQueue\", \"fix\": \"Replace with ToGpmq_EnqueueRecordByTriggerPrep + sp_executesql\"}]\n}\n",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        INSERT INTO [NAF].[DownstreamMigrationQueue]\n            (SchemaName, TableName, Command, PayloadJson, CreatedUtc)\n        SELECT N'PurinaNA', N'BatchCampaign', @Command, NULL, SYSUTCDATETIME()\n        FROM inserted;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+        "golden_remediated_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "remediator/04-hardcoded-columns.yaml": {
+      "source_sha256": "ffd0b7a040194bec00216efd1f7529a06ff514bb2fdf10ab82fe2bffd0a0ad7c",
+      "vars": {
+        "scenario": "hardcoded-columns",
+        "expect_forbidden_clean": true,
+        "expected_resolved_elements": "[\"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"]",
+        "review_json": "{\n  \"verdict\": \"FAIL\",\n  \"forbidden_patterns\": {\"found\": [\"Hard coded business column names\"], \"clean\": false},\n  \"structure_checklist\": {\n    \"passed\": [\"SET NOCOUNT ON\", \"SET XACT_ABORT OFF\", \"BEGIN TRY / BEGIN CATCH\", \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\", \"IF XACT_STATE() = -1 rethrow pattern\", \"@Source = N'Trigger' OR source = N'Trigger' in queue insert\"],\n    \"failed\": [\"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"],\n    \"missing\": []\n  },\n  \"violations\": [{\"id\": \"V1\", \"severity\": \"critical\", \"detail\": \"Hard-coded scm_id, cm_id in static INSERT\", \"fix\": \"Replace with ToGpmq_EnqueueRecordByTriggerPrep + sp_executesql\"}]\n}\n",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[CampaignMember_DownstreamMigration]\nON [PurinaNA].[CampaignMember]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        INSERT INTO [NAF].[DownstreamMigrationQueue]\n            (SchemaName, TableName, Command, scm_id, cm_id, @Source)\n        SELECT N'PurinaNA', N'CampaignMember', @Command, i.[scm_id], i.[cm_id], N'Trigger'\n        FROM inserted i;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'CampaignMember_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+        "golden_remediated_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[CampaignMember_DownstreamMigration]\nON [PurinaNA].[CampaignMember]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'CampaignMember';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'CampaignMember_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "remediator/05-ungated-catch.yaml": {
+      "source_sha256": "4cdce7626dfaff76e038ef6cfd1f614110c26503312059b79a0c75b2488081f3",
+      "vars": {
+        "scenario": "ungated-catch",
+        "expect_forbidden_clean": true,
+        "expected_resolved_elements": "[\"IF XACT_STATE() = -1 rethrow pattern\"]",
+        "review_json": "{\n  \"verdict\": \"FAIL\",\n  \"forbidden_patterns\": {\"found\": [\"CATCH block that rethrows on all errors without gating on XACT_STATE() = -1\"], \"clean\": false},\n  \"structure_checklist\": {\n    \"passed\": [\"SET NOCOUNT ON\", \"SET XACT_ABORT OFF\", \"Command detection block (inserted/deleted → RI/RU/RD)\", \"BEGIN TRY / BEGIN CATCH\", \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\", \"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"],\n    \"failed\": [\"IF XACT_STATE() = -1 rethrow pattern\"],\n    \"missing\": []\n  },\n  \"violations\": [{\"id\": \"V1\", \"severity\": \"critical\", \"detail\": \"Bare THROW in CATCH\", \"fix\": \"Replace THROW with IF XACT_STATE() = -1 THROW;\"}]\n}\n",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = 0, @ErrProc = NULL;\n        THROW;\n    END CATCH\nEND\n",
+        "golden_remediated_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "remediator/06-missing-nocount.yaml": {
+      "source_sha256": "141e6b1bd9111dc9be38f3c50474ef94ec68910ee2130d7984a5dafd5b83dacc",
+      "vars": {
+        "scenario": "missing-nocount",
+        "expected_resolved_elements": "[\"SET NOCOUNT ON\", \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\"]",
+        "review_json": "{\n  \"verdict\": \"FAIL\",\n  \"structure_checklist\": {\n    \"passed\": [\"SET XACT_ABORT OFF\", \"BEGIN TRY / BEGIN CATCH\", \"IF XACT_STATE() = -1 rethrow pattern\", \"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"],\n    \"failed\": [],\n    \"missing\": [\"SET NOCOUNT ON\", \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\"]\n  },\n  \"violations\": [{\"id\": \"V1\", \"severity\": \"major\", \"detail\": \"Missing SET NOCOUNT ON\", \"fix\": \"Add SET NOCOUNT ON as first statement\"}, {\"id\": \"V2\", \"severity\": \"critical\", \"detail\": \"CATCH missing ToGpmq_LogTriggerError\", \"fix\": \"Add EXEC ToGpmq_LogTriggerError with error capture locals\"}]\n}\n",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT\nAS\nBEGIN\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+        "golden_remediated_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "remediator/07-missing-prep-sp.yaml": {
+      "source_sha256": "f2a106f074ce2c6e5ed7b3d8ddbeed666e7ce00d8dd44d4543ef25a902218baf",
+      "vars": {
+        "scenario": "missing-prep-sp",
+        "expected_resolved_elements": "[\"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"]",
+        "review_json": "{\n  \"verdict\": \"FAIL\",\n  \"structure_checklist\": {\n    \"passed\": [\"SET NOCOUNT ON\", \"SET XACT_ABORT OFF\", \"BEGIN TRY / BEGIN CATCH\", \"IF XACT_STATE() = -1 rethrow pattern\"],\n    \"failed\": [\"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"],\n    \"missing\": [\"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\"]\n  },\n  \"violations\": [{\"id\": \"V1\", \"severity\": \"critical\", \"detail\": \"Missing ToGpmq_EnqueueRecordByTriggerPrep\", \"fix\": \"Call prep SP before sp_executesql; add ToGpmq_LogTriggerError in CATCH\"}]\n}\n",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Sql NVARCHAR(MAX) = N'SELECT 1';\n        EXEC sp_executesql @Sql;\n    END TRY\n    BEGIN CATCH\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+        "golden_remediated_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    },
+    "remediator/08-missing-error-logging.yaml": {
+      "source_sha256": "e8ff2a88aad74ed28fe7206cc465b344b4714899a542414a54305e21e3231bd4",
+      "vars": {
+        "scenario": "missing-error-logging",
+        "expected_resolved_elements": "[\"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\"]",
+        "review_json": "{\n  \"verdict\": \"FAIL\",\n  \"structure_checklist\": {\n    \"passed\": [\"SET NOCOUNT ON\", \"SET XACT_ABORT OFF\", \"Command detection block (inserted/deleted → RI/RU/RD)\", \"BEGIN TRY / BEGIN CATCH\", \"IF XACT_STATE() = -1 rethrow pattern\", \"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"],\n    \"failed\": [],\n    \"missing\": [\"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\"]\n  },\n  \"violations\": [{\"id\": \"V1\", \"severity\": \"critical\", \"detail\": \"CATCH only has gated THROW, no error logging\", \"fix\": \"Add EXEC ToGpmq_LogTriggerError with ERROR_NUMBER/MESSAGE/LINE/PROCEDURE locals before IF XACT_STATE() = -1 THROW\"}]\n}\n",
+        "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+        "golden_remediated_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
+      }
+    }
+  }
+}

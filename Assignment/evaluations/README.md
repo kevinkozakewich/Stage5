@@ -4,6 +4,8 @@
 
 From `Assignment/`, run `node evaluations/replay-historical.js`. This replays all 34 S1–S4 saved outputs against their archived named assertions and four limited Stage 5 smoke checks. It does not call a model. Add `--write-results` to save the structured replay results. The archived implementations retain their original limitations, and are separate from runtime guardrails.
 
+The packaged replay needs only Node.js. `historical/test-contexts.json` contains the original YAML test variables normalized into JSON, with the source file SHA-256 beside each entry. Replay rejects a snapshot if its original YAML bytes change. The raw YAML remains included for inspection.
+
 - S1–S4 each have three named, reproducible checks with per-fixture outcomes.
 - W5 has two original examples checking expected challenge and basic JSON shape. These do not demonstrate adversarial coverage of every sub-agent output.
 - W6 has one example. The original scorer checks formatting and two phrases; it does not substantiate full artifact coverage or the absence of unsupported claims. It allows four paragraphs where the prompt requested three.

@@ -9,7 +9,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const HISTORICAL = path.join(ROOT, 'historical');
 const require = createRequire(path.join(ROOT, '..', 'package.json'));
-const yaml = require('yaml');
+const contextsPath = path.join(HISTORICAL, 'test-contexts.json');
+const savedContexts = JSON.parse(fs.readFileSync(contextsPath, 'utf8')).contexts;
 const hash = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const agentDefinitions = {
   s1: ['spec-parser', ['schema_compliance', 'assertSchemaCompliance'], ['field_completeness', 'assertFieldCompleteness'], ['pk_extraction', 'assertPkExtraction']],
@@ -31,6 +32,7 @@ export function replayHistorical() {
     ],
     agents: {},
     stage5_smoke_checks: [],
+    context_snapshot_sha256: hash(contextsPath),
   };
   for (const [id, [name, ...criteria]] of Object.entries(agentDefinitions)) {
     const testsDir = path.join(HISTORICAL, 'agents', name, 'evals', 'tests');
@@ -40,7 +42,9 @@ export function replayHistorical() {
       const testPath = path.join(testsDir, test);
       const output = `${id}-${test.replace(/\.yaml$/, '.txt')}`;
       const outputPath = path.join(HISTORICAL, 'outputs', output);
-      const context = { vars: yaml.parse(fs.readFileSync(testPath, 'utf8')).vars ?? {} };
+      const snapshot = savedContexts[`${name}/${test}`];
+      if (!snapshot || snapshot.source_sha256 !== hash(testPath)) throw new Error(`Archived context does not match YAML source: ${name}/${test}`);
+      const context = { vars: snapshot.vars };
       const text = fs.readFileSync(outputPath, 'utf8');
       const checks = criteria.map(([criterion, fn]) => {
         const value = assertions[fn](text, context);
