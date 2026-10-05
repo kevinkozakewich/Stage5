@@ -1,6 +1,6 @@
 # Stage 5 — Delegated Trigger Delivery Certification
 
-**Repository:** https://github.com/ImaginetKevinK/Stage5  
+**Repository:** https://github.com/ImaginetKevinK/Stage5 (see `REPOSITORY.md` if transfer from `kevinkozakewich/Stage5` is pending)  
 **Submission package:** `Assignment/` (zip via `npm run package:zip` → `level-5-certification-staging.zip`)
 
 ## Verify
