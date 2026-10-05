@@ -1,12 +1,36 @@
 {
   "workflow_id": "W5",
-  "model": "cursor:subagent",
-  "inference_note": "Samples in support/subagent-evals/outputs/w5-*.txt; golden mock for delegation E2E",
-  "composite_percent": 100,
+  "provider_claim": "cursor:subagent",
+  "evidence_type": "historical_saved_samples",
+  "provenance": "The original records do not include verified model/response IDs, usage, or first-attempt/manual-edit history.",
+  "raw_evidence": "evaluations/historical/outputs/w5-*.txt",
+  "replay": "node evaluations/replay-historical.js",
+  "historical_reported_composite_percent": 100,
+  "composite_percent": null,
+  "readiness": "not_established",
   "criteria": {
-    "A1": { "name": "challenge_json_well_formed", "pass_rate": 100 },
-    "A2": { "name": "upheld_on_clean_pass", "pass_rate": 100 },
-    "A3": { "name": "overturn_on_false_clean", "pass_rate": 100 }
+    "A1": {
+      "name": "challenge_json_well_formed",
+      "measurement": "Original basic schema assertion passed for 2 of 2 saved examples; detailed challenge semantics and current runtime schemas were not measured.",
+      "passed": 2,
+      "total": 2
+    },
+    "A2": {
+      "name": "upheld_on_clean_pass",
+      "measurement": "One saved example returned the expected UPHELD challenge.",
+      "passed": 1,
+      "total": 1
+    },
+    "A3": {
+      "name": "overturn_on_false_clean",
+      "measurement": "One saved example returned the expected OVERTURNED challenge.",
+      "passed": 1,
+      "total": 1
+    }
   },
-  "recorded_at": "2026-10-05"
+  "coverage_gaps": [
+    "Actual isolated execution and source-file tool use are not established by these saved artifacts.",
+    "Every producing workflow/output is not represented in this two-example sample."
+  ],
+  "original_recorded_at": "2026-10-05"
 }

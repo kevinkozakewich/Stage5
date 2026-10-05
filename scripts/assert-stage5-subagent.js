@@ -19,7 +19,7 @@ const CASES = {
     expectChallenge: 'OVERTURNED',
   },
   'w6-pass': {
-    maxParagraphs: 4,
+    maxParagraphs: 3,
     forbidHeadings: true,
     forbidNewFinding: /new violation|previously undetected/i,
   },
@@ -74,7 +74,7 @@ async function main() {
     console.log(`  [${okP ? 'PASS' : 'FAIL'}] w6: paragraph count ${paras.length} (max ${cfg.maxParagraphs})`);
     if (!okP) failed += 1;
     const bad = cfg.forbidNewFinding.test(text);
-    console.log(`  [${bad ? 'FAIL' : 'PASS'}] w6: no invented findings`);
+    console.log(`  [${bad ? 'FAIL' : 'PASS'}] w6: prohibited-phrase smoke check (does not establish factual grounding)`);
     if (bad) failed += 1;
   } else if (caseId === 'c1-overturn') {
     const data = extractJson(text);

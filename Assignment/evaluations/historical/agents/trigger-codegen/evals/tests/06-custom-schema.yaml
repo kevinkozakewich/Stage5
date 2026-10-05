@@ -1,0 +1,10 @@
+description: "Non-default schema in requirements"
+vars:
+  scenario: custom-schema
+  requirements_json: |
+    {
+      "table": "ProductCatalog",
+      "schema": "DMOCore",
+      "pk": "product_id",
+      "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+    }

@@ -1,0 +1,11 @@
+description: "Insert-only trigger type"
+vars:
+  scenario: insert-only
+  expect_command_detection: false
+  requirements_json: |
+    {
+      "table": "CampaignMember",
+      "schema": "PurinaNA",
+      "pk": "cm_id",
+      "trigger_type": "AFTER INSERT"
+    }

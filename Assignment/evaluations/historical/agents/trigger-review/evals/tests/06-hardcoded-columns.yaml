@@ -1,0 +1,33 @@
+description: "Hard coded business column names in static SQL outside dynamic discovery (FAIL)"
+vars:
+  scenario: hardcoded-columns
+  expected_command: RI
+  expected_verdict: FAIL
+  expect_forbidden_clean: false
+  expected_failed_elements: "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+  trigger_sql: |
+    CREATE OR ALTER TRIGGER [PurinaNA].[CampaignMember_DownstreamMigration]
+    ON [PurinaNA].[CampaignMember]
+    AFTER INSERT
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        SET XACT_ABORT OFF;
+        DECLARE @Command VARCHAR(2) = 'RI';
+        BEGIN TRY
+            INSERT INTO [NAF].[DownstreamMigrationQueue]
+                (SchemaName, TableName, Command, scm_id, cm_id, @Source)
+            SELECT N'PurinaNA', N'CampaignMember', @Command, i.[scm_id], i.[cm_id], N'Trigger'
+            FROM inserted i;
+        END TRY
+        BEGIN CATCH
+            DECLARE @ErrNum INT = ERROR_NUMBER();
+            DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();
+            DECLARE @ErrLine INT = ERROR_LINE();
+            DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();
+            EXEC [PurinaNA].[ToGpmq_LogTriggerError]
+                @TriggerName = N'CampaignMember_DownstreamMigration', @Command = @Command,
+                @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;
+            IF XACT_STATE() = -1 THROW;
+        END CATCH
+    END

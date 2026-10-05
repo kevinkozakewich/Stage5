@@ -1,0 +1,28 @@
+CREATE OR ALTER TRIGGER [PurinaNA].[ArchiveRow_DownstreamMigration]
+ON [PurinaNA].[ArchiveRow]
+AFTER DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT OFF;
+    DECLARE @Command VARCHAR(2) = 'RD';
+    BEGIN TRY
+        DECLARE @Schema SYSNAME = N'PurinaNA';
+        DECLARE @Table SYSNAME = N'ArchiveRow';
+        DECLARE @Sql NVARCHAR(MAX);
+        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]
+            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;
+        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',
+            @TableName = @Table, @Command = @Command;
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrNum INT = ERROR_NUMBER();
+        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrLine INT = ERROR_LINE();
+        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();
+        EXEC [PurinaNA].[ToGpmq_LogTriggerError]
+            @TriggerName = N'ArchiveRow_DownstreamMigration', @Command = @Command,
+            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;
+        IF XACT_STATE() = -1 THROW;
+    END CATCH
+END

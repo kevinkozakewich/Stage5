@@ -19,7 +19,8 @@
     "eval:s3:live": "npm exec --prefix Assignment -- promptfoo eval -c support/live-evals/trigger-review/promptfooconfig.yaml",
     "eval:s4:live": "npm exec --prefix Assignment -- promptfoo eval -c support/live-evals/remediator/promptfooconfig.yaml",
     "eval:live:all": "npm run eval:s1:live && npm run eval:s2:live && npm run eval:s3:live && npm run eval:s4:live",
-    "workflow:golden": "npm run workflow:golden --prefix Assignment"
+    "workflow:golden": "npm run workflow:golden --prefix Assignment",
+    "validate:readiness": "node scripts/validate-submission.js --require-ready"
   },
   "devDependencies": {
     "promptfoo": "^0.123.0"

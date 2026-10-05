@@ -1,6 +1,11 @@
 {
   "workflow_id": "W3",
   "model": "cursor:subagent",
+  "evidence_type": "historical_saved_output_assertions",
+  "packaged_evidence": "evaluations/historical/",
+  "replay": "node evaluations/replay-historical.js",
+  "provenance_limitations": "Original model/response IDs, inference usage, and first-attempt/manual-edit history were not recorded. Percentages apply to saved outputs under the archived assertions.",
+  "current_runtime_readiness": "not_established",
   "inference_note": "Measured via subagent packets; full matrix in repo support/subagent-evals/results.json",
   "composite_percent": 100,
   "criteria": {

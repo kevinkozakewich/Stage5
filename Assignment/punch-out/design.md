@@ -1,64 +1,21 @@
-# Punch-out design
+# Human checkpoints
 
-Artifact 3. Human sign-off before anyone treats the trigger as deploy-ready.
+The delegation runner stops before final disposition. A successful automated review is not a human deployment approval.
 
-## Why P1 exists
+After validated W1/W2/W3/W5/W6 outputs and deterministic report assembly, the run records `examination.json` with the correlation ID, creation time, and hashes of the report and examined artifacts. Revisions require new review and new approval.
 
-The pipeline can produce SQL that passes every automated check and still should not ship without a DBA looking at it. That pause is intentional. It is not the same thing as a guardrail failure or an agent FAIL.
+## Substance
 
-Guardrail and agent failures stop the run immediately with no human step. Punch-out stops a healthy run and waits.
+The harness reads the workflow manifests. Any toy workflow or at least two peripheral workflows requires a human Continue/Reject decision. The current W5/W6 assessment therefore elevates.
 
-## P1: DBA deployment approval
+`harness/record-substance-decision.js` records the human reviewer, decision, timestamp, report hash, and verbatim report in append-only JSONL. A CLI boolean cannot approve the gate. A later valid Reject overrides an earlier Continue. The historical example row naming certification-harness is not a valid current decision.
 
-### When it fires
+## Deployment
 
-All of these must be true first:
+`harness/record-deployment-decision.js` requires an explicit human name and Approve/Reject decision for an existing, unchanged examination. It records a JSON `.human-approved` decision and retains the report with the decision. An empty sentinel or `--human-approved` flag is insufficient. The command does not execute SQL.
 
-| Check | Where |
-|---|---|
-| S3 returned `verdict=PASS` | `review.json` |
-| G3 did not overturn the PASS | guardrail log |
-| G4 passed | guardrail log |
-| G2 passed on final `trigger.sql` | guardrail log |
+`harness/finalize-delegation.js` resumes the checkpoint without re-running agents. It checks both decisions, correlation ID, artifact/report hashes, and deployment approval time. Missing decisions leave `pending_human`; rejection prevents success. No coordinator tool exposes these operator commands.
 
-### What happens
+See `README.md` for command syntax. Relevant regression tests are under `coordinator/evals/human-checkpoint.test.js`, `coordinator/evals/delegation-boundaries.test.js`, and `guardrails/tests/delegation-boundaries.test.js`.
 
-1. Orchestrator sets `run_status = PENDING_HUMAN`
-2. Harness writes a punch-out line to the audit log (`step_id: P1`)
-3. Run stops. Success is not recorded yet.
-4. Operator reads `trigger.sql`, `review.json`, and the audit log
-5. If deploying, operator creates `.human-approved` in the run folder:
-
-```powershell
-New-Item -Path "runs/{run_id}/.human-approved" -ItemType File -Force
-```
-
-6. Harness resumes or a second invocation with `--human-approved` completes the run
-
-### Sentinel rules
-
-| Rule | Behavior |
-|---|---|
-| Missing sentinel after PASS | Exit 2, `pending_human` |
-| Valid sentinel after PASS | Exit 0, `success` |
-| `--force-complete` | Exit 1, `bypass_blocked` |
-| Sentinel created before S3 PASS | Exit 1, `premature_approval` |
-
-The mtime guard on premature approval matters. An empty file alone is not enough if it was created before review finished.
-
-## Fail vs punch-out
-
-| Situation | Status | Human? |
-|---|---|---|
-| G1 or G2 blocks bad handoff | `halted` / `FAILED` | No |
-| S3 FAIL, retries left | `running` through S4 loop | No |
-| S3 FAIL, retries exhausted | `failure` | No |
-| S3 PASS, no sentinel yet | `pending_human` | Yes, waiting |
-| Bypass attempt | `bypass_blocked` | Blocked |
-
-## Related files
-
-| File | Contents |
-|---|---|
-| `punch-out/bypass-tests.md` | Tests A, B, C with commands and audit excerpts |
-| `audit/trace-g2-halt-example.md` | Automated failure example, not punch-out |
+The inherited Level 4 `run-workflow.js` and `punch-out/bypass-tests.md` are legacy fixture regressions, not the Stage 5 approval interface.

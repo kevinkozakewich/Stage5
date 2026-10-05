@@ -1,0 +1,11 @@
+description: "Delete-only trigger type"
+vars:
+  scenario: delete-only
+  expect_command_detection: false
+  requirements_json: |
+    {
+      "table": "ArchiveRow",
+      "schema": "PurinaNA",
+      "pk": "archive_id",
+      "trigger_type": "AFTER DELETE"
+    }

@@ -1,0 +1,40 @@
+# S2 trigger codegen, golden provider, no API key
+
+description: S2 Trigger Codegen (golden)
+
+prompts:
+  - file://../prompt/Prompt.md
+
+providers:
+  - id: file://providers/goldenProvider.cjs
+    label: Golden Output (offline)
+
+defaultTest:
+  options:
+    provider: golden
+  assert:
+    - type: javascript
+      value: file://assertions/triggerCodegen.cjs:assertStructuralContract
+      metric: structural_contract
+      threshold: 1.0
+    - type: javascript
+      value: file://assertions/triggerCodegen.cjs:assertDynamicEnqueue
+      metric: dynamic_enqueue
+      threshold: 1.0
+    - type: javascript
+      value: file://assertions/triggerCodegen.cjs:assertForbiddenPatterns
+      metric: forbidden_patterns
+      threshold: 1.0
+
+tests:
+  - file://tests/01-batchcampaign-iud.yaml
+  - file://tests/02-composite-pk.yaml
+  - file://tests/03-insert-only.yaml
+  - file://tests/04-update-only.yaml
+  - file://tests/05-delete-only.yaml
+  - file://tests/06-custom-schema.yaml
+  - file://tests/07-minimal-fields.yaml
+  - file://tests/08-with-constraints.yaml
+
+evaluateOptions:
+  maxConcurrency: 4

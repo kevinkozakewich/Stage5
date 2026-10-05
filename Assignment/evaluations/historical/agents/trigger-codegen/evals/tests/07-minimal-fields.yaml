@@ -1,0 +1,10 @@
+description: "Minimal requirements without explicit schema"
+vars:
+  scenario: minimal-fields
+  expect_table_ref: true
+  requirements_json: |
+    {
+      "table": "LoyaltyAccount",
+      "pk": "account_id",
+      "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+    }

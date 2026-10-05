@@ -1,0 +1,1 @@
+{"table":"ArchiveRow","schema":"PurinaNA","pk":"archive_id","trigger_type":"AFTER DELETE"}

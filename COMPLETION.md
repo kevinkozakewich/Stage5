@@ -1,45 +1,11 @@
-# Level 5 Certification — Completion Checklist
+# Level 5 completion status
 
-**Topic:** A — Delegated Downstream Migration Trigger Delivery System  
-**Status:** 100% COMPLETE — closed 2026-10-05  
-**Prerequisite:** Level 4 ✅ (`../Level 4/`, 42/42)
+Reviewed 2026-10-05 against both supplied instruction files.
 
----
+**Not yet fully verified.** Earlier 100% COMPLETE wording overstated the evidence.
 
-## Stage 5 Themes
+Demonstrated guardrail, human-checkpoint, audit, and packaging gaps have been repaired and covered by regression tests. Historical subagent evidence is retained and packaged with reproducible assertions.
 
-| # | Theme | Evidence | Status |
-|---|---|---|---|
-| 1 | Dispatch-only coordinator | `Assignment/coordinator/` + C4 schema test | ✅ |
-| 2 | Sub-agents scoped | `Assignment/workflows/*/manifest.json` + agent evals | ✅ |
-| 3 | Adversarial isolated | W5 manifest + `isolated_session_id` in audit | ✅ |
-| 4 | Version control | Level 5 git history | ✅ |
-| 5 | Stage 4 continuity | guardrails, punch-out, metrics, audit | ✅ |
+The remaining requirements need evidence from the intended hosted subagent orchestration: an actual dispatch-only LLM coordinator, scoped tools, isolated adversarial coverage of worker outputs, complete final synthesis, actual per-step model/token/cost telemetry, and sufficient measured workflow criteria without regular manual correction.
 
----
-
-## Phase Gates
-
-- [x] Phase 0 — Copy L4 `Assignment/`; scaffold coordinator, workflows, delegation
-- [x] Phase 1 — Manifests + `SubstanceAssessment.md`
-- [x] Phase 2 — `dispatchRunner.js` + boundary validation
-- [x] Phase 3 — W5 + W6 agents + heading assembly
-- [x] Phase 4 — `run-delegation.js` + C1–C4 tests
-- [x] Phase 5 — P1 + substance gates
-- [x] Phase 6 — Audit correlation + `ExampleDelegationTrace.md`
-- [x] Phase 7 — E2E delegation batch 100% (latest batch)
-- [x] Phase 8 — Self-certification
-- [x] Phase 9 — `level-5-certification-staging.zip`
-
----
-
-## Verification
-
-```powershell
-cd "C:\Projects\Improving\Memory\Tasks\In Progress\2026-09-14 - Certifications\Level 5"
-npm run validate:submission
-npm run eval:subagent:all
-npm run delegation:golden
-```
-
-**Expected:** `SUBMISSION VALIDATOR: PASS` (layout + golden + subagent evidence); S1–S4 subagent **34/34 @ 100%** in `support/subagent-evals/results.json`.
+See `EXAMINER_CHECKLIST.md` for criterion-specific status and `SUBMIT.md` for verification. An API vendor or key is not being imposed as a requirement.

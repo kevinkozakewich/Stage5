@@ -1,13 +1,36 @@
 {
   "workflow_id": "C",
-  "model": "cursor:subagent",
-  "inference_note": "C1–C4 harness tests + subagent sample coordinator-c1-overturn.txt; golden plan for reproducible E2E",
-  "composite_percent": 100,
+  "provider_claim": "cursor:subagent",
+  "evidence_type": "historical_saved_turn_and_separate_harness_tests",
+  "raw_evidence": "evaluations/historical/outputs/coordinator-c1-overturn.txt",
+  "replay": "node evaluations/replay-historical.js",
+  "historical_reported_composite_percent": 100,
+  "composite_percent": null,
+  "readiness": "not_established",
   "criteria": {
-    "C1": { "name": "adversarial_overturn_routing", "pass_rate": 100 },
-    "C2": { "name": "punch_out_and_substance_gates", "pass_rate": 100 },
-    "C3": { "name": "validation_error_handling", "pass_rate": 100 },
-    "C4": { "name": "dispatch_only_tools", "pass_rate": 100 }
+    "C1": {
+      "name": "adversarial_overturn_routing",
+      "status": "limited_sample_measurement",
+      "passed": 1,
+      "total": 1,
+      "reason": "One saved turn selected launch_remediator; not a complete coordinator execution."
+    },
+    "C2": {
+      "name": "punch_out_and_substance_gates",
+      "status": "harness_tests_only",
+      "reason": "Deterministic tests can validate gates, but do not measure a coordinator model's governance across an actual run."
+    },
+    "C3": {
+      "name": "validation_error_handling",
+      "status": "harness_tests_only",
+      "reason": "Saved hosted coordinator output does not cover validation failures, retries, or structured error recovery."
+    },
+    "C4": {
+      "name": "dispatch_only_tools",
+      "status": "declaration_and_harness_tests_only",
+      "reason": "Declared schema is dispatch-only; actual executing coordinator tool scope requires independent construction or execution evidence."
+    }
   },
-  "recorded_at": "2026-10-05"
+  "provenance": "Original model/response IDs, usage, and first-attempt/manual-edit history were not recorded.",
+  "original_recorded_at": "2026-10-05"
 }

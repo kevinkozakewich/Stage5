@@ -1,92 +1,52 @@
-# Level 5 Certification — Examiner Cross-Check
+# Level 5 examiner cross-check
 
-**Framework:** Stage 5 — *What We Examine* (`What We Examine.txt`)  
-**Topic:** A — Delegated Downstream Migration Trigger Delivery System  
-**Submission root:** `Assignment/` zipped as `level-5-certification-staging.zip`  
-**Git:** https://github.com/ImaginetKevinK/Stage5 · `git-log-export.txt`  
-**Status:** Complete — 2026-10-05  
-**Live inference:** Cursor subagent (no API key) — see `support/subagent-evals/INFERENCE.md`
+Checked against the supplied `Instructions.txt` and `What We Examine.txt`, 2026-10-05.
 
----
+**Full readiness is not yet established.** Previous blanket COMPLETE/PASS statements have been withdrawn. The repairs below address demonstrated gaps without changing the inference provider or introducing an API redesign.
 
-## Summary
+## 1. Dispatch-only coordinator / counterfeit
 
-| Theme | Requirements | Status |
-|---|---|---|
-| **Dispatch-only coordinator** | 3 | ✅ |
-| **Sub-agents scoped to one workflow** | 3 | ✅ |
-| **Adversarial review (isolated)** | 3 | ✅ |
-| **Version-controlled repository** | 2 | ✅ (git in repo) |
-| **Stage 4 continuity** | 5 | ✅ |
-| **README** (optional) | 1 | ✅ |
-| **Overall** | **30 validator checks** + subagent evidence | **✅ PASS** |
+The declared surface in `Assignment/coordinator/tools/schema.json` has six launch tools and no real-work tool. Tests reject unknown tools. The prompt describes LLM governance and targeted remediation.
 
----
+Still unverified: the actual hosted coordinator's exposed tool surface and a complete LLM-governed run. `goldenCoordinator.js` is explicitly a deterministic evaluation oracle; the single saved coordinator response demonstrates only one dispatch choice. A manifest is not evidence that the host actually restricted tool access.
 
-## 1. Dispatch-Only Coordinator
+## 2. Scoped subagents and Stage 3 guarantees
 
-| Framework Requirement | Evidence File | Status | Notes |
-|---|---|---|---|
-| No direct tool access, file access, or workflow steps of its own | `Assignment/coordinator/tools/schema.json`; C4 in `coordinator/evals/coordinator.test.js` | ✅ | `launch_*` only |
-| Dispatch surface only (`launch_*` verbs) | `Assignment/coordinator/prompt/Prompt.md`; `harness/lib/dispatchRunner.js` | ✅ | |
-| Not the mega-agent counterfeit | Schema audit + subagent C1 overturn → `launch_remediator` (`support/subagent-evals/outputs/coordinator-c1-overturn.txt`) | ✅ | |
+W1-W6 manifests declare workflow-specific tools. All agent prompts have named evaluation criteria. The 34 historical S1-S4 outputs and their assertions are included in `Assignment/evaluations/` and can be replayed independently.
 
----
+Still unverified: host enforcement of declared tools, sufficient measured coverage of all W5/W6/coordinator semantic criteria, and run provenance demonstrating that workflows do not need regular manual correction. Normal prompt tuning alone is not evidence of disqualification. Historical claimed percentages are not treated as new inference measurements.
 
-## 2. Sub-Agents Scoped to One Workflow
+## 3. Adversarial review in its own context
 
-| Framework Requirement | Evidence File | Status | Notes |
-|---|---|---|---|
-| Per-workflow tool manifests, no broader access | `Assignment/workflows/*/manifest.json` | ✅ | W1–W6 |
-| Stage 3 guarantees (prompt, ≥3 criteria, measured results) | `Assignment/agents/*/prompt/`; `evals/`; `results.json` | ✅ | S1–S4 subagent **100%** (`support/subagent-evals/results.json`) |
-| No chronically manual workflows | Golden + subagent pass rates | ✅ | 34/34 YAML cases |
+W5 declares `isolated_context: true`, a distinct adversarial lens, and read_file scoped to run artifacts. UPHELD and OVERTURNED examples exist. Current validators check findings members and consistent verdicts.
 
----
+Still unverified: adversarial review of every worker output in the actual hosted orchestration. The golden replay checks W3's passing review and SQL; it does not prove broader W1/W2/W4/W6 review coverage. A mock session UUID is labelled simulated.
 
-## 3. Adversarial Review in Its Own Context
+## 4. Version-controlled repository
 
-| Framework Requirement | Evidence File | Status | Notes |
-|---|---|---|---|
-| Distinct context — not producer message history | `dispatchRunner.js` `isolated_session_id`; W5 manifest | ✅ | |
-| Distinct adversarial lens | `Assignment/agents/adversarial-review/prompt/Prompt.md` | ✅ | |
-| Measured adversarial behavior | Subagent W5 UPHELD/OVERTURNED outputs + `guardrails/validate-adversarial-json.js` | ✅ | `outputs/w5-*.txt` |
+Source, prompts, workflow manifests, tests, and historical evidence are kept in Git. Packaging includes a real history export. New commits document concrete fixes; no historical development sequence is fabricated.
 
----
+## 5. Stage 4 continuity and boundaries
 
-## 4. Version-Controlled Repository
+Verified by regression tests:
 
-| Framework Requirement | Evidence File | Status | Notes |
-|---|---|---|---|
-| Coordinator, sub-agents, workflow definitions committed | Git history under Level 5 | ✅ | |
-| Meaningful commit history | Project commits | ✅ | Optional `git-log-export.txt` |
+- Actual G1/G2/W3/W5/W6 output checks run before results enter coordinator context.
+- G4 cannot trust a false-clean claim over the SQL validator.
+- Revisions invalidate dependent reviews and preserve previous artifact versions.
+- Failed agent outputs remain in the persisted correlation-linked audit.
+- Substance elevation is derived from manifests; flags do not approve it.
+- Human records identify the reviewer, retain the report verbatim, and honor later rejection.
+- Finalization checks report/artifact hashes and approval timing without re-running or rewriting the report.
+- The harness assembles deterministic headings; model-authored headings are rejected.
 
----
+Still unverified: actual model/token/cost telemetry across a complete hosted execution. The existing runtime path is a fixture replay, and its usage is labelled simulated. There is no runtime agentic CLI call in the included delegation runner.
 
-## 5. Stage 4 Continuity
+## 6. Final review synthesis
 
-| Framework Requirement | Evidence File | Status | Notes |
-|---|---|---|---|
-| Fully custom harness — no CLI runtime inference | `Assignment/harness/run-delegation.js` | ✅ | Golden E2E offline |
-| Punch-outs at coordinator boundary | `Assignment/punch-out/`; P1 + substance gates | ✅ | C2 tests |
-| Audit trail with per-step model/token/cost | `Assignment/audit/` samples + correlation ID | ✅ | |
-| E2E success monitoring | `Assignment/metrics/e2e-report.md` | ✅ | 100%, 3 batches |
-| Guardrails at delegation boundary | `Assignment/guardrails/` + harness validation | ✅ | G1–G4 |
+W6 prompt and historical output are present; nonempty prose and heading constraints are tested. The golden report is a fixture. The saved prose scorer does not prove complete synthesis or absence of unsupported findings. Sufficient measured evidence for those criteria remains necessary.
 
----
+## Submission checks
 
-## 6. The Counterfeit (must not appear)
+`npm run validate:submission` checks structure, tests, archived assertions, and ZIP integrity. `npm run validate:readiness` additionally fails when mandatory evidence is not established. The generated ZIP is a review package, not an assertion that an examiner will award PASS.
 
-| Anti-pattern | How we prove absence | Status |
-|---|---|---|
-| Coordinator with `read_file`, HTTP, shell, or guardrail tools | `coordinator/tools/schema.json` + C4 test | ✅ |
-
----
-
-## Verification commands
-
-```powershell
-cd "...\Level 5"
-npm run validate:submission
-npm run eval:subagent:all
-```
-
+Neither an OpenAI API key nor a particular endpoint is a certification requirement. Native hosted subagents remain an acceptable implementation route if the required behavior and evidence can be demonstrated.

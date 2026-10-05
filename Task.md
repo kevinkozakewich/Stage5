@@ -1,7 +1,7 @@
 # Level 5 Certification — Task
 
 **Task:** `2026-09-14 - Certifications / Level 5`
-**Status:** Complete — 2026-10-05
+**Status:** Not fully verified — see `EXAMINER_CHECKLIST.md` (2026-10-05)
 **Reference:** `What We Examine.txt`, `Instructions.txt` (Stage 5 certification framework)
 **Prerequisite:** Level 4 complete (`Level 4/Assignment/`, 42/42 submission validator)
 
@@ -17,7 +17,7 @@ Stage 5 is about building a **coordinator agent** — an LLM that holds only dis
 
 Runtime inference via agentic CLI shells (`claude`, `codex`, `devin`, etc.) is an **automatic FAIL**. CLI usage inside `evals/`, `tests/`, or `evaluations/` directories is evaluation, not runtime — that is exempt.
 
-Request an **Improving API key** for live coordinator runs; spending flows to monthly AI usage.
+The instructions offer an Improving API key as an implementation option. They do not mandate a vendor or an API key; hosted subagents must still demonstrate the required scope, governance, guardrails, and audit evidence.
 
 ---
 

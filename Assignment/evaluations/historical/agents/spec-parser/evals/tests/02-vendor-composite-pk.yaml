@@ -1,0 +1,18 @@
+description: "Composite primary key extraction"
+vars:
+  scenario: vendor-composite-pk
+  expected_table: VendorContact
+  expected_schema: PurinaNA
+  expected_pk: '["vendor_id", "contact_seq"]'
+  expected_trigger_type: "AFTER INSERT, UPDATE, DELETE"
+  brief_md: |
+    # Migration Brief — VendorContact
+
+    ## Target Table
+    | Schema | PurinaNA |
+    | Table | VendorContact |
+    | Primary key | vendor_id, contact_seq (composite) |
+
+    ## Trigger Specification
+    - **Type:** AFTER INSERT, UPDATE, DELETE
+    - Composite PK must fan out via prep SP

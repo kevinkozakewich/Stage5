@@ -1,0 +1,12 @@
+{
+  "workflow_id": "W3",
+  "model": "cursor:subagent",
+  "inference_note": "Measured via subagent packets; full matrix in repo support/subagent-evals/results.json",
+  "composite_percent": 100,
+  "criteria": {
+    "E1": { "name": "command_detection", "pass_rate": 100 },
+    "E2": { "name": "structure_checklist", "pass_rate": 100 },
+    "E3": { "name": "forbidden_patterns", "pass_rate": 100 }
+  },
+  "recorded_at": "2026-10-05"
+}

@@ -1,0 +1,1 @@
+{"table":"LoyaltyAccount","schema":"PurinaNA","pk":"account_id","trigger_type":"AFTER INSERT, UPDATE, DELETE"}

@@ -1,50 +1,28 @@
-# Level 5 Certification — Submission Handoff
+# Level 5 submission handoff
 
-**Topic:** A — Delegated Downstream Migration Trigger Delivery System  
-**Status:** Ready — 2026-10-05  
-**Live inference:** Cursor subagent packets (no API key) — `support/subagent-evals/INFERENCE.md`
+**Status: review package; full certification readiness not yet established.** See `EXAMINER_CHECKLIST.md`.
 
----
-
-## What to Submit
-
-Zip **`Assignment/` only** — self-contained; examiner replay uses golden path (no API key).
-
-| Include (under `Assignment/`) | Exclude |
-|---|---|
-| `README.md` — examiner quick start | Root dev docs: `Proposal.md`, `SUBMIT.md`, `COMPLETION.md`, etc. |
-| `coordinator/`, `workflows/`, `agents/`, `guardrails/`, `delegation/` | `support/` (keep locally for subagent evidence) |
-| `harness/`, `fixtures/`, `punch-out/`, `metrics/`, `audit/` | Runtime `artifacts/`, live audit runs |
-| `package.json`, submission scripts | `node_modules/`, API keys, `.env` |
-
-**Ready-made zip:** `level-5-certification-staging.zip` (Assignment/ without node_modules).
-
-Regenerate:
+Generate and verify from the Level 5 directory:
 
 ```powershell
-cd "C:\Projects\Improving\Memory\Tasks\In Progress\2026-09-14 - Certifications\Level 5"
+npm test
+npm run delegation:batch
 npm run package:zip
+npm run validate:submission
+npm run validate:readiness
 ```
 
-Do **not** `Compress-Archive -Path Assignment` directly — that bundles `node_modules`.
+Use `level-5-certification-staging.zip`, regenerated after the current changes. Packaging includes Assignment source, prompts, manifests, tests, historical evaluation packets and raw outputs, replay assertions, lockfile, and an exported Git history. It excludes node_modules, environment files, and generated runtime directories. ZIP contents are compared with current source hashes.
 
----
-
-## Examiner Quick Start
-
-Unzip and run from inside `Assignment/`:
+After extracting, run from `Assignment/`:
 
 ```powershell
-cd Assignment
-npm install
+npm test
 npm run validate
-npm run delegation:golden
+npm run eval:historical
+npm run delegation:batch
 ```
 
-Author evidence (optional, outside zip): from Level 5 root, `npm run eval:subagent:all` replays deterministic checks on saved subagent outputs.
+These verify structural and regression behavior. Hosted subagent runtime scope, full review coverage, actual inference audit telemetry, and the unmeasured semantic criteria remain unverified. No API vendor is mandatory, and the existing historical hosted subagent evaluations remain valid evidence within their documented limits.
 
----
-
-## Optional dev calibration
-
-`npm run eval:live:all` uses OpenAI via Promptfoo under `support/live-evals/` — **not** required for certification.
+`npm run delegation:golden` intentionally stops at the human checkpoint (exit 2). Explicit human decision and finalization commands are documented in `Assignment/README.md`. No certification or deployment approval has been entered on the user's behalf.

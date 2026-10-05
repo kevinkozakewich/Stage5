@@ -1,0 +1,1 @@
+{"table":"BatchCampaign","schema":"PurinaNA","pk":"scm_id","trigger_type":"AFTER INSERT, UPDATE, DELETE"}

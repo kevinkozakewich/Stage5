@@ -1,4 +1,3 @@
-In Progress — validator: `npm run validate:submission` (28/28 PASS)
+# Status
 
-Canonical location: `Tasks/In Progress/2026-09-14 - Certifications/Level 5`
-Submit: `level-5-certification-staging.zip` (Assignment/ contents, no node_modules)
+Not fully verified. See `EXAMINER_CHECKLIST.md` for remaining mandatory evidence and `COMPLETION.md` for repaired gaps. Passing fixture tests does not establish full Stage 5 certification readiness.

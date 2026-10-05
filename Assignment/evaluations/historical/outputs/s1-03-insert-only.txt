@@ -1,0 +1,7 @@
+{
+  "table": "CampaignMember",
+  "schema": "PurinaNA",
+  "pk": "cm_id",
+  "trigger_type": "AFTER INSERT",
+  "constraints": ["hardcode_command_ri"]
+}

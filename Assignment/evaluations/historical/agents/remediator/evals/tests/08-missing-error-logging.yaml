@@ -1,0 +1,79 @@
+description: "Add ToGpmq_LogTriggerError in CATCH"
+vars:
+  scenario: missing-error-logging
+  expected_resolved_elements: '["ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH"]'
+  review_json: |
+    {
+      "verdict": "FAIL",
+      "structure_checklist": {
+        "passed": ["SET NOCOUNT ON", "SET XACT_ABORT OFF", "Command detection block (inserted/deleted → RI/RU/RD)", "BEGIN TRY / BEGIN CATCH", "IF XACT_STATE() = -1 rethrow pattern", "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"],
+        "failed": [],
+        "missing": ["ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH"]
+      },
+      "violations": [{"id": "V1", "severity": "critical", "detail": "CATCH only has gated THROW, no error logging", "fix": "Add EXEC ToGpmq_LogTriggerError with ERROR_NUMBER/MESSAGE/LINE/PROCEDURE locals before IF XACT_STATE() = -1 THROW"}]
+    }
+  trigger_sql: |
+    CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]
+    ON [PurinaNA].[BatchCampaign]
+    AFTER INSERT, UPDATE, DELETE
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        SET XACT_ABORT OFF;
+        DECLARE @Command VARCHAR(2);
+        IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RU';
+        ELSE IF EXISTS (SELECT 1 FROM inserted)
+            SET @Command = 'RI';
+        ELSE IF EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RD';
+        ELSE RETURN;
+        BEGIN TRY
+            DECLARE @Schema SYSNAME = N'PurinaNA';
+            DECLARE @Table SYSNAME = N'BatchCampaign';
+            DECLARE @Sql NVARCHAR(MAX);
+            EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]
+                @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;
+            EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',
+                @TableName = @Table, @Command = @Command;
+        END TRY
+        BEGIN CATCH
+            IF XACT_STATE() = -1 THROW;
+        END CATCH
+    END
+  golden_remediated_sql: |
+    CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]
+    ON [PurinaNA].[BatchCampaign]
+    AFTER INSERT, UPDATE, DELETE
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        SET XACT_ABORT OFF;
+        DECLARE @Command VARCHAR(2);
+        IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RU';
+        ELSE IF EXISTS (SELECT 1 FROM inserted)
+            SET @Command = 'RI';
+        ELSE IF EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RD';
+        ELSE RETURN;
+        BEGIN TRY
+            DECLARE @Schema SYSNAME = N'PurinaNA';
+            DECLARE @Table SYSNAME = N'BatchCampaign';
+            DECLARE @Sql NVARCHAR(MAX);
+            EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]
+                @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;
+            EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',
+                @TableName = @Table, @Command = @Command;
+        END TRY
+        BEGIN CATCH
+            DECLARE @ErrNum INT = ERROR_NUMBER();
+            DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();
+            DECLARE @ErrLine INT = ERROR_LINE();
+            DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();
+            EXEC [PurinaNA].[ToGpmq_LogTriggerError]
+                @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,
+                @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;
+            IF XACT_STATE() = -1 THROW;
+        END CATCH
+    END

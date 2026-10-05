@@ -1,0 +1,13 @@
+description: "Update-only trigger type"
+vars:
+  scenario: update-only
+  expected_table: PriceHistory
+  expected_schema: PurinaNA
+  expected_pk: price_id
+  expect_pk_scalar: true
+  expected_trigger_type: "AFTER UPDATE"
+  brief_md: |
+    # Migration Brief — PriceHistory UPDATE Only
+
+    Target table PurinaNA.PriceHistory with primary key price_id.
+    Trigger fires AFTER UPDATE only. No insert or delete handling required.

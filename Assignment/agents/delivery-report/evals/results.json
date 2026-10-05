@@ -1,12 +1,35 @@
 {
   "workflow_id": "W6",
-  "model": "cursor:subagent",
-  "inference_note": "Sample in support/subagent-evals/outputs/w6-synthesis-pass.txt",
-  "composite_percent": 100,
+  "provider_claim": "cursor:subagent",
+  "evidence_type": "historical_saved_sample",
+  "raw_evidence": "evaluations/historical/outputs/w6-synthesis-pass.txt",
+  "replay": "node evaluations/replay-historical.js",
+  "historical_reported_composite_percent": 100,
+  "composite_percent": null,
+  "readiness": "not_established",
   "criteria": {
-    "R1": { "name": "no_new_findings", "pass_rate": 100 },
-    "R2": { "name": "covers_all_artifacts", "pass_rate": 100 },
-    "R3": { "name": "concise_tone", "pass_rate": 100 }
+    "R1": {
+      "name": "no_new_findings",
+      "status": "unverified",
+      "reason": "The original phrase blacklist is not a semantic check against the supplied evidence."
+    },
+    "R2": {
+      "name": "covers_all_artifacts",
+      "status": "unverified",
+      "reason": "The original scorer did not check artifact coverage."
+    },
+    "R3": {
+      "name": "concise_tone",
+      "status": "partially_measured",
+      "reason": "One saved example passed the original format checks. Tone was not evaluated; the scorer allowed four paragraphs while the prompt specified three."
+    }
   },
-  "recorded_at": "2026-10-05"
+  "measured_checks": {
+    "original_format_smoke_check": {
+      "passed": 1,
+      "total": 1
+    }
+  },
+  "provenance": "Original model/response IDs, usage, and first-attempt/manual-edit history were not recorded.",
+  "original_recorded_at": "2026-10-05"
 }

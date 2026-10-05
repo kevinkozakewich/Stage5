@@ -1,209 +1,63 @@
-// Runs inside Assignment/. No API key needed.
-// Usage: npm run validate
-
+// Deterministic structure/regression checks. Passing is not certification signoff.
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { validateDispatchOnlySchema } from '../harness/lib/coordinatorSchema.js';
+import { replayHistorical } from '../evaluations/replay-historical.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const AGENTS = ['spec-parser', 'trigger-codegen', 'trigger-review', 'remediator', 'adversarial-review', 'delivery-report'];
+const DIRECTORIES = ['coordinator', 'workflows', 'delegation', 'workflow', 'guardrails', 'punch-out', 'metrics', 'audit', 'agents', 'harness', 'fixtures', 'scripts', 'evaluations'];
+const ROOT_FILES = new Set(['package.json', 'package-lock.json', 'README.md', 'package-integrity.json']);
+const EXTRA_DIRECTORIES = new Set(['node_modules', 'artifacts', 'repository']);
 
-const ALLOWED_TOP = [
-  'coordinator',
-  'workflows',
-  'delegation',
-  'workflow',
-  'guardrails',
-  'punch-out',
-  'metrics',
-  'audit',
-  'agents',
-  'harness',
-  'fixtures',
-  'scripts',
-];
-
-const ALLOWED_ROOT_FILES = ['package.json', 'README.md'];
-
-const IGNORED_TOP = new Set(['node_modules', 'artifacts', 'package-lock.json']);
-
-const STAGE5_PATHS = [
-  'coordinator/prompt/Prompt.md',
-  'coordinator/tools/schema.json',
-  'coordinator/evals/coordinator.test.js',
-  'coordinator/evals/results.json',
-  'delegation/SubstanceAssessment.md',
-  'delegation/substance-overrides.jsonl',
-  'harness/run-delegation.js',
-  'harness/batch-run-delegation.js',
-  'workflows/w5-adversarial-review/manifest.json',
-  'agents/adversarial-review/prompt/Prompt.md',
-  'agents/delivery-report/prompt/Prompt.md',
-];
-
-const ARTIFACTS = [
-  {
-    id: 1,
-    name: 'Workflow / delegation map',
-    paths: ['workflow/WorkflowDefinition.md', 'coordinator/tools/schema.json'],
-  },
-  {
-    id: 2,
-    name: 'Guardrails',
-    paths: [
-      'guardrails/validate-requirements-schema.js',
-      'guardrails/validate-adversarial-json.js',
-      'guardrails/sql-sentinel.js',
-      'guardrails/verify-review-json.js',
-      'guardrails/tests',
-    ],
-  },
-  {
-    id: 3,
-    name: 'Punch-Out Evidence',
-    paths: ['punch-out/design.md', 'punch-out/bypass-tests.md'],
-  },
-  {
-    id: 4,
-    name: 'End-to-End Success Rate',
-    paths: ['metrics/e2e-report.md', 'metrics/e2e-runs.csv'],
-  },
-  {
-    id: 5,
-    name: 'Audit Trail',
-    paths: ['audit/schema.json', 'audit/trace-g2-halt-example.md', 'audit/ExampleDelegationTrace.md', 'audit/samples'],
-  },
-];
-
-const AGENT_DIRS = [
-  'agents/spec-parser',
-  'agents/trigger-codegen',
-  'agents/remediator',
-  'agents/trigger-review',
-  'agents/adversarial-review',
-  'agents/delivery-report',
-];
-
-const checks = [];
-
-function record(name, ok, detail = '') {
-  checks.push({ name, ok, detail });
-  const mark = ok ? 'PASS' : 'FAIL';
-  const suffix = detail ? `: ${detail}` : '';
-  console.log(`  [${mark}] ${name}${suffix}`);
-}
-
-function rootPath(rel) {
-  return path.join(ROOT, rel);
-}
-
-function checkLayout() {
-  console.log('\n1. Layout');
-  const topEntries = fs.readdirSync(ROOT, { withFileTypes: true });
-  const unexpected = topEntries
-    .filter((e) => {
-      if (IGNORED_TOP.has(e.name)) return false;
-      if (e.isDirectory()) return !ALLOWED_TOP.includes(e.name);
-      return !ALLOWED_ROOT_FILES.includes(e.name);
-    })
-    .map((e) => e.name);
-
-  record(
-    'Top-level folders and root files',
-    unexpected.length === 0,
-    unexpected.length ? `extra: ${unexpected.join(', ')}` : '',
-  );
-
-  for (const dir of ALLOWED_TOP) {
-    record(`${dir}/ exists`, fs.existsSync(rootPath(dir)));
+export function checkSubmission({ runTests = true } = {}) {
+  const checks = [];
+  const record = (name, ok, detail = '') => {
+    checks.push({ name, ok: Boolean(ok), detail });
+    console.log('  [' + (ok ? 'PASS' : 'FAIL') + '] ' + name + (detail ? ': ' + detail : ''));
+  };
+  const exists = (file) => fs.existsSync(path.join(ROOT, file));
+  const readJson = (file) => JSON.parse(fs.readFileSync(path.join(ROOT, file), 'utf8'));
+  for (const directory of DIRECTORIES) record(directory + '/', exists(directory));
+  const unexpected = fs.readdirSync(ROOT, { withFileTypes: true }).filter((entry) => entry.isDirectory() ? !DIRECTORIES.includes(entry.name) && !EXTRA_DIRECTORIES.has(entry.name) : !ROOT_FILES.has(entry.name)).map((entry) => entry.name);
+  record('Submission layout', !unexpected.length, unexpected.join(', '));
+  record('Pinned dependency lockfile', exists('package-lock.json'));
+  for (const file of ['coordinator/prompt/Prompt.md', 'coordinator/evals/results.json', 'delegation/SubstanceAssessment.md', 'delegation/substance-overrides.jsonl', 'harness/run-delegation.js', 'audit/schema.json', 'punch-out/design.md']) record(file, exists(file));
+  const dispatchSchema = validateDispatchOnlySchema();
+  record('Coordinator declared dispatch-only tools', dispatchSchema.pass, dispatchSchema.findings.join('; '));
+  for (const name of AGENTS) {
+    record(name + ' prompt', exists('agents/' + name + '/prompt/Prompt.md'));
+    try {
+      const results = readJson('agents/' + name + '/evals/results.json');
+      const criteria = Object.values(results.criteria ?? {});
+      record(name + ' names at least three evaluation criteria', criteria.length >= 3 && criteria.every((criterion) => typeof criterion.name === 'string' && criterion.name.length > 0));
+    } catch (error) { record(name + ' evaluation declaration', false, error.message); }
   }
-}
-
-function checkStage5() {
-  console.log('\n2. Stage 5 artifacts');
-  for (const rel of STAGE5_PATHS) {
-    record(rel, fs.existsSync(rootPath(rel)));
+  try {
+    const manifest = readJson('workflows/w5-adversarial-review/manifest.json');
+    record('Adversarial isolated-context declaration', manifest.isolated_context === true);
+  } catch (error) { record('Adversarial manifest', false, error.message); }
+  try {
+    const result = replayHistorical();
+    record('Archived S1-S4 output replay', result.overall.tests === 34 && result.overall.passed === result.overall.tests, result.overall.passed + '/' + result.overall.tests + '; saved-output assertions only');
+    record('Archived Stage 5 smoke checks', result.overall.smoke_checks_passed === result.overall.smoke_checks, result.overall.smoke_checks_passed + '/' + result.overall.smoke_checks + '; limited checks, not complete criteria coverage');
+  } catch (error) { record('Historical evidence replay', false, error.message); }
+  try {
+    const metrics = readJson('metrics/regression-results.json');
+    record('Golden metrics identified as simulation', metrics.evidence_type === 'simulated_regression' && metrics.inference_performed === false && metrics.usage_source === 'simulated' && metrics.certification_readiness_established === false);
+    record('Golden expected-outcome regression', metrics.tests >= 8 && metrics.passed === metrics.tests && metrics.rows.length === metrics.tests && metrics.rows.every((row) => row.regression_pass && row.human_approved === false), metrics.passed + '/' + metrics.tests);
+  } catch (error) { record('Current golden regression evidence', false, 'Run npm run delegation:batch. ' + error.message); }
+  if (runTests) {
+    const test = spawnSync('npm test', { cwd: ROOT, encoding: 'utf8', shell: true });
+    record('npm test', test.status === 0);
+    if (test.status !== 0) console.log([test.stdout, test.stderr].filter(Boolean).join('\n'));
   }
-
-  const schema = validateDispatchOnlySchema();
-  record('Coordinator dispatch-only schema (C4)', schema.pass, schema.findings.join('; '));
-
-  const w5 = JSON.parse(fs.readFileSync(rootPath('workflows/w5-adversarial-review/manifest.json'), 'utf8'));
-  record('W5 isolated_context manifest', w5.isolated_context === true);
+  const passed = checks.every((check) => check.ok);
+  console.log('\nSTRUCTURAL / REGRESSION CHECKS: ' + (passed ? 'PASS' : 'FAIL'));
+  console.log('CERTIFICATION READINESS: NOT ESTABLISHED by these checks.');
+  console.log('Saved samples do not establish actual runtime dispatch governance, every-output adversarial coverage, or all W6/coordinator measured criteria. See evaluations/README.md and submission guidance.');
+  return { passed, checks, certification_readiness: 'not_established' };
 }
-
-function checkArtifacts() {
-  console.log('\n3. Stage 4 continuity artifacts');
-  for (const artifact of ARTIFACTS) {
-    const missing = artifact.paths.filter((rel) => !fs.existsSync(rootPath(rel)));
-    record(
-      `Artifact ${artifact.id}: ${artifact.name}`,
-      missing.length === 0,
-      missing.length ? `missing: ${missing.join(', ')}` : '',
-    );
-  }
-
-  for (const agentDir of AGENT_DIRS) {
-    record(agentDir, fs.existsSync(rootPath(agentDir)));
-    const resultsPath = path.join(agentDir, 'evals/results.json');
-    record(`${resultsPath} (Stage 3 measured)`, fs.existsSync(rootPath(resultsPath)));
-  }
-}
-
-function checkE2EMetrics() {
-  console.log('\n4. E2E metrics');
-  const reportPath = rootPath('metrics/e2e-report.md');
-  if (!fs.existsSync(reportPath)) {
-    record('metrics/e2e-report.md exists', false);
-    return;
-  }
-  const report = fs.readFileSync(reportPath, 'utf8');
-  record('metrics/e2e-report.md exists', true);
-  const rateMatch = report.match(/\*\*E2E success rate\*\*\s*\|\s*\*\*([\d.]+)%\*\*/);
-  if (rateMatch) {
-    record('E2E success rate ≥90%', Number(rateMatch[1]) >= 90, `${rateMatch[1]}%`);
-  } else {
-    record('E2E success rate ≥90%', false, 'headline rate not found');
-  }
-  const trendRows = (report.match(/^\| 20\d{2}-\d{2}-\d{2}/gm) ?? []).length;
-  record('E2E trend batches (≥3)', trendRows >= 3, `${trendRows} dated batches`);
-}
-
-function checkAuditSamples() {
-  console.log('\n5. Audit trail samples');
-  const samplesDir = rootPath('audit/samples');
-  const samples = fs.readdirSync(samplesDir).filter((f) => f.endsWith('.jsonl'));
-  record('audit/samples/ JSONL files', samples.length >= 3, `${samples.length} files`);
-  const stray = fs
-    .readdirSync(rootPath('audit'), { withFileTypes: true })
-    .filter((e) => e.isFile() && e.name.endsWith('.jsonl'));
-  record('audit/ has no runtime JSONL at root', stray.length === 0);
-}
-
-function checkNpmTest() {
-  console.log('\n6. npm test');
-  const result = spawnSync('npm test', { cwd: ROOT, encoding: 'utf8', shell: true });
-  record('npm test', result.status === 0, result.status === 0 ? '' : 'see output');
-}
-
-function printSummary() {
-  const passed = checks.filter((c) => c.ok).length;
-  const failed = checks.filter((c) => !c.ok).length;
-  const overall = failed === 0;
-  console.log('\n' + '='.repeat(60));
-  console.log(`VALIDATOR: ${overall ? 'PASS' : 'FAIL'}`);
-  console.log(`  ${passed} passed, ${failed} failed (${checks.length} checks)`);
-  console.log('='.repeat(60));
-  process.exit(overall ? 0 : 1);
-}
-
-console.log('Level 5 submission check');
-checkLayout();
-checkStage5();
-checkArtifacts();
-checkE2EMetrics();
-checkAuditSamples();
-checkNpmTest();
-printSummary();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exitCode = checkSubmission().passed && !process.argv.includes('--require-ready') ? 0 : 1;

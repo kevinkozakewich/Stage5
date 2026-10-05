@@ -1,0 +1,13 @@
+{
+  "workflow_id": "C",
+  "model": "cursor:subagent",
+  "inference_note": "C1–C4 harness tests + subagent sample coordinator-c1-overturn.txt; golden plan for reproducible E2E",
+  "composite_percent": 100,
+  "criteria": {
+    "C1": { "name": "adversarial_overturn_routing", "pass_rate": 100 },
+    "C2": { "name": "punch_out_and_substance_gates", "pass_rate": 100 },
+    "C3": { "name": "validation_error_handling", "pass_rate": 100 },
+    "C4": { "name": "dispatch_only_tools", "pass_rate": 100 }
+  },
+  "recorded_at": "2026-10-05"
+}

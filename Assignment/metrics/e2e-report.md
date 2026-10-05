@@ -1,25 +1,12 @@
-# End-to-End Success Rate Report
+# Delegation regression results
 
-**Generated:** 2026-10-05T23:09:37.686Z  
-**Mode:** delegated golden coordinator (no API key)
+Generated from fixture replays starting 2026-10-05T23:50:59.253Z.
 
-## Headline
+- Evidence: simulated golden regression; no model inference performed.
+- Expected-outcome checks: 8/8 (100.0%).
+- Successful fixtures stop at the human checkpoint. This batch records no approvals.
+- Tokens and costs are synthetic fixture values, not measured inference usage.
+- This does not establish production success rate, historical improvement, model quality, or certification readiness.
 
-| Metric | Value |
-|---|---|
-| **E2E success rate** | **100.0%** (24/24) |
-| **Fixture count** | 8 |
-| **Total runs** | 24 |
-| **Target** | ≥90% |
-
-## Trend (dated batches)
-
-| Batch label | Runs | Passed | Success rate |
-|---|---|---|---|
-| 2026-09-01-v1.0 | 8 | 8 | 100.0% |
-| 2026-09-07-v1.1 | 8 | 8 | 100.0% |
-| 2026-10-05-delegation-v1 | 8 | 8 | 100.0% |
-
----
-
-See `metrics/e2e-runs.csv`. Re-run with `npm run delegation:batch -- --seed-trends`.
+Structured records: `regression-results.json` and `e2e-runs.csv`. Re-run with `npm run delegation:batch`.
+The previous report with artificial dated labels is preserved under `evaluations/historical/legacy-metrics/` and must not be used as historical measurements.

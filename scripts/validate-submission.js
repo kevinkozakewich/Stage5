@@ -1,186 +1,90 @@
-/**
- * One-command submission validator for Level 5 Certification.
- */
-
+/** Verify reproducible checks and every packaged source byte. This is not certification signoff. */
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { checkSubmission } from '../Assignment/scripts/check-submission.js';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.join(__dirname, '..');
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const ASSIGNMENT = path.join(ROOT, 'Assignment');
-const ZIP_PATH = path.join(ROOT, 'level-5-certification.zip');
-const ZIP_STAGING = path.join(ROOT, 'level-5-certification-staging.zip');
-
-function resolveZipPath() {
-  if (fs.existsSync(ZIP_STAGING) && fs.statSync(ZIP_STAGING).size > 1000) {
-    return ZIP_STAGING;
+const ZIP = path.join(ROOT, 'level-5-certification-staging.zip');
+const hash = (file) => createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+const excludedDirectories = new Set(['node_modules', 'artifacts', '.git']);
+function sourceFiles(directory = ASSIGNMENT, prefix = '') {
+  const files = [];
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    if (excludedDirectories.has(entry.name) || /^\.env($|\.)/.test(entry.name)) continue;
+    const relative = prefix + entry.name;
+    if (entry.isDirectory()) files.push(...sourceFiles(path.join(directory, entry.name), relative + '/'));
+    else if (entry.isFile() && relative !== 'package-integrity.json') files.push(relative);
   }
-  return ZIP_PATH;
+  return files.sort();
 }
-
-const ALLOWED_TOP = [
-  'coordinator',
-  'workflows',
-  'delegation',
-  'workflow',
-  'guardrails',
-  'punch-out',
-  'metrics',
-  'audit',
-  'agents',
-  'harness',
-  'fixtures',
-  'scripts',
-];
-
-const ALLOWED_ROOT_FILES = ['package.json', 'README.md'];
-const IGNORED_TOP = new Set(['node_modules', 'artifacts', 'package-lock.json']);
-
-const checks = [];
-
-function record(name, ok, detail = '') {
-  checks.push({ name, ok, detail });
-  console.log(`  [${ok ? 'PASS' : 'FAIL'}] ${name}${detail ? `: ${detail}` : ''}`);
-}
-
-function assignmentPath(rel) {
-  return path.join(ASSIGNMENT, rel);
-}
-
-function runNpmScript(scriptName, cwd = ASSIGNMENT) {
-  const result = spawnSync(`npm run ${scriptName}`, { cwd, encoding: 'utf8', shell: true });
-  return { ok: result.status === 0, output: [result.stdout, result.stderr].filter(Boolean).join('\n') };
-}
-
-function walkFiles(dir, base = dir) {
-  const entries = [];
-  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) entries.push(...walkFiles(full, base));
-    else if (entry.isFile()) entries.push(path.relative(base, full).split(path.sep).join('/'));
-  }
-  return entries.sort();
-}
-
-function listZipEntries(zipPath) {
-  const escaped = zipPath.replace(/'/g, "''");
+function readZip() {
+  const escaped = ZIP.replace(/'/g, "''");
   const ps = [
+    "$ErrorActionPreference = 'Stop'",
     'Add-Type -AssemblyName System.IO.Compression.FileSystem',
-    `$z = [System.IO.Compression.ZipFile]::OpenRead('${escaped}')`,
-    '$z.Entries | ForEach-Object { $_.FullName }',
-    '$z.Dispose()',
-  ].join('; ');
-  const result = spawnSync('powershell', ['-NoProfile', '-Command', ps], { encoding: 'utf8' });
-  if (result.status !== 0) throw new Error(result.stderr || 'zip read failed');
-  return result.stdout.split(/\r?\n/).map((l) => l.trim().replace(/\\/g, '/')).filter(Boolean);
+    "$archive = [IO.Compression.ZipFile]::OpenRead('" + escaped + "')",
+    '$sha = [Security.Cryptography.SHA256]::Create()',
+    'try {',
+    '  $rows = @($archive.Entries | Where-Object { $_.Name } | ForEach-Object {',
+    '    $entry = $_',
+    '    $stream = $entry.Open()',
+    "    try { $digest = [BitConverter]::ToString($sha.ComputeHash($stream)).Replace('-', '').ToLowerInvariant() } finally { $stream.Dispose() }",
+    "    $name = $entry.FullName.Replace([char]92, [char]47)",
+    "    $text = $null",
+    "    if ($name -eq 'Assignment/package-integrity.json') {",
+    '      $reader = New-Object IO.StreamReader($entry.Open())',
+    '      try { $text = $reader.ReadToEnd() } finally { $reader.Dispose() }',
+    '    }',
+    '    [pscustomobject]@{ name = $name; sha256 = $digest; manifest = $text }',
+    '  })',
+    '  ConvertTo-Json -InputObject $rows -Depth 4 -Compress',
+    '} finally { $archive.Dispose(); $sha.Dispose() }',
+  ].join('\n');
+  const result = spawnSync('powershell', ['-NoProfile', '-Command', ps], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
+  if (result.status !== 0) throw new Error(result.stderr || 'Cannot read ZIP');
+  return JSON.parse(result.stdout.replace(/^\uFEFF/, ''));
 }
 
-function checkLayout() {
-  console.log('\n1. Assignment/ layout');
-  record('Assignment/ exists', fs.existsSync(ASSIGNMENT));
-  const top = fs.readdirSync(ASSIGNMENT, { withFileTypes: true });
-  const unexpected = top
-    .filter((e) => {
-      if (IGNORED_TOP.has(e.name)) return false;
-      return e.isDirectory() ? !ALLOWED_TOP.includes(e.name) : !ALLOWED_ROOT_FILES.includes(e.name);
-    })
-    .map((e) => e.name);
-  record('Required top-level only', unexpected.length === 0, unexpected.join(', ') || `${ALLOWED_TOP.length} dirs`);
-  for (const d of ALLOWED_TOP) record(`Assignment/${d}/`, fs.existsSync(assignmentPath(d)));
-}
-
-function checkStage5() {
-  console.log('\n2. Stage 5 delegation');
-  const required = [
-    'coordinator/tools/schema.json',
-    'coordinator/prompt/Prompt.md',
-    'harness/run-delegation.js',
-    'delegation/SubstanceAssessment.md',
-    'workflows/w5-adversarial-review/manifest.json',
-    'audit/ExampleDelegationTrace.md',
-  ];
-  for (const rel of required) record(rel, fs.existsSync(assignmentPath(rel)));
-}
-
-function checkValidateAndTest() {
-  console.log('\n3. npm run validate + npm test');
-  const v = runNpmScript('validate');
-  record('npm run validate', v.ok);
-  const t = runNpmScript('test');
-  record('npm test', t.ok);
-}
-
-function checkE2E() {
-  console.log('\n4. E2E metrics');
-  const report = fs.readFileSync(assignmentPath('metrics/e2e-report.md'), 'utf8');
-  const rate = report.match(/\*\*E2E success rate\*\*\s*\|\s*\*\*([\d.]+)%\*\*/);
-  record('E2E rate ≥90%', rate && Number(rate[1]) >= 90, rate ? `${rate[1]}%` : 'missing');
-  const trends = (report.match(/^\| 20\d{2}-\d{2}-\d{2}/gm) ?? []).length;
-  record('Trend batches ≥3', trends >= 3, String(trends));
-}
-
-function checkSubagentEvals() {
-  console.log('\n6. Subagent inference evidence (no API key)');
-  const resultsPath = path.join(ROOT, 'support', 'subagent-evals', 'results.json');
-  if (!fs.existsSync(resultsPath)) {
-    record('subagent results.json', false, 'run eval:subagent:all after saving outputs');
-    return;
+export function verifyPackagedSources() {
+  if (!fs.existsSync(ZIP)) throw new Error('Missing staging ZIP. Run npm run package:zip.');
+  const entries = readZip();
+  if (entries.some((entry) => !entry.name.startsWith('Assignment/') || entry.name.split('/').includes('..'))) throw new Error('ZIP contains an unexpected root or unsafe path');
+  const zipFiles = new Map(entries.map((entry) => [entry.name.slice('Assignment/'.length), entry]));
+  if (zipFiles.size !== entries.length) throw new Error('ZIP has duplicate file paths');
+  const manifestEntry = zipFiles.get('package-integrity.json');
+  if (!manifestEntry?.manifest) throw new Error('ZIP does not include the source integrity manifest');
+  const manifest = JSON.parse(manifestEntry.manifest.replace(/^\uFEFF/, ''));
+  if (manifest.schema_version !== 1 || manifest.hash_algorithm !== 'sha256' || !manifest.files) throw new Error('Invalid integrity manifest');
+  const current = sourceFiles();
+  const recorded = Object.keys(manifest.files).sort();
+  if (JSON.stringify(current) !== JSON.stringify(recorded)) throw new Error('ZIP source inventory is stale or incomplete. Regenerate package.');
+  if (zipFiles.size !== recorded.length + 1) throw new Error('ZIP has missing or unexpected files');
+  const mismatches = current.filter((relative) => manifest.files[relative] !== hash(path.join(ASSIGNMENT, relative)) || manifest.files[relative] !== zipFiles.get(relative)?.sha256);
+  if (mismatches.length) throw new Error('ZIP/source hash mismatch: ' + mismatches.slice(0, 12).join(', '));
+  if (!fs.existsSync(path.join(ASSIGNMENT, 'package-integrity.json')) || hash(path.join(ASSIGNMENT, 'package-integrity.json')) !== manifestEntry.sha256) throw new Error('Local package manifest differs from ZIP');
+  for (const required of ['package-lock.json', 'repository/git-log-export.txt', 'evaluations/replay-historical.js', 'evaluations/historical/original-results.json', 'evaluations/historical-replay-results.json']) {
+    if (!zipFiles.has(required)) throw new Error('Missing packaged evidence: ' + required);
   }
-  const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
-  const pct = results.overall?.composite_percent ?? 0;
-  record('S1–S4 subagent composite ≥95%', pct >= 95, `${pct}%`);
-  const stage5Files = [
-    'support/subagent-evals/outputs/w5-upheld-good-pass.txt',
-    'support/subagent-evals/outputs/w5-overturn-missing-source.txt',
-    'support/subagent-evals/outputs/w6-synthesis-pass.txt',
-    'support/subagent-evals/outputs/coordinator-c1-overturn.txt',
-  ];
-  const missing = stage5Files.filter((rel) => !fs.existsSync(path.join(ROOT, rel)));
-  record('Stage 5 subagent samples present', missing.length === 0, missing.join(', ') || '4 files');
+  if (!recorded.some((name) => name.startsWith('evaluations/historical/outputs/')) || !recorded.some((name) => name.startsWith('evaluations/historical/packets/'))) throw new Error('Raw evaluation artifacts missing');
+  return { file_count: recorded.length, zip_sha256: hash(ZIP) };
 }
 
-function checkZip() {
-  console.log('\n5. level-5-certification.zip');
-  const zipPath = resolveZipPath();
-  if (!fs.existsSync(zipPath)) {
-    record('zip exists', false, 'run scripts/package-zip.ps1');
-    return;
-  }
-  record('zip exists', true, path.basename(zipPath));
-  let entries;
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const structure = checkSubmission();
+  let packaged = false;
   try {
-    entries = listZipEntries(zipPath);
-  } catch (err) {
-    record('zip readable', false, err.message);
-    return;
-  }
-  record('zip readable', true, `${entries.length} entries`);
-  record('no node_modules in zip', !entries.some((e) => e.includes('node_modules')));
-  const hasAssignmentPrefix = entries.some((e) => e.startsWith('Assignment/'));
-  const hasFlatRoot = entries.some((e) => e.startsWith('coordinator/') || e.startsWith('harness/'));
-  record(
-    'zip root is Assignment contents',
-    hasAssignmentPrefix || hasFlatRoot,
-    hasAssignmentPrefix ? 'Assignment/ prefix' : 'flat Assignment root (staging zip)',
-  );
+    const result = verifyPackagedSources();
+    packaged = true;
+    console.log('[PASS] ZIP contains ' + result.file_count + ' current source files with matching SHA-256 hashes.');
+    console.log('ZIP SHA-256: ' + result.zip_sha256);
+  } catch (error) { console.log('[FAIL] Package freshness/integrity: ' + error.message); }
+  console.log('\nPACKAGE / REGRESSION VALIDATION: ' + (structure.passed && packaged ? 'PASS' : 'FAIL'));
+  console.log('CERTIFICATION READINESS: NOT ESTABLISHED. This command checks artifact integrity and deterministic regressions, not unmeasured model/runtime behavior.');
+  const readyRequired = process.argv.includes('--require-ready');
+  if (readyRequired) console.log('[FAIL] Required certification readiness has not been demonstrated. Hosted subagent or model evidence is acceptable; no specific API vendor is required.');
+  process.exitCode = structure.passed && packaged && !readyRequired ? 0 : 1;
 }
-
-function main() {
-  console.log('Level 5 Certification — Submission Validator');
-  checkLayout();
-  checkStage5();
-  checkValidateAndTest();
-  checkE2E();
-  checkZip();
-  checkSubagentEvals();
-  const failed = checks.filter((c) => !c.ok).length;
-  console.log('\n' + '='.repeat(60));
-  console.log(`SUBMISSION VALIDATOR: ${failed === 0 ? 'PASS' : 'FAIL'}`);
-  console.log(`  ${checks.length - failed} passed, ${failed} failed (${checks.length} checks)`);
-  console.log('='.repeat(60));
-  process.exit(failed === 0 ? 0 : 1);
-}
-
-main();

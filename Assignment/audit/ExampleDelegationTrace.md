@@ -1,23 +1,11 @@
 # Example delegation examination trace
 
-**Correlation ID:** `2026-10-05-delegation-v1-fixture-01-clean`  
-**Fixture:** `golden-pass` via `harness/run-delegation.js`  
-**Outcome:** SUCCESS after P1 human approval and substance Continue
+Run `npm run delegation:golden` to produce a current fixture trace. The command returns exit 2 while human decisions are missing. Generated audit JSONL is persisted in the sibling `audit-runs/` directory under the returned run/correlation ID.
 
-## Narrative
+The routing oracle dispatches W1 requirements, W2 SQL, W3 review, W5 adversarial review, and W6 report body. G1, actual SQL G2, full W3/W5 shape checks, actual G4, and report-body validation run at their boundaries. A malformed output is retained in the audit but does not replace validated context.
 
-1. **Coordinator** dispatches `launch_spec_parser` → W1 writes `requirements.json`; **G1** validates schema at delegation boundary.
-2. Coordinator dispatches `launch_trigger_codegen` → W2 writes `trigger.sql`; **G2** boundary check (fixture-golden pass).
-3. Coordinator dispatches `launch_trigger_review` → W3 `review.json` with `verdict=PASS`.
-4. Coordinator dispatches `launch_adversarial_reviewer` → W5 fresh isolated session (`isolated_session_id` in audit `detail`); **UPHELD**; **G4** cross-check at boundary.
-5. Coordinator dispatches `launch_delivery_report_writer` → W6 body; harness assembles deterministic PASS/FAIL headings into `delivery-report.md`.
-6. **Substance gate** satisfied via `--substance-continue` or matching row in `delegation/substance-overrides.jsonl`.
-7. **P1** records `.human-approved`; run status `success`.
+Each invocation records its model label, token/cost fixture estimates, correlation ID, and immutable output version. `usage_source: simulated` and `execution_mode: golden` identify fixture evidence. A mock session ID does not prove actual context isolation.
 
-## Token / cost
+The harness assembles report headings, records hashes of the report and examined artifacts, and stops for substance and deployment decisions. Flags cannot approve them. The operator commands and finalization flow are documented in `README.md`. Finalization retains the original report and rejects changed artifacts or premature approval.
 
-See JSONL sample `audit/samples/delegation-examination-success.jsonl` — every coordinator and sub-agent line includes `model`, `input_tokens`, `output_tokens`, and `cost_usd`.
-
-## Failure example
-
-Guardrail halt at G1 on `golden-guardrail-halt` remains documented in `audit/trace-g2-halt-example.md` (Level 4 lineage) and `audit/samples/g2-halt-failure.jsonl`.
+The older files under `audit/samples/` are historical fixture examples retained for inspection. Their synthetic SUCCESS records, approval flags, and estimated usage are not current human decisions or measured model execution evidence. New runs use the current guardrails and append-only decision checks.
