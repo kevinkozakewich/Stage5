@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { AuditLogger } from './lib/auditLogger.js';
@@ -9,6 +9,7 @@ import { planNextGoldenDispatch } from './lib/goldenCoordinator.js';
 import { createInitialState, onPunchOut, MAX_REMEDIATE_CYCLES } from './lib/router.js';
 import { assembleFinalReport, buildDeterministicHeadings } from './lib/reportAssembler.js';
 import { checkSubstanceGate } from './lib/substanceGate.js';
+import { snapshotArtifactHashes, validApprovalTime } from './lib/examinationIntegrity.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ASSIGNMENT_ROOT = resolve(__dirname, '..');
@@ -55,12 +56,16 @@ function parseArgs(argv) {
  * @param {object} options
  */
 export async function runDelegation(options) {
+  if (options.mode && options.mode !== 'golden') {
+    throw new Error('This runner replays golden fixtures only. A hosted LLM coordinator run is separate evidence; --mode cannot turn fixtures into inference.');
+  }
+  options = { ...options, correlationId: options.correlationId ?? options.runId };
   const fixture = FIXTURES[options.fixture];
   if (!fixture) {
     throw new Error(`Unknown fixture: ${options.fixture}`);
   }
 
-  const auditDir = join(ASSIGNMENT_ROOT, '..', 'audit-runs');
+  const auditDir = options.auditDir ?? join(ASSIGNMENT_ROOT, '..', 'audit-runs');
   const runDir = options.outputDir ?? join(ASSIGNMENT_ROOT, 'artifacts', options.runId);
   mkdirSync(runDir, { recursive: true });
 
@@ -80,12 +85,12 @@ export async function runDelegation(options) {
     w5SessionId: null,
   };
 
-  let s3CompletedAt = null;
-
   /** @param {object} fields */
   function logStep(fields) {
     return logger.append({
       correlation_id: options.correlationId,
+      usage_source: 'simulated',
+      execution_mode: 'golden',
       ...fields,
     });
   }
@@ -101,7 +106,7 @@ export async function runDelegation(options) {
       step_id: 'C',
       step_type: 'coordinator',
       agent: 'coordinator',
-      model: options.mode === 'golden' ? 'mock:golden-coordinator' : 'openai:gpt-4o',
+      model: 'mock:golden-coordinator',
       input_tokens: 120,
       output_tokens: 40,
       cost_usd: 0.0008,
@@ -112,11 +117,28 @@ export async function runDelegation(options) {
       detail: `dispatch ${tool}`,
     });
 
+    const dispatchInput = { tool, requirements: context.requirements, triggerSql: context.triggerSql, lastReview: context.lastReview, challenges: context.challenges };
     const { agentResult, validationError } = executeDispatch({
       tool,
       fixture,
       context,
       runDir,
+    });
+
+    // Failed boundary checks still consumed an agent invocation and belong in the audit.
+    logStep({
+      step_id: agentResult.workflow,
+      step_type: 'agent',
+      agent: agentResult.agent,
+      model: agentResult.model,
+      input_tokens: agentResult.input_tokens,
+      output_tokens: agentResult.output_tokens,
+      cost_usd: agentResult.cost_usd,
+      input_hash: AuditLogger.hash(dispatchInput),
+      output_hash: AuditLogger.hash(agentResult.output ?? null),
+      output_ref: agentResult.output === undefined ? '' : join(runDir, agentResult.ref).replace(/\\/g, '/'),
+      status: validationError ? 'validation_failed' : 'success',
+      detail: agentResult.isolated_session_id ? `simulated_isolated_session_id=${agentResult.isolated_session_id}` : undefined,
     });
 
     if (validationError) {
@@ -146,25 +168,6 @@ export async function runDelegation(options) {
       break;
     }
 
-    logStep({
-      step_id: agentResult.workflow,
-      step_type: 'agent',
-      agent: agentResult.agent,
-      model: agentResult.model,
-      input_tokens: agentResult.input_tokens,
-      output_tokens: agentResult.output_tokens,
-      cost_usd: agentResult.cost_usd,
-      input_hash: AuditLogger.hash(tool),
-      output_hash: AuditLogger.hash(agentResult.output),
-      output_ref: join('artifacts', options.runId, agentResult.ref).replace(/\\/g, '/'),
-      status: 'success',
-      detail: agentResult.isolated_session_id ? `isolated_session_id=${agentResult.isolated_session_id}` : undefined,
-    });
-
-    if (tool === 'launch_trigger_review' && context.lastReview?.verdict === 'PASS') {
-      s3CompletedAt = Date.now();
-    }
-
     if (tool === 'launch_remediator') {
       state.remediateCycles += 1;
       if (state.remediateCycles > MAX_REMEDIATE_CYCLES) {
@@ -184,14 +187,22 @@ export async function runDelegation(options) {
     });
     const report = assembleFinalReport(headings, context.reportBody);
     writeFileSync(join(runDir, 'delivery-report.md'), report, 'utf8');
+    context.reportHash = AuditLogger.hash(report);
+    context.examination = {
+      run_id: options.runId, correlation_id: options.correlationId,
+      execution_mode: 'golden', report_hash: context.reportHash,
+      created_at: new Date().toISOString(), audit_dir: resolve(auditDir),
+      artifact_hashes: snapshotArtifactHashes(runDir),
+    };
+    writeFileSync(join(runDir, 'examination.json'), JSON.stringify(context.examination, null, 2), 'utf8');
 
     const substance = checkSubstanceGate(
-      SUBSTANCE_OVERRIDES,
+      options.substanceOverridesPath ?? SUBSTANCE_OVERRIDES,
       options.correlationId,
-      options.substanceContinue,
+      { reportHash: context.reportHash },
     );
     if (substance.blocked) {
-      state.status = 'pending_human';
+      state.status = substance.decision?.decision === 'Reject' ? 'failure' : 'pending_human';
       state.reason = substance.reason;
       logStep({
         step_id: 'S-substance',
@@ -204,25 +215,28 @@ export async function runDelegation(options) {
         input_hash: AuditLogger.hash(options.correlationId),
         output_hash: AuditLogger.hash(substance),
         output_ref: '',
-        status: 'pending_human',
+        status: substance.decision?.decision === 'Reject' ? 'rejected' : 'pending_human',
         detail: substance.reason,
       });
     }
   }
 
   if (state.status === 'running' && context.reportBody && !state.reason?.includes('SUBSTANCE')) {
-    const bypassAttempt = options.forceComplete || options.skipHuman;
+    const bypassAttempt = options.forceComplete || options.skipHuman || options.humanApproved;
     const sentinelPath = join(runDir, '.human-approved');
-    let humanApproved = options.humanApproved;
+    let humanApproved = false;
     let prematureApproval = false;
 
-    if (!humanApproved && !bypassAttempt && existsSync(sentinelPath)) {
-      const sentinelMtime = statSync(sentinelPath).mtimeMs;
-      if (s3CompletedAt !== null && sentinelMtime < s3CompletedAt) {
-        prematureApproval = true;
-      } else {
-        humanApproved = true;
-      }
+    if (!bypassAttempt && existsSync(sentinelPath)) {
+      try {
+        const approval = JSON.parse(readFileSync(sentinelPath, 'utf8'));
+        humanApproved = approval.decision === 'Approve'
+          && typeof approval.reviewer === 'string' && approval.reviewer.trim().length > 0
+          && approval.correlation_id === options.correlationId
+          && approval.report_hash === context.reportHash
+          && validApprovalTime(approval.timestamp, context.examination);
+        prematureApproval = !humanApproved;
+      } catch { prematureApproval = true; }
     }
 
     const punchState = onPunchOut(state, { humanApproved, bypassAttempt, prematureApproval });
@@ -238,7 +252,7 @@ export async function runDelegation(options) {
       cost_usd: 0,
       input_hash: AuditLogger.hash({ humanApproved, bypassAttempt, prematureApproval }),
       output_hash: AuditLogger.hash(state),
-      output_ref: humanApproved ? join('artifacts', options.runId, '.human-approved').replace(/\\/g, '/') : '',
+      output_ref: humanApproved ? sentinelPath.replace(/\\/g, '/') : '',
       status:
         state.status === 'success'
           ? 'success'
@@ -261,7 +275,7 @@ export async function runDelegation(options) {
   const exitCode =
     state.status === 'success' ? 0 : state.status === 'pending_human' ? 2 : 1;
 
-  return { exitCode, state, logger, correlationId: options.correlationId };
+  return { exitCode, state, logger, correlationId: options.correlationId, runDir, reportHash: context.reportHash };
 }
 
 async function main() {

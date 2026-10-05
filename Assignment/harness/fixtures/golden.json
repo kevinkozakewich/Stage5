@@ -1,163 +1,543 @@
 {
   "golden-pass": {
-    "brief": "# Migration Brief\n\nTable: dbo.Orders\nPrimary Key: OrderId\nTrigger Type: INSERT",
+    "brief": "# Migration Brief\n\nTable: dbo.Orders\nPrimary Key: OrderId\nTrigger Type: AFTER INSERT\nConstraints: dynamic enqueue through ToGpmq_EnqueueRecordByTriggerPrep and sp_executesql; no direct queue insert.",
     "requirements": {
-      "table": "dbo.Orders",
-      "primary_key": ["OrderId"],
-      "trigger_type": "INSERT",
-      "constraints": ["no_direct_queue_insert"]
+      "schema": "dbo",
+      "table": "Orders",
+      "pk": [
+        "OrderId"
+      ],
+      "trigger_type": "AFTER INSERT",
+      "constraints": [
+        "no_direct_queue_insert"
+      ]
     },
-    "trigger_sql": "CREATE TRIGGER trg_Orders_Downstream\nON dbo.Orders\nAFTER INSERT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC dbo.usp_PrepareDownstreamMigration @TableName = 'dbo.Orders';\nEND",
+    "trigger_sql": "CREATE OR ALTER TRIGGER [dbo].[Orders_DownstreamMigration]\nON [dbo].[Orders]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'dbo';\n        DECLARE @Table SYSNAME = N'Orders';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'Orders_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
     "review_pass": {
       "verdict": "PASS",
-      "violations": [],
-      "forbidden_patterns": { "clean": true }
+      "command_detection": {
+        "correct": true,
+        "expected": "RI",
+        "notes": "Insert-only trigger intentionally sets RI."
+      },
+      "structure_checklist": {
+        "passed": [
+          "SET NOCOUNT ON",
+          "SET XACT_ABORT OFF",
+          "Command detection block (inserted/deleted → RI/RU/RD)",
+          "BEGIN TRY / BEGIN CATCH",
+          "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+          "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+          "IF XACT_STATE() = -1 rethrow pattern",
+          "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+        ],
+        "failed": [],
+        "missing": []
+      },
+      "forbidden_patterns": {
+        "found": [],
+        "clean": true
+      },
+      "violations": []
     },
     "review_fail": {
       "verdict": "FAIL",
-      "violations": [{ "code": "MISSING_NOCOUNT", "message": "SET NOCOUNT ON missing" }],
-      "forbidden_patterns": { "clean": true }
+      "command_detection": {
+        "correct": true,
+        "expected": "RI",
+        "notes": "Insert-only trigger intentionally sets RI."
+      },
+      "structure_checklist": {
+        "passed": [
+          "SET NOCOUNT ON",
+          "SET XACT_ABORT OFF",
+          "Command detection block (inserted/deleted → RI/RU/RD)",
+          "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+          "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+        ],
+        "failed": [],
+        "missing": [
+          "BEGIN TRY / BEGIN CATCH",
+          "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+          "IF XACT_STATE() = -1 rethrow pattern"
+        ]
+      },
+      "forbidden_patterns": {
+        "found": [],
+        "clean": true
+      },
+      "violations": [
+        {
+          "id": "V1",
+          "severity": "major",
+          "detail": "BEGIN TRY / BEGIN CATCH is absent from trigger.sql.",
+          "fix": "Wrap the enqueue block in BEGIN TRY / END TRY and BEGIN CATCH / END CATCH."
+        },
+        {
+          "id": "V2",
+          "severity": "major",
+          "detail": "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH is absent from trigger.sql.",
+          "fix": "Capture ERROR_NUMBER(), ERROR_MESSAGE(), ERROR_LINE(), ERROR_PROCEDURE() and call ToGpmq_LogTriggerError inside CATCH."
+        },
+        {
+          "id": "V3",
+          "severity": "major",
+          "detail": "IF XACT_STATE() = -1 rethrow pattern is absent from trigger.sql.",
+          "fix": "After logging in CATCH, add IF XACT_STATE() = -1 THROW;."
+        }
+      ]
     },
     "review_fail_then_pass": {
       "first": {
         "verdict": "FAIL",
-        "violations": [{ "code": "MISSING_NOCOUNT", "message": "SET NOCOUNT ON missing" }],
-        "forbidden_patterns": { "clean": true }
+        "command_detection": {
+          "correct": true,
+          "expected": "RI",
+          "notes": "Insert-only trigger intentionally sets RI."
+        },
+        "structure_checklist": {
+          "passed": [
+            "SET NOCOUNT ON",
+            "SET XACT_ABORT OFF",
+            "Command detection block (inserted/deleted → RI/RU/RD)",
+            "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+            "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+          ],
+          "failed": [],
+          "missing": [
+            "BEGIN TRY / BEGIN CATCH",
+            "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+            "IF XACT_STATE() = -1 rethrow pattern"
+          ]
+        },
+        "forbidden_patterns": {
+          "found": [],
+          "clean": true
+        },
+        "violations": [
+          {
+            "id": "V1",
+            "severity": "major",
+            "detail": "BEGIN TRY / BEGIN CATCH is absent from trigger.sql.",
+            "fix": "Wrap the enqueue block in BEGIN TRY / END TRY and BEGIN CATCH / END CATCH."
+          },
+          {
+            "id": "V2",
+            "severity": "major",
+            "detail": "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH is absent from trigger.sql.",
+            "fix": "Capture ERROR_NUMBER(), ERROR_MESSAGE(), ERROR_LINE(), ERROR_PROCEDURE() and call ToGpmq_LogTriggerError inside CATCH."
+          },
+          {
+            "id": "V3",
+            "severity": "major",
+            "detail": "IF XACT_STATE() = -1 rethrow pattern is absent from trigger.sql.",
+            "fix": "After logging in CATCH, add IF XACT_STATE() = -1 THROW;."
+          }
+        ]
       },
       "remediated": {
         "verdict": "PASS",
-        "violations": [],
-        "forbidden_patterns": { "clean": true }
+        "command_detection": {
+          "correct": true,
+          "expected": "RI",
+          "notes": "Insert-only trigger intentionally sets RI."
+        },
+        "structure_checklist": {
+          "passed": [
+            "SET NOCOUNT ON",
+            "SET XACT_ABORT OFF",
+            "Command detection block (inserted/deleted → RI/RU/RD)",
+            "BEGIN TRY / BEGIN CATCH",
+            "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+            "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+            "IF XACT_STATE() = -1 rethrow pattern",
+            "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+          ],
+          "failed": [],
+          "missing": []
+        },
+        "forbidden_patterns": {
+          "found": [],
+          "clean": true
+        },
+        "violations": []
       },
-      "revised_sql": "CREATE TRIGGER trg_Orders_Downstream\nON dbo.Orders\nAFTER INSERT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC dbo.usp_PrepareDownstreamMigration @TableName = 'dbo.Orders';\nEND"
+      "revised_sql": "CREATE OR ALTER TRIGGER [dbo].[Orders_DownstreamMigration]\nON [dbo].[Orders]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'dbo';\n        DECLARE @Table SYSNAME = N'Orders';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'Orders_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
     },
     "guardrails": {
       "G1": true,
       "G2": true,
-      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G3": {
+        "challenge": "UPHELD",
+        "verdict_confirmed": true
+      },
       "G4": true
     },
     "tokens": {
-      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
-      "S2": { "input": 310, "output": 920, "cost": 0.0068 },
-      "S3": { "input": 1842, "output": 512, "cost": 0.0089 },
-      "S4": { "input": 980, "output": 640, "cost": 0.0054 },
-      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
+      "S1": {
+        "input": 420,
+        "output": 180,
+        "cost": 0.0021
+      },
+      "S2": {
+        "input": 310,
+        "output": 920,
+        "cost": 0.0068
+      },
+      "S3": {
+        "input": 1842,
+        "output": 512,
+        "cost": 0.0089
+      },
+      "S4": {
+        "input": 980,
+        "output": 640,
+        "cost": 0.0054
+      },
+      "G3": {
+        "input": 620,
+        "output": 90,
+        "cost": 0.0014
+      }
     }
   },
   "golden-remediate": {
-    "brief": "# Migration Brief — VendorContact\n\nComposite PK; first pass may omit TRY/CATCH",
+    "brief": "# Migration Brief\n\nTable: PurinaNA.VendorContact\nPrimary Key: vendor_id, contact_seq\nTrigger Type: AFTER INSERT, UPDATE, DELETE\nConstraints: dynamic enqueue through ToGpmq_EnqueueRecordByTriggerPrep and sp_executesql; no direct queue insert.",
     "requirements": {
-      "table": "PurinaNA.VendorContact",
-      "primary_key": ["vendor_id", "contact_seq"],
+      "schema": "PurinaNA",
+      "table": "VendorContact",
+      "pk": [
+        "vendor_id",
+        "contact_seq"
+      ],
       "trigger_type": "AFTER INSERT, UPDATE, DELETE",
-      "constraints": ["no_direct_queue_insert"]
+      "constraints": [
+        "no_direct_queue_insert"
+      ]
     },
-    "trigger_sql": "CREATE TRIGGER trg_VendorContact_Downstream\nON PurinaNA.VendorContact\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\nEND",
+    "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[VendorContact_DownstreamMigration]\nON [PurinaNA].[VendorContact]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'VendorContact';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\nEND\n",
     "review_fail_then_pass": {
       "first": {
         "verdict": "FAIL",
-        "violations": [{ "code": "MISSING_TRYCATCH", "message": "BEGIN TRY / BEGIN CATCH missing" }],
-        "forbidden_patterns": { "clean": true }
+        "command_detection": {
+          "correct": true,
+          "expected": "RU",
+          "notes": "Inserted/deleted checks distinguish RI, RU and RD."
+        },
+        "structure_checklist": {
+          "passed": [
+            "SET NOCOUNT ON",
+            "SET XACT_ABORT OFF",
+            "Command detection block (inserted/deleted → RI/RU/RD)",
+            "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+            "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+          ],
+          "failed": [],
+          "missing": [
+            "BEGIN TRY / BEGIN CATCH",
+            "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+            "IF XACT_STATE() = -1 rethrow pattern"
+          ]
+        },
+        "forbidden_patterns": {
+          "found": [],
+          "clean": true
+        },
+        "violations": [
+          {
+            "id": "V1",
+            "severity": "major",
+            "detail": "BEGIN TRY / BEGIN CATCH is absent from trigger.sql.",
+            "fix": "Wrap the enqueue block in BEGIN TRY / END TRY and BEGIN CATCH / END CATCH."
+          },
+          {
+            "id": "V2",
+            "severity": "major",
+            "detail": "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH is absent from trigger.sql.",
+            "fix": "Capture ERROR_NUMBER(), ERROR_MESSAGE(), ERROR_LINE(), ERROR_PROCEDURE() and call ToGpmq_LogTriggerError inside CATCH."
+          },
+          {
+            "id": "V3",
+            "severity": "major",
+            "detail": "IF XACT_STATE() = -1 rethrow pattern is absent from trigger.sql.",
+            "fix": "After logging in CATCH, add IF XACT_STATE() = -1 THROW;."
+          }
+        ]
       },
       "remediated": {
         "verdict": "PASS",
-        "violations": [],
-        "forbidden_patterns": { "clean": true }
+        "command_detection": {
+          "correct": true,
+          "expected": "RU",
+          "notes": "Inserted/deleted checks distinguish RI, RU and RD."
+        },
+        "structure_checklist": {
+          "passed": [
+            "SET NOCOUNT ON",
+            "SET XACT_ABORT OFF",
+            "Command detection block (inserted/deleted → RI/RU/RD)",
+            "BEGIN TRY / BEGIN CATCH",
+            "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+            "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+            "IF XACT_STATE() = -1 rethrow pattern",
+            "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+          ],
+          "failed": [],
+          "missing": []
+        },
+        "forbidden_patterns": {
+          "found": [],
+          "clean": true
+        },
+        "violations": []
       },
-      "revised_sql": "CREATE TRIGGER trg_VendorContact_Downstream\nON PurinaNA.VendorContact\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  BEGIN TRY\n    EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\n  END TRY\n  BEGIN CATCH\n    EXEC PurinaNA.ToGpmq_LogTriggerError;\n  END CATCH\nEND"
+      "revised_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[VendorContact_DownstreamMigration]\nON [PurinaNA].[VendorContact]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'VendorContact';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'VendorContact_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n"
     },
     "guardrails": {
       "G1": true,
       "G2": true,
-      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G3": {
+        "challenge": "UPHELD",
+        "verdict_confirmed": true
+      },
       "G4": true
     },
     "tokens": {
-      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
-      "S2": { "input": 310, "output": 920, "cost": 0.0068 },
-      "S3": { "input": 1842, "output": 512, "cost": 0.0089 },
-      "S4": { "input": 980, "output": 640, "cost": 0.0054 },
-      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
+      "S1": {
+        "input": 420,
+        "output": 180,
+        "cost": 0.0021
+      },
+      "S2": {
+        "input": 310,
+        "output": 920,
+        "cost": 0.0068
+      },
+      "S3": {
+        "input": 1842,
+        "output": 512,
+        "cost": 0.0089
+      },
+      "S4": {
+        "input": 980,
+        "output": 640,
+        "cost": 0.0054
+      },
+      "G3": {
+        "input": 620,
+        "output": 90,
+        "cost": 0.0014
+      }
     }
   },
   "golden-g2-halt": {
-    "brief": "# Migration Brief — BatchCampaign INSERT-only\n\nBrief incorrectly suggests direct queue INSERT",
+    "brief": "# Migration Brief\n\nTable: PurinaNA.BatchCampaign\nPrimary Key: scm_id\nTrigger Type: AFTER INSERT\nConstraints: dynamic enqueue through ToGpmq_EnqueueRecordByTriggerPrep and sp_executesql; no direct queue insert.",
     "requirements": {
-      "table": "PurinaNA.BatchCampaign",
-      "primary_key": ["scm_id"],
+      "schema": "PurinaNA",
+      "table": "BatchCampaign",
+      "pk": [
+        "scm_id"
+      ],
       "trigger_type": "AFTER INSERT",
-      "constraints": ["no_direct_queue_insert"]
+      "constraints": [
+        "no_direct_queue_insert"
+      ]
     },
     "trigger_sql": "CREATE TRIGGER trg_BatchCampaign_Bad\nON PurinaNA.BatchCampaign\nAFTER INSERT\nAS\nBEGIN\n  INSERT INTO NAF.DownstreamMigrationQueue SELECT * FROM inserted;\nEND",
     "review_pass": {
       "verdict": "PASS",
-      "violations": [],
-      "forbidden_patterns": { "clean": false }
+      "command_detection": {
+        "correct": true,
+        "expected": "RI",
+        "notes": "Insert-only trigger intentionally sets RI."
+      },
+      "structure_checklist": {
+        "passed": [
+          "SET NOCOUNT ON",
+          "SET XACT_ABORT OFF",
+          "Command detection block (inserted/deleted → RI/RU/RD)",
+          "BEGIN TRY / BEGIN CATCH",
+          "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+          "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+          "IF XACT_STATE() = -1 rethrow pattern",
+          "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+        ],
+        "failed": [],
+        "missing": []
+      },
+      "forbidden_patterns": {
+        "found": [],
+        "clean": true
+      },
+      "violations": []
     },
     "guardrails": {
       "G1": true,
       "G2": false,
-      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G3": {
+        "challenge": "UPHELD",
+        "verdict_confirmed": true
+      },
       "G4": true
     },
     "tokens": {
-      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
-      "S2": { "input": 310, "output": 920, "cost": 0.0068 }
+      "S1": {
+        "input": 420,
+        "output": 180,
+        "cost": 0.0021
+      },
+      "S2": {
+        "input": 310,
+        "output": 920,
+        "cost": 0.0068
+      }
     }
   },
   "golden-composite-pk": {
-    "brief": "# Migration Brief — OrderLine composite PK",
+    "brief": "# Migration Brief\n\nTable: PurinaNA.OrderLine\nPrimary Key: order_id, line_seq\nTrigger Type: AFTER INSERT, UPDATE, DELETE\nConstraints: dynamic enqueue through ToGpmq_EnqueueRecordByTriggerPrep and sp_executesql; no direct queue insert.",
     "requirements": {
-      "table": "PurinaNA.OrderLine",
-      "primary_key": ["order_id", "line_seq"],
+      "schema": "PurinaNA",
+      "table": "OrderLine",
+      "pk": [
+        "order_id",
+        "line_seq"
+      ],
       "trigger_type": "AFTER INSERT, UPDATE, DELETE",
-      "constraints": ["no_direct_queue_insert"]
+      "constraints": [
+        "no_direct_queue_insert"
+      ]
     },
-    "trigger_sql": "CREATE TRIGGER trg_OrderLine_Downstream\nON PurinaNA.OrderLine\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\nEND",
+    "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[OrderLine_DownstreamMigration]\nON [PurinaNA].[OrderLine]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'OrderLine';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'OrderLine_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
     "review_pass": {
       "verdict": "PASS",
-      "violations": [],
-      "forbidden_patterns": { "clean": true }
+      "command_detection": {
+        "correct": true,
+        "expected": "RU",
+        "notes": "Inserted/deleted checks distinguish RI, RU and RD."
+      },
+      "structure_checklist": {
+        "passed": [
+          "SET NOCOUNT ON",
+          "SET XACT_ABORT OFF",
+          "Command detection block (inserted/deleted → RI/RU/RD)",
+          "BEGIN TRY / BEGIN CATCH",
+          "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+          "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+          "IF XACT_STATE() = -1 rethrow pattern",
+          "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+        ],
+        "failed": [],
+        "missing": []
+      },
+      "forbidden_patterns": {
+        "found": [],
+        "clean": true
+      },
+      "violations": []
     },
     "guardrails": {
       "G1": true,
       "G2": true,
-      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G3": {
+        "challenge": "UPHELD",
+        "verdict_confirmed": true
+      },
       "G4": true
     },
     "tokens": {
-      "S1": { "input": 430, "output": 190, "cost": 0.0022 },
-      "S2": { "input": 320, "output": 940, "cost": 0.0070 },
-      "S3": { "input": 1850, "output": 520, "cost": 0.0090 },
-      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
+      "S1": {
+        "input": 430,
+        "output": 190,
+        "cost": 0.0022
+      },
+      "S2": {
+        "input": 320,
+        "output": 940,
+        "cost": 0.007
+      },
+      "S3": {
+        "input": 1850,
+        "output": 520,
+        "cost": 0.009
+      },
+      "G3": {
+        "input": 620,
+        "output": 90,
+        "cost": 0.0014
+      }
     }
   },
   "golden-insert-only": {
-    "brief": "# Migration Brief — AuditEvent insert-only",
+    "brief": "# Migration Brief\n\nTable: PurinaNA.AuditEvent\nPrimary Key: event_id\nTrigger Type: AFTER INSERT\nConstraints: dynamic enqueue through ToGpmq_EnqueueRecordByTriggerPrep and sp_executesql; no direct queue insert.",
     "requirements": {
-      "table": "PurinaNA.AuditEvent",
-      "primary_key": ["event_id"],
+      "schema": "PurinaNA",
+      "table": "AuditEvent",
+      "pk": [
+        "event_id"
+      ],
       "trigger_type": "AFTER INSERT",
-      "constraints": ["no_direct_queue_insert"]
+      "constraints": [
+        "no_direct_queue_insert"
+      ]
     },
-    "trigger_sql": "CREATE TRIGGER trg_AuditEvent_Downstream\nON PurinaNA.AuditEvent\nAFTER INSERT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\nEND",
+    "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[AuditEvent_DownstreamMigration]\nON [PurinaNA].[AuditEvent]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'AuditEvent';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'AuditEvent_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
     "review_pass": {
       "verdict": "PASS",
-      "violations": [],
-      "forbidden_patterns": { "clean": true }
+      "command_detection": {
+        "correct": true,
+        "expected": "RI",
+        "notes": "Insert-only trigger intentionally sets RI."
+      },
+      "structure_checklist": {
+        "passed": [
+          "SET NOCOUNT ON",
+          "SET XACT_ABORT OFF",
+          "Command detection block (inserted/deleted → RI/RU/RD)",
+          "BEGIN TRY / BEGIN CATCH",
+          "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+          "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+          "IF XACT_STATE() = -1 rethrow pattern",
+          "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+        ],
+        "failed": [],
+        "missing": []
+      },
+      "forbidden_patterns": {
+        "found": [],
+        "clean": true
+      },
+      "violations": []
     },
     "guardrails": {
       "G1": true,
       "G2": true,
-      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G3": {
+        "challenge": "UPHELD",
+        "verdict_confirmed": true
+      },
       "G4": true
     },
     "tokens": {
-      "S1": { "input": 400, "output": 170, "cost": 0.0020 },
-      "S2": { "input": 300, "output": 880, "cost": 0.0065 },
-      "S3": { "input": 1800, "output": 500, "cost": 0.0085 },
-      "G3": { "input": 610, "output": 88, "cost": 0.0013 }
+      "S1": {
+        "input": 400,
+        "output": 170,
+        "cost": 0.002
+      },
+      "S2": {
+        "input": 300,
+        "output": 880,
+        "cost": 0.0065
+      },
+      "S3": {
+        "input": 1800,
+        "output": 500,
+        "cost": 0.0085
+      },
+      "G3": {
+        "input": 610,
+        "output": 88,
+        "cost": 0.0013
+      }
     }
   },
   "golden-guardrail-halt": {
@@ -169,62 +549,185 @@
       "G1": false
     },
     "tokens": {
-      "S1": { "input": 420, "output": 180, "cost": 0.0021 }
+      "S1": {
+        "input": 420,
+        "output": 180,
+        "cost": 0.0021
+      }
     }
   },
   "golden-g4-fail": {
-    "brief": "# Migration Brief — G4 cross-check mismatch",
+    "brief": "# Migration Brief\n\nTable: PurinaNA.BatchCampaign\nPrimary Key: scm_id\nTrigger Type: AFTER INSERT, UPDATE, DELETE\nConstraints: dynamic enqueue through ToGpmq_EnqueueRecordByTriggerPrep and sp_executesql; no direct queue insert.",
     "requirements": {
-      "table": "PurinaNA.BatchCampaign",
-      "primary_key": ["scm_id"],
+      "schema": "PurinaNA",
+      "table": "BatchCampaign",
+      "pk": [
+        "scm_id"
+      ],
       "trigger_type": "AFTER INSERT, UPDATE, DELETE",
-      "constraints": ["no_direct_queue_insert"]
+      "constraints": [
+        "no_direct_queue_insert"
+      ]
     },
-    "trigger_sql": "CREATE TRIGGER trg_BatchCampaign_Downstream\nON PurinaNA.BatchCampaign\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\nEND",
+    "trigger_sql": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
     "review_pass": {
       "verdict": "PASS",
-      "violations": [],
-      "forbidden_patterns": { "clean": false }
+      "command_detection": {
+        "correct": true,
+        "expected": "RU",
+        "notes": "Inserted/deleted checks distinguish RI, RU and RD."
+      },
+      "structure_checklist": {
+        "passed": [
+          "SET NOCOUNT ON",
+          "SET XACT_ABORT OFF",
+          "Command detection block (inserted/deleted → RI/RU/RD)",
+          "BEGIN TRY / BEGIN CATCH",
+          "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+          "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+          "IF XACT_STATE() = -1 rethrow pattern",
+          "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+        ],
+        "failed": [],
+        "missing": []
+      },
+      "forbidden_patterns": {
+        "clean": false,
+        "found": [
+          "Direct INSERT INTO DownstreamMigrationQueue (deliberately incorrect claim on a clean SQL fixture)"
+        ]
+      },
+      "violations": []
     },
     "guardrails": {
       "G1": true,
       "G2": true,
-      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G3": {
+        "challenge": "UPHELD",
+        "verdict_confirmed": true
+      },
       "G4": true
     },
     "tokens": {
-      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
-      "S2": { "input": 310, "output": 920, "cost": 0.0068 },
-      "S3": { "input": 1842, "output": 512, "cost": 0.0089 },
-      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
-    }
+      "S1": {
+        "input": 420,
+        "output": 180,
+        "cost": 0.0021
+      },
+      "S2": {
+        "input": 310,
+        "output": 920,
+        "cost": 0.0068
+      },
+      "S3": {
+        "input": 1842,
+        "output": 512,
+        "cost": 0.0089
+      },
+      "G3": {
+        "input": 620,
+        "output": 90,
+        "cost": 0.0014
+      }
+    },
+    "description": "Review mismatch rejected by schema before G4: PASS cannot claim forbidden_patterns.clean=false."
   },
   "golden-fail-exhausted": {
-    "brief": "# Migration Brief\n\nTable: dbo.Orders\nPrimary Key: OrderId\nTrigger Type: INSERT",
+    "brief": "# Migration Brief\n\nTable: dbo.Orders\nPrimary Key: OrderId\nTrigger Type: AFTER INSERT\nConstraints: dynamic enqueue through ToGpmq_EnqueueRecordByTriggerPrep and sp_executesql; no direct queue insert.",
     "requirements": {
-      "table": "dbo.Orders",
-      "primary_key": ["OrderId"],
-      "trigger_type": "INSERT",
-      "constraints": ["no_direct_queue_insert"]
+      "schema": "dbo",
+      "table": "Orders",
+      "pk": [
+        "OrderId"
+      ],
+      "trigger_type": "AFTER INSERT",
+      "constraints": [
+        "no_direct_queue_insert"
+      ]
     },
-    "trigger_sql": "CREATE TRIGGER trg_Orders_Bad\nON dbo.Orders\nAFTER INSERT\nAS\nBEGIN\n  INSERT INTO DownstreamMigrationQueue SELECT * FROM inserted;\nEND",
+    "trigger_sql": "CREATE OR ALTER TRIGGER [dbo].[Orders_DownstreamMigration]\nON [dbo].[Orders]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2) = 'RI';\n        DECLARE @Schema SYSNAME = N'dbo';\n        DECLARE @Table SYSNAME = N'Orders';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\nEND\n",
     "review_always_fail": {
       "verdict": "FAIL",
-      "violations": [{ "code": "DIRECT_QUEUE_INSERT", "message": "Direct queue insert forbidden" }],
-      "forbidden_patterns": { "clean": false }
+      "command_detection": {
+        "correct": true,
+        "expected": "RI",
+        "notes": "Insert-only trigger intentionally sets RI."
+      },
+      "structure_checklist": {
+        "passed": [
+          "SET NOCOUNT ON",
+          "SET XACT_ABORT OFF",
+          "Command detection block (inserted/deleted → RI/RU/RD)",
+          "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+          "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+        ],
+        "failed": [],
+        "missing": [
+          "BEGIN TRY / BEGIN CATCH",
+          "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+          "IF XACT_STATE() = -1 rethrow pattern"
+        ]
+      },
+      "forbidden_patterns": {
+        "found": [],
+        "clean": true
+      },
+      "violations": [
+        {
+          "id": "V1",
+          "severity": "major",
+          "detail": "BEGIN TRY / BEGIN CATCH is absent from trigger.sql.",
+          "fix": "Wrap the enqueue block in BEGIN TRY / END TRY and BEGIN CATCH / END CATCH."
+        },
+        {
+          "id": "V2",
+          "severity": "major",
+          "detail": "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH is absent from trigger.sql.",
+          "fix": "Capture ERROR_NUMBER(), ERROR_MESSAGE(), ERROR_LINE(), ERROR_PROCEDURE() and call ToGpmq_LogTriggerError inside CATCH."
+        },
+        {
+          "id": "V3",
+          "severity": "major",
+          "detail": "IF XACT_STATE() = -1 rethrow pattern is absent from trigger.sql.",
+          "fix": "After logging in CATCH, add IF XACT_STATE() = -1 THROW;."
+        }
+      ]
     },
     "guardrails": {
       "G1": true,
       "G2": true,
-      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G3": {
+        "challenge": "UPHELD",
+        "verdict_confirmed": true
+      },
       "G4": true
     },
     "tokens": {
-      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
-      "S2": { "input": 310, "output": 920, "cost": 0.0068 },
-      "S3": { "input": 1842, "output": 512, "cost": 0.0089 },
-      "S4": { "input": 980, "output": 640, "cost": 0.0054 },
-      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
+      "S1": {
+        "input": 420,
+        "output": 180,
+        "cost": 0.0021
+      },
+      "S2": {
+        "input": 310,
+        "output": 920,
+        "cost": 0.0068
+      },
+      "S3": {
+        "input": 1842,
+        "output": 512,
+        "cost": 0.0089
+      },
+      "S4": {
+        "input": 980,
+        "output": 640,
+        "cost": 0.0054
+      },
+      "G3": {
+        "input": 620,
+        "output": 90,
+        "cost": 0.0014
+      }
     }
   }
 }

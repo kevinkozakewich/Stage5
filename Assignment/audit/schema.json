@@ -3,27 +3,86 @@
   "title": "Level 5 Audit Log Entry",
   "description": "One JSONL object per coordinator dispatch, sub-agent, guardrail, or punch-out event",
   "type": "object",
-  "required": ["run_id", "seq", "step_id", "step_type", "status", "timestamp"],
+  "required": [
+    "run_id",
+    "seq",
+    "step_id",
+    "step_type",
+    "status",
+    "timestamp"
+  ],
   "properties": {
-    "run_id": { "type": "string" },
-    "correlation_id": { "type": "string", "description": "End-to-end examination trace ID" },
-    "seq": { "type": "integer" },
-    "step_id": { "type": "string" },
-    "step_type": {
-      "enum": ["agent", "guardrail", "punch-out", "orchestrator", "coordinator"]
+    "run_id": {
+      "type": "string"
     },
-    "agent": { "type": "string" },
-    "model": { "type": "string" },
-    "input_tokens": { "type": "integer" },
-    "output_tokens": { "type": "integer" },
-    "cost_usd": { "type": "number" },
-    "input_hash": { "type": "string" },
-    "output_hash": { "type": "string" },
-    "output_ref": { "type": "string" },
-    "parent_seq": { "type": "integer" },
-    "status": { "type": "string" },
-    "detail": { "type": "string" },
-    "failure_origin_step": { "type": "string" },
-    "timestamp": { "type": "string", "format": "date-time" }
+    "correlation_id": {
+      "type": "string",
+      "description": "End-to-end examination trace ID"
+    },
+    "seq": {
+      "type": "integer"
+    },
+    "step_id": {
+      "type": "string"
+    },
+    "step_type": {
+      "enum": [
+        "agent",
+        "guardrail",
+        "punch-out",
+        "orchestrator",
+        "coordinator"
+      ]
+    },
+    "agent": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "input_tokens": {
+      "type": "integer"
+    },
+    "output_tokens": {
+      "type": "integer"
+    },
+    "cost_usd": {
+      "type": "number"
+    },
+    "input_hash": {
+      "type": "string"
+    },
+    "output_hash": {
+      "type": "string"
+    },
+    "output_ref": {
+      "type": "string"
+    },
+    "parent_seq": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string"
+    },
+    "detail": {
+      "type": "string"
+    },
+    "failure_origin_step": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "usage_source": {
+      "description": "Provider measured, simulated fixture, or not applicable; never inferred usage",
+      "type": "string"
+    },
+    "execution_mode": {
+      "type": "string"
+    }
   }
 }

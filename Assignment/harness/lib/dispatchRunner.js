@@ -5,6 +5,10 @@ import { validateRequirements } from '../../guardrails/validate-requirements-sch
 import { runSqlSentinel } from '../../guardrails/sql-sentinel.js';
 import { verifyReviewJson } from '../../guardrails/verify-review-json.js';
 import { validateAdversarialJson } from '../../guardrails/validate-adversarial-json.js';
+import { validateReviewJson } from '../../guardrails/validate-review-json.js';
+import { validateReportBody } from './reportAssembler.js';
+import { DISPATCH_TOOL_NAMES } from './coordinatorSchema.js';
+import { invalidateDependentResults } from './goldenCoordinator.js';
 
 /**
  * @param {object} requirements
@@ -164,7 +168,10 @@ function runMockWorkflowAgent(tool, fixture, context) {
  * @param {object} context
  * @param {object} fixture
  */
-function validateAtBoundary(tool, agentResult, context, fixture) {
+export function validateAtBoundary(tool, agentResult, context, fixture = {}) {
+  if (!DISPATCH_TOOL_NAMES.includes(tool)) {
+    return { ok: false, code: 'VALIDATION_ERROR', guardrail: 'DISPATCH', findings: ['Unknown dispatch tool'] };
+  }
   if (tool === 'launch_spec_parser') {
     if (fixture.guardrails?.G1 === false) {
       return {
@@ -190,12 +197,19 @@ function validateAtBoundary(tool, agentResult, context, fixture) {
         findings: ['fixture guardrail G2 forced fail'],
       };
     }
-    return { ok: true, guardrail: 'G2' };
+    if (typeof agentResult.output !== 'string' || !agentResult.output.trim()) {
+      return { ok: false, code: 'VALIDATION_ERROR', guardrail: 'G2', findings: ['SQL output must be a non-empty string'] };
+    }
+    const g2 = runSqlSentinel(agentResult.output);
+    return g2.pass
+      ? { ok: true, guardrail: 'G2' }
+      : { ok: false, code: 'VALIDATION_ERROR', guardrail: 'G2', findings: g2.findings.map((finding) => finding.label) };
   }
 
   if (tool === 'launch_trigger_review') {
-    if (!agentResult.output?.verdict) {
-      return { ok: false, code: 'VALIDATION_ERROR', guardrail: 'W3', findings: ['review.json missing verdict'] };
+    const review = validateReviewJson(agentResult.output);
+    if (!review.pass) {
+      return { ok: false, code: 'VALIDATION_ERROR', guardrail: 'W3', findings: review.findings };
     }
     return { ok: true };
   }
@@ -213,8 +227,9 @@ function validateAtBoundary(tool, agentResult, context, fixture) {
   }
 
   if (tool === 'launch_delivery_report_writer') {
-    if (!String(agentResult.output ?? '').trim()) {
-      return { ok: false, code: 'VALIDATION_ERROR', guardrail: 'W6', findings: ['empty report body'] };
+    const report = validateReportBody(agentResult.output);
+    if (!report.pass) {
+      return { ok: false, code: 'VALIDATION_ERROR', guardrail: 'W6', findings: report.findings };
     }
     return { ok: true };
   }
@@ -229,8 +244,12 @@ function validateAtBoundary(tool, agentResult, context, fixture) {
  * @param {object} options.context
  * @param {string} options.runDir
  */
-export function executeDispatch({ tool, fixture, context, runDir }) {
-  const agentResult = runMockWorkflowAgent(tool, fixture, context);
+export function executeDispatch({ tool, fixture, context, runDir, agentResult: suppliedResult }) {
+  if (!DISPATCH_TOOL_NAMES.includes(tool)) {
+    const validation = { ok: false, code: 'VALIDATION_ERROR', guardrail: 'DISPATCH', findings: ['Unknown dispatch tool'] };
+    return { agentResult: { workflow: 'DISPATCH', agent: 'dispatcher', model: 'deterministic', ref: '', input_tokens: 0, output_tokens: 0, cost_usd: 0 }, validation, validationError: validation };
+  }
+  const agentResult = suppliedResult ?? runMockWorkflowAgent(tool, fixture, context);
   if (agentResult.output === undefined) {
     return {
       agentResult,
@@ -242,23 +261,30 @@ export function executeDispatch({ tool, fixture, context, runDir }) {
     typeof agentResult.output === 'string'
       ? agentResult.output
       : JSON.stringify(agentResult.output, null, 2);
-  writeFileSync(join(runDir, agentResult.ref), outputText, 'utf8');
+  // Keep immutable versions so an audit reference still identifies the exact output
+  // after a remediation writes the next version of trigger.sql or review.json.
+  context.dispatchCount = (context.dispatchCount ?? 0) + 1;
+  const canonicalRef = agentResult.ref;
+  if (!/^[a-zA-Z0-9_.-]+$/.test(canonicalRef)) throw new Error('Invalid artifact reference');
+  agentResult.ref = `${String(context.dispatchCount).padStart(3, '0')}-${canonicalRef}`;
+  writeFileSync(join(runDir, agentResult.ref), outputText, { encoding: 'utf8', flag: 'wx' });
 
   const validation = validateAtBoundary(tool, agentResult, context, fixture);
   if (!validation.ok) {
     return { agentResult, validation, validationError: validation };
   }
+  writeFileSync(join(runDir, canonicalRef), outputText, 'utf8');
 
   if (tool === 'launch_spec_parser') {
+    invalidateDependentResults(context, 'W1');
     context.requirements = agentResult.output;
   }
   if (tool === 'launch_trigger_codegen' || tool === 'launch_remediator') {
     context.triggerSql = agentResult.output;
-    if (tool === 'launch_remediator') {
-      context.lastReview = null;
-    }
+    invalidateDependentResults(context, tool === 'launch_remediator' ? 'W4' : 'W2');
   }
   if (tool === 'launch_trigger_review') {
+    invalidateDependentResults(context, 'W3');
     context.lastReview = agentResult.output;
   }
   if (tool === 'launch_adversarial_reviewer') {
@@ -273,8 +299,7 @@ export function executeDispatch({ tool, fixture, context, runDir }) {
         };
       }
       const g4 = verifyReviewJson(context.lastReview, context.triggerSql);
-      const reviewClean = context.lastReview?.forbidden_patterns?.clean === true;
-      context.g4Passed = g4.pass || (fixture.guardrails?.G4 !== false && reviewClean);
+      context.g4Passed = g4.pass;
       if (!context.g4Passed) {
         return {
           agentResult,

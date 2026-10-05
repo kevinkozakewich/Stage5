@@ -1,239 +1,82 @@
 #!/usr/bin/env node
-
+/** Golden regression replay, not historical model measurements. */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { runDelegation } from './run-delegation.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ASSIGNMENT_ROOT = resolve(__dirname, '..');
-const FIXTURES_DIR = join(ASSIGNMENT_ROOT, 'fixtures');
-const METRICS_DIR = join(ASSIGNMENT_ROOT, 'metrics');
-const CSV_PATH = join(METRICS_DIR, 'e2e-runs.csv');
-const REPORT_PATH = join(METRICS_DIR, 'e2e-report.md');
-
-const CSV_HEADER =
-  'run_id,fixture_id,e2e_success,remediate_cycles,total_tokens,total_cost_usd,failure_origin_step';
-
-function parseArgs(argv) {
-  const options = {
-    batchLabel: new Date().toISOString().slice(0, 10),
-    seedTrends: false,
-    writeReport: true,
-  };
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    if (arg === '--batch-label' && argv[i + 1]) options.batchLabel = argv[++i];
-    else if (arg === '--seed-trends') options.seedTrends = true;
-    else if (arg === '--no-report') options.writeReport = false;
-  }
-  return options;
-}
-
-function discoverFixtures() {
-  return readdirSync(FIXTURES_DIR, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && entry.name.startsWith('fixture-'))
-    .map((entry) => {
-      const dir = join(FIXTURES_DIR, entry.name);
-      const expectedPath = join(dir, 'expected-outcome.json');
-      if (!existsSync(expectedPath)) {
-        throw new Error(`Missing expected-outcome.json in ${dir}`);
-      }
-      const expected = JSON.parse(readFileSync(expectedPath, 'utf8'));
-      return { id: entry.name, dir, expected };
-    })
-    .sort((a, b) => a.id.localeCompare(b.id));
-}
-
-function mapRunStatus(state, exitCode) {
-  if (state.status === 'success') return 'SUCCESS';
-  if (state.status === 'pending_human') return 'PENDING_HUMAN';
-  if (state.status === 'bypass_blocked') return 'BYPASS_BLOCKED';
-  if (state.status === 'premature_approval') return 'PREMATURE_APPROVAL';
-  if (state.status === 'halted' || state.status === 'failure') return 'FAILED';
-  return exitCode === 0 ? 'SUCCESS' : 'FAILED';
-}
-
-function evaluateOutcome(state, exitCode, expected) {
-  const actualStatus = mapRunStatus(state, exitCode);
-  const expectedStatus = expected.expected_run_status;
-
-  let statusMatch = actualStatus === expectedStatus;
-  if (expectedStatus === 'SUCCESS' && actualStatus === 'SUCCESS') {
-    statusMatch = state.status === 'success';
-  }
-  if (expectedStatus === 'FAILED') {
-    statusMatch = state.status === 'halted' || state.status === 'failure';
-  }
-
-  const cyclesMatch =
-    expected.max_remediate_cycles === undefined ||
-    state.remediateCycles === expected.max_remediate_cycles;
-
-  const originExpected = expected.expected_failure_origin_step ?? null;
-  const originActual = state.failureOriginStep ?? null;
-  const originMatch =
-    originExpected === originActual ||
-    (originExpected === 'S1' && originActual === 'W1') ||
-    (originExpected === 'S3' && originActual === 'W3') ||
-    (originExpected === 'S2' && originActual === 'W2') ||
-    (originExpected === 'S3' && originActual === 'W5');
-
-  const punchOutMatch =
-    expected.punch_out_reached === undefined ||
-    (expected.punch_out_reached
-      ? state.status === 'success' || state.status === 'pending_human'
-      : state.status !== 'success' && state.status !== 'pending_human');
-
-  return {
-    e2e_success: statusMatch && cyclesMatch && originMatch && punchOutMatch,
-    actualStatus,
-  };
-}
-
-function summarizeTokens(logger) {
-  return logger.getEntries().reduce(
-    (acc, entry) => ({
-      total_tokens: acc.total_tokens + (entry.input_tokens ?? 0) + (entry.output_tokens ?? 0),
-      total_cost_usd: acc.total_cost_usd + (entry.cost_usd ?? 0),
-    }),
-    { total_tokens: 0, total_cost_usd: 0 },
-  );
-}
-
-async function runFixture(fixtureId, expected, batchLabel) {
-  const goldenKey = expected.golden_key;
-  if (!goldenKey) {
-    throw new Error(`${fixtureId}: expected-outcome.json missing golden_key`);
-  }
-
-  const runId = `${batchLabel}-${fixtureId}`;
-  const humanApproved = Boolean(expected.requires_human_approval && expected.e2e_success);
-
-  const { exitCode, state, logger } = await runDelegation({
-    fixture: goldenKey,
-    runId,
-    correlationId: runId,
-    humanApproved,
-    substanceContinue: humanApproved,
-    outputDir: join(ASSIGNMENT_ROOT, 'artifacts', runId),
-  });
-
-  const tokens = summarizeTokens(logger);
-  const outcome = evaluateOutcome(state, exitCode, expected);
-
-  return {
-    run_id: runId,
-    fixture_id: fixtureId,
-    batch_label: batchLabel,
-    e2e_success: outcome.e2e_success,
-    remediate_cycles: state.remediateCycles,
-    total_tokens: tokens.total_tokens,
-    total_cost_usd: Number(tokens.total_cost_usd.toFixed(4)),
-    failure_origin_step: state.failureOriginStep ?? '',
-    workflow_status: state.status,
-  };
-}
-
-function rowsToCsv(rows) {
-  return [
-    CSV_HEADER,
-    ...rows.map((row) =>
-      [
-        row.run_id,
-        row.fixture_id,
-        row.e2e_success,
-        row.remediate_cycles,
-        row.total_tokens,
-        row.total_cost_usd,
-        row.failure_origin_step,
-      ].join(','),
-    ),
-  ].join('\n');
-}
-
-function writeReport(rows) {
-  const total = rows.length;
-  const passed = rows.filter((row) => row.e2e_success).length;
-  const successRate = total === 0 ? 0 : (passed / total) * 100;
-
-  const batchLabels = [...new Set(rows.map((r) => r.batch_label))].sort();
-  const trendRows = batchLabels.map((label) => {
-    const batchRows = rows.filter((r) => r.batch_label === label);
-    const batchPassed = batchRows.filter((r) => r.e2e_success).length;
-    const rate = batchRows.length ? ((batchPassed / batchRows.length) * 100).toFixed(1) : '0.0';
-    return `| ${label} | ${batchRows.length} | ${batchPassed} | ${rate}% |`;
-  });
-
-  const report = `# End-to-End Success Rate Report
-
-**Generated:** ${new Date().toISOString()}  
-**Mode:** delegated golden coordinator (no API key)
-
-## Headline
-
-| Metric | Value |
-|---|---|
-| **E2E success rate** | **${successRate.toFixed(1)}%** (${passed}/${total}) |
-| **Fixture count** | ${discoverFixtures().length} |
-| **Total runs** | ${total} |
-| **Target** | ≥90% |
-
-## Trend (dated batches)
-
-| Batch label | Runs | Passed | Success rate |
-|---|---|---|---|
-${trendRows.join('\n')}
-
----
-
-See \`metrics/e2e-runs.csv\`. Re-run with \`npm run delegation:batch -- --seed-trends\`.
-`;
-
-  writeFileSync(REPORT_PATH, report, 'utf8');
-}
-
-async function runBatch(batchLabel, fixtures) {
-  const rows = [];
-  for (const { id, expected } of fixtures) {
-    const row = await runFixture(id, expected, batchLabel);
-    rows.push(row);
-    const mark = row.e2e_success ? 'PASS' : 'FAIL';
-    console.log(`[${mark}] ${id} → ${row.workflow_status} (cycles=${row.remediate_cycles})`);
-  }
-  return rows;
-}
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const METRICS = join(ROOT, 'metrics');
 
 async function main() {
-  const options = parseArgs(process.argv.slice(2));
-  mkdirSync(METRICS_DIR, { recursive: true });
-
-  const fixtures = discoverFixtures();
-  console.log(`Running ${fixtures.length} fixtures (delegation golden mode)\n`);
-
-  let allRows = [];
-  if (options.seedTrends) {
-    const trendLabels = ['2026-09-01-v1.0', '2026-09-07-v1.1', options.batchLabel];
-    for (const label of trendLabels) {
-      console.log(`\n--- Batch: ${label} ---`);
-      allRows = allRows.concat(await runBatch(label, fixtures));
-    }
-  } else {
-    allRows = await runBatch(options.batchLabel, fixtures);
+  const args = process.argv.slice(2);
+  if (args.includes('--seed-trends')) console.warn('--seed-trends is deprecated: running one current batch; no historical dates will be fabricated.');
+  const startedAt = new Date().toISOString();
+  const batchId = 'regression-' + startedAt.replace(/[:.]/g, '-') + '-' + randomUUID().slice(0, 8);
+  const fixtures = readdirSync(join(ROOT, 'fixtures'), { withFileTypes: true }).filter((entry) => entry.isDirectory() && entry.name.startsWith('fixture-')).sort((a, b) => a.name.localeCompare(b.name));
+  const rows = [];
+  for (const fixture of fixtures) {
+    const expectedFile = join(ROOT, 'fixtures', fixture.name, 'expected-outcome.json');
+    if (!existsSync(expectedFile)) throw new Error('Missing ' + expectedFile);
+    const expected = JSON.parse(readFileSync(expectedFile, 'utf8'));
+    const runId = batchId + '-' + fixture.name;
+    const { state, logger } = await runDelegation({ fixture: expected.golden_key, runId, correlationId: runId, mode: 'golden', outputDir: join(ROOT, 'artifacts', runId) });
+    const expectsCheckpoint = expected.expected_run_status === 'SUCCESS' || expected.expected_run_status === 'PENDING_HUMAN';
+    // Golden replay cannot create human approval records.
+    const statusMatch = expectsCheckpoint ? state.status === 'pending_human' : expected.expected_run_status === 'FAILED' ? ['halted', 'failure'].includes(state.status) : state.status.toUpperCase() === expected.expected_run_status;
+    const expectedOrigin = expected.expected_failure_origin_step ?? null;
+    const actualOrigin = state.failureOriginStep ?? null;
+    const equivalentOrigin = expectedOrigin === actualOrigin || ({ S1: 'W1', S2: 'W2', S3: 'W3' }[expectedOrigin] === actualOrigin) || (expectedOrigin === 'S3' && actualOrigin === 'W5');
+    const cyclesMatch = expected.max_remediate_cycles === undefined || state.remediateCycles === expected.max_remediate_cycles;
+    const passed = statusMatch && equivalentOrigin && cyclesMatch;
+    const entries = logger.getEntries();
+    rows.push({
+      run_id: runId,
+      recorded_at: new Date().toISOString(),
+      fixture_id: fixture.name,
+      evidence_type: 'simulated_regression',
+      regression_pass: passed,
+      expected_outcome: expectsCheckpoint ? 'pending_human' : expected.expected_run_status.toLowerCase(),
+      actual_status: state.status,
+      human_approved: false,
+      remediate_cycles: state.remediateCycles,
+      failure_origin_step: actualOrigin,
+      simulated_tokens: entries.reduce((sum, entry) => sum + (entry.input_tokens ?? 0) + (entry.output_tokens ?? 0), 0),
+      simulated_cost_usd: Number(entries.reduce((sum, entry) => sum + (entry.cost_usd ?? 0), 0).toFixed(6)),
+    });
+    console.log('[' + (passed ? 'PASS' : 'FAIL') + '] ' + fixture.name + ': ' + state.status);
   }
-
-  writeFileSync(CSV_PATH, `${rowsToCsv(allRows)}\n`, 'utf8');
-  if (options.writeReport) {
-    writeReport(allRows);
-  }
-
-  const latestBatch = options.seedTrends ? options.batchLabel : options.batchLabel;
-  const latestRows = allRows.filter((r) => r.batch_label === latestBatch);
-  const latestPassed = latestRows.filter((r) => r.e2e_success).length;
-  process.exit(latestPassed === latestRows.length ? 0 : 1);
+  const passed = rows.filter((row) => row.regression_pass).length;
+  const report = {
+    evidence_type: 'simulated_regression',
+    inference_performed: false,
+    usage_source: 'simulated',
+    batch_id: batchId,
+    started_at: startedAt,
+    completed_at: new Date().toISOString(),
+    tests: rows.length,
+    passed,
+    regression_percent: rows.length ? 100 * passed / rows.length : 0,
+    certification_readiness_established: false,
+    note: 'Successful golden fixtures stop at the human checkpoint. This measures expected harness outcomes, not production delivery or model quality. Usage values are simulated.',
+    rows,
+  };
+  mkdirSync(METRICS, { recursive: true });
+  writeFileSync(join(METRICS, 'regression-results.json'), JSON.stringify(report, null, 2) + '\n');
+  const columns = ['run_id', 'recorded_at', 'fixture_id', 'evidence_type', 'regression_pass', 'expected_outcome', 'actual_status', 'human_approved', 'remediate_cycles', 'simulated_tokens', 'simulated_cost_usd', 'failure_origin_step'];
+  writeFileSync(join(METRICS, 'e2e-runs.csv'), columns.join(',') + '\n' + rows.map((row) => columns.map((key) => row[key] ?? '').join(',')).join('\n') + '\n');
+  writeFileSync(join(METRICS, 'e2e-report.md'), [
+    '# Delegation regression results', '',
+    'Generated from fixture replays starting ' + startedAt + '.', '',
+    '- Evidence: simulated golden regression; no model inference performed.',
+    '- Expected-outcome checks: ' + passed + '/' + rows.length + ' (' + report.regression_percent.toFixed(1) + '%).',
+    '- Successful fixtures stop at the human checkpoint. This batch records no approvals.',
+    '- Tokens and costs are synthetic fixture values, not measured inference usage.',
+    '- This does not establish production success rate, historical improvement, model quality, or certification readiness.', '',
+    'Structured records: `regression-results.json` and `e2e-runs.csv`. Re-run with `npm run delegation:batch`.',
+    'The previous report with artificial dated labels is preserved under `evaluations/historical/legacy-metrics/` and must not be used as historical measurements.', '',
+  ].join('\n'));
+  process.exitCode = passed === rows.length ? 0 : 1;
 }
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+main().catch((error) => { console.error(error); process.exitCode = 1; });
