@@ -1,0 +1,36 @@
+description: "CATCH missing ToGpmq_LogTriggerError or NAF.BaseLog insert (FAIL)"
+vars:
+  scenario: delete
+  expected_command: RD
+  expected_verdict: FAIL
+  expect_forbidden_clean: true
+  expected_failed_elements: "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH"
+  trigger_sql: |
+    CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]
+    ON [PurinaNA].[BatchCampaign]
+    AFTER INSERT, UPDATE, DELETE
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        SET XACT_ABORT OFF;
+        DECLARE @Command VARCHAR(2);
+        IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RU';
+        ELSE IF EXISTS (SELECT 1 FROM inserted)
+            SET @Command = 'RI';
+        ELSE IF EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RD';
+        ELSE RETURN;
+        BEGIN TRY
+            DECLARE @Schema SYSNAME = N'PurinaNA';
+            DECLARE @Table SYSNAME = N'BatchCampaign';
+            DECLARE @Sql NVARCHAR(MAX);
+            EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]
+                @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;
+            EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',
+                @TableName = @Table, @Command = @Command;
+        END TRY
+        BEGIN CATCH
+            IF XACT_STATE() = -1 THROW;
+        END CATCH
+    END

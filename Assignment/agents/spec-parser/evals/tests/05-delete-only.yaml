@@ -1,0 +1,17 @@
+description: "Delete-only trigger type"
+vars:
+  scenario: delete-only
+  expected_table: ArchiveRow
+  expected_schema: PurinaNA
+  expected_pk: archive_id
+  expect_pk_scalar: true
+  expected_trigger_type: "AFTER DELETE"
+  brief_md: |
+    # Migration Brief — ArchiveRow DELETE Only
+
+    ## Target Table
+    | Schema | PurinaNA |
+    | Table | ArchiveRow |
+    | Primary key | archive_id |
+
+    Trigger type: AFTER DELETE. Purge audit path only on delete.

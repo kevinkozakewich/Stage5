@@ -1,0 +1,18 @@
+description: "Schema field explicit in brief"
+vars:
+  scenario: explicit-schema
+  expected_table: ProductCatalog
+  expected_schema: DMOCore
+  expected_pk: product_id
+  expect_pk_scalar: true
+  expected_trigger_type: "AFTER INSERT, UPDATE, DELETE"
+  brief_md: |
+    # Migration Brief — ProductCatalog
+
+    ## Target Table
+    | Field | Value |
+    | Schema | DMOCore |
+    | Table | ProductCatalog |
+    | Primary key | product_id |
+
+    Full IUD downstream migration trigger required.

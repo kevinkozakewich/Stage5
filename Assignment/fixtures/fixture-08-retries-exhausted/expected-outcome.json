@@ -1,0 +1,19 @@
+{
+  "fixture_id": "fixture-08-retries-exhausted",
+  "golden_key": "golden-fail-exhausted",
+  "description": "S3 always FAIL; remediate retries exhausted at max 2 cycles",
+  "e2e_success": false,
+  "expected_run_status": "FAILED",
+  "requires_human_approval": false,
+  "expected_verdict": "FAIL",
+  "max_remediate_cycles": 2,
+  "expected_guardrails": {
+    "G1": "pass",
+    "G2": "pass",
+    "G3": "pass",
+    "G4": "not_reached"
+  },
+  "expected_failure_origin_step": "S3",
+  "punch_out_reached": false,
+  "notes": "Terminal failure after remediate loop — not a punch-out scenario"
+}

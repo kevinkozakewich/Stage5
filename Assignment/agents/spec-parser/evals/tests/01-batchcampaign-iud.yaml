@@ -1,0 +1,20 @@
+description: "Full IUD brief with single PK"
+vars:
+  scenario: batchcampaign-iud
+  expected_table: BatchCampaign
+  expected_schema: PurinaNA
+  expected_pk: scm_id
+  expect_pk_scalar: true
+  expected_trigger_type: "AFTER INSERT, UPDATE, DELETE"
+  brief_md: |
+    # Migration Brief — BatchCampaign
+
+    ## Target Table
+    | Field | Value |
+    | Schema | PurinaNA |
+    | Table | BatchCampaign |
+    | Primary key | scm_id (single column) |
+
+    ## Trigger Specification
+    - **Type:** AFTER INSERT, UPDATE, DELETE
+    - **Operations:** Full IUD — derive command from inserted / deleted

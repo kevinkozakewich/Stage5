@@ -1,0 +1,12 @@
+{
+  "workflow_id": "W1",
+  "model": "cursor:subagent",
+  "inference_note": "Measured via subagent packets; full matrix in repo support/subagent-evals/results.json",
+  "composite_percent": 100,
+  "criteria": {
+    "E1": { "name": "schema_compliance", "pass_rate": 100 },
+    "E2": { "name": "field_completeness", "pass_rate": 100 },
+    "E3": { "name": "pk_extraction", "pass_rate": 100 }
+  },
+  "recorded_at": "2026-10-05"
+}

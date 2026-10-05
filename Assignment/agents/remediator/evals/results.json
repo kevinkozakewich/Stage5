@@ -1,0 +1,12 @@
+{
+  "workflow_id": "W4",
+  "model": "cursor:subagent",
+  "inference_note": "Measured via subagent packets; full matrix in repo support/subagent-evals/results.json",
+  "composite_percent": 100,
+  "criteria": {
+    "E1": { "name": "fixes_applied", "pass_rate": 100 },
+    "E2": { "name": "no_forbidden_patterns", "pass_rate": 100 },
+    "E3": { "name": "structural_contract", "pass_rate": 100 }
+  },
+  "recorded_at": "2026-10-05"
+}

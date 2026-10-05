@@ -1,0 +1,19 @@
+{
+  "fixture_id": "fixture-05-insert-only",
+  "golden_key": "golden-insert-only",
+  "description": "Insert-only happy path (Level 3: 03-insert-only-good)",
+  "e2e_success": true,
+  "expected_run_status": "SUCCESS",
+  "requires_human_approval": true,
+  "expected_verdict": "PASS",
+  "max_remediate_cycles": 0,
+  "expected_guardrails": {
+    "G1": "pass",
+    "G2": "pass",
+    "G3": "pass",
+    "G4": "pass"
+  },
+  "expected_failure_origin_step": null,
+  "punch_out_reached": true,
+  "level3_reference": "03-insert-only-good"
+}

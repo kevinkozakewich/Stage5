@@ -1,0 +1,19 @@
+{
+  "fixture_id": "fixture-06-g1-schema-fail",
+  "golden_key": "golden-guardrail-halt",
+  "description": "Incomplete requirements JSON; G1 schema validator halts before S2",
+  "e2e_success": false,
+  "expected_run_status": "FAILED",
+  "requires_human_approval": false,
+  "expected_verdict": null,
+  "max_remediate_cycles": 0,
+  "expected_guardrails": {
+    "G1": "fail",
+    "G2": "not_reached",
+    "G3": "not_reached",
+    "G4": "not_reached"
+  },
+  "expected_failure_origin_step": "S1",
+  "punch_out_reached": false,
+  "notes": "Automated fail at G1 — no punch-out"
+}

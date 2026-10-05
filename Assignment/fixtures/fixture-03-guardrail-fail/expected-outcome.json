@@ -1,0 +1,27 @@
+{
+  "fixture_id": "fixture-03-guardrail-fail",
+  "golden_key": "golden-g2-halt",
+  "description": "S2 emits direct queue INSERT; G2 sentinel halts workflow before S3",
+  "e2e_success": false,
+  "expected_run_status": "FAILED",
+  "requires_human_approval": false,
+  "expected_verdict": null,
+  "max_remediate_cycles": 0,
+  "expected_guardrails": {
+    "G1": "pass",
+    "G2": "fail",
+    "G3": "not_reached",
+    "G4": "not_reached"
+  },
+  "expected_failure_origin_step": "S2",
+  "originating_agent": "S2",
+  "punch_out_reached": false,
+  "guardrail_findings": [
+    "direct_queue_insert",
+    "missing_prep_sp",
+    "missing_source_param"
+  ],
+  "level3_reference": "05-missing-source",
+  "audit_example": "audit/trace-g2-halt-example.md",
+  "notes": "Automated fail — not a punch-out scenario"
+}

@@ -1,0 +1,9 @@
+{
+  "workflow_id": "W2",
+  "name": "trigger-codegen",
+  "substance": "core",
+  "allowed_tools": [],
+  "isolated_context": false,
+  "agent_path": "agents/trigger-codegen",
+  "output_artifact": "trigger.sql"
+}

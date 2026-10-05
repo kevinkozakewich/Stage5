@@ -1,0 +1,41 @@
+# S1 spec parser, golden provider, no API key
+# Run: promptfoo eval -c evals/promptfooconfig.golden.yaml
+
+description: S1 Spec Parser (golden)
+
+prompts:
+  - file://../prompt/Prompt.md
+
+providers:
+  - id: file://providers/goldenProvider.cjs
+    label: Golden Output (offline)
+
+defaultTest:
+  options:
+    provider: golden
+  assert:
+    - type: javascript
+      value: file://assertions/specParser.cjs:assertSchemaCompliance
+      metric: schema_compliance
+      threshold: 1.0
+    - type: javascript
+      value: file://assertions/specParser.cjs:assertFieldCompleteness
+      metric: field_completeness
+      threshold: 1.0
+    - type: javascript
+      value: file://assertions/specParser.cjs:assertPkExtraction
+      metric: pk_extraction
+      threshold: 1.0
+
+tests:
+  - file://tests/01-batchcampaign-iud.yaml
+  - file://tests/02-vendor-composite-pk.yaml
+  - file://tests/03-insert-only.yaml
+  - file://tests/04-update-only.yaml
+  - file://tests/05-delete-only.yaml
+  - file://tests/06-explicit-schema.yaml
+  - file://tests/07-with-constraints.yaml
+  - file://tests/08-qualified-table-name.yaml
+
+evaluateOptions:
+  maxConcurrency: 4

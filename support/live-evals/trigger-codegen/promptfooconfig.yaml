@@ -1,0 +1,41 @@
+# S2 Trigger Codegen — live model eval (dev only; not in submission)
+# Run from repo root: npm run eval:s2:live
+# Requires OPENAI_API_KEY
+
+description: S2 Trigger Codegen
+
+prompts:
+  - file://../../../Assignment/agents/trigger-codegen/prompt/Prompt.md
+
+providers:
+  - openai:gpt-4o
+
+defaultTest:
+  options:
+    provider: openai:gpt-4o
+  assert:
+    - type: javascript
+      value: file://../../../Assignment/agents/trigger-codegen/evals/assertions/triggerCodegen.cjs:assertStructuralContract
+      metric: structural_contract
+      threshold: 1.0
+    - type: javascript
+      value: file://../../../Assignment/agents/trigger-codegen/evals/assertions/triggerCodegen.cjs:assertDynamicEnqueue
+      metric: dynamic_enqueue
+      threshold: 1.0
+    - type: javascript
+      value: file://../../../Assignment/agents/trigger-codegen/evals/assertions/triggerCodegen.cjs:assertForbiddenPatterns
+      metric: forbidden_patterns
+      threshold: 1.0
+
+tests:
+  - file://../../../Assignment/agents/trigger-codegen/evals/tests/01-batchcampaign-iud.yaml
+  - file://../../../Assignment/agents/trigger-codegen/evals/tests/02-composite-pk.yaml
+  - file://../../../Assignment/agents/trigger-codegen/evals/tests/03-insert-only.yaml
+  - file://../../../Assignment/agents/trigger-codegen/evals/tests/04-update-only.yaml
+  - file://../../../Assignment/agents/trigger-codegen/evals/tests/05-delete-only.yaml
+  - file://../../../Assignment/agents/trigger-codegen/evals/tests/06-custom-schema.yaml
+  - file://../../../Assignment/agents/trigger-codegen/evals/tests/07-minimal-fields.yaml
+  - file://../../../Assignment/agents/trigger-codegen/evals/tests/08-with-constraints.yaml
+
+evaluateOptions:
+  maxConcurrency: 8

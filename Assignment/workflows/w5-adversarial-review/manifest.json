@@ -1,0 +1,10 @@
+{
+  "workflow_id": "W5",
+  "name": "adversarial-review",
+  "substance": "peripheral",
+  "allowed_tools": ["read_file"],
+  "read_file_scope": "run_artifact_directory",
+  "isolated_context": true,
+  "agent_path": "agents/adversarial-review",
+  "output_artifact": "adversarial.json"
+}

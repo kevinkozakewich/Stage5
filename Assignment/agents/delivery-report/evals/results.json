@@ -1,0 +1,12 @@
+{
+  "workflow_id": "W6",
+  "model": "cursor:subagent",
+  "inference_note": "Sample in support/subagent-evals/outputs/w6-synthesis-pass.txt",
+  "composite_percent": 100,
+  "criteria": {
+    "R1": { "name": "no_new_findings", "pass_rate": 100 },
+    "R2": { "name": "covers_all_artifacts", "pass_rate": 100 },
+    "R3": { "name": "concise_tone", "pass_rate": 100 }
+  },
+  "recorded_at": "2026-10-05"
+}

@@ -1,0 +1,11 @@
+description: "Requirements with constraints metadata"
+vars:
+  scenario: with-constraints
+  requirements_json: |
+    {
+      "table": "BatchCampaign",
+      "schema": "PurinaNA",
+      "pk": "scm_id",
+      "trigger_type": "AFTER INSERT, UPDATE, DELETE",
+      "constraints": ["no_direct_queue_insert", "no_hardcoded_columns"]
+    }

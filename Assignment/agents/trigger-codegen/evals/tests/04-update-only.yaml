@@ -1,0 +1,11 @@
+description: "Update-only trigger type"
+vars:
+  scenario: update-only
+  expect_command_detection: false
+  requirements_json: |
+    {
+      "table": "PriceHistory",
+      "schema": "PurinaNA",
+      "pk": "price_id",
+      "trigger_type": "AFTER UPDATE"
+    }

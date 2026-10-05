@@ -1,0 +1,4 @@
+{
+  "pk": "batch_id",
+  "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+}

@@ -1,0 +1,7 @@
+# Mid-tier model for trigger review evals.
+# Requires OPENAI_API_KEY.
+
+id: openai:gpt-4o
+label: GPT-4o
+config:
+  temperature: 0

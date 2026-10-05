@@ -1,0 +1,35 @@
+CREATE OR ALTER TRIGGER [DMOCore].[ProductCatalog_DownstreamMigration]
+ON [DMOCore].[ProductCatalog]
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SET XACT_ABORT OFF;
+    DECLARE @Command VARCHAR(2);
+    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+        SET @Command = 'RU';
+    ELSE IF EXISTS (SELECT 1 FROM inserted)
+        SET @Command = 'RI';
+    ELSE IF EXISTS (SELECT 1 FROM deleted)
+        SET @Command = 'RD';
+    ELSE RETURN;
+    BEGIN TRY
+        DECLARE @Schema SYSNAME = N'DMOCore';
+        DECLARE @Table SYSNAME = N'ProductCatalog';
+        DECLARE @Sql NVARCHAR(MAX);
+        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]
+            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;
+        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',
+            @TableName = @Table, @Command = @Command;
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrNum INT = ERROR_NUMBER();
+        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrLine INT = ERROR_LINE();
+        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();
+        EXEC [PurinaNA].[ToGpmq_LogTriggerError]
+            @TriggerName = N'ProductCatalog_DownstreamMigration', @Command = @Command,
+            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;
+        IF XACT_STATE() = -1 THROW;
+    END CATCH
+END

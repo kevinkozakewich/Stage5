@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Level 5 Coordinator Dispatch Tools",
+  "description": "Dispatch-only surface — no read_file, HTTP, shell, or guardrail tools on the coordinator.",
+  "type": "object",
+  "properties": {
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^launch_[a-z_]+$"
+          },
+          "description": { "type": "string" },
+          "parameters": { "type": "object" }
+        }
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "launch_spec_parser",
+      "description": "Dispatch W1 spec parser: migration brief → requirements.json",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target_step": { "type": "string", "enum": ["W1"] },
+          "brief_ref": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "launch_trigger_codegen",
+      "description": "Dispatch W2 trigger codegen: requirements.json → trigger.sql",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target_step": { "type": "string", "enum": ["W2"] }
+        }
+      }
+    },
+    {
+      "name": "launch_trigger_review",
+      "description": "Dispatch W3 trigger review: trigger.sql → review.json",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target_step": { "type": "string", "enum": ["W3"] },
+          "artifact_focus": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "launch_remediator",
+      "description": "Dispatch W4 remediator: review.json + trigger.sql → revised trigger.sql",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target_step": { "type": "string", "enum": ["W4"] }
+        }
+      }
+    },
+    {
+      "name": "launch_adversarial_reviewer",
+      "description": "Dispatch W5 isolated adversarial review of a PASS review.json",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target_step": { "type": "string", "enum": ["W5"] }
+        }
+      }
+    },
+    {
+      "name": "launch_delivery_report_writer",
+      "description": "Dispatch W6 delivery report body synthesis (headings assembled by harness)",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "target_step": { "type": "string", "enum": ["W6"] }
+        }
+      }
+    }
+  ]
+}

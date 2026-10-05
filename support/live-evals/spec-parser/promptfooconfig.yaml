@@ -1,0 +1,41 @@
+# S1 Spec Parser — live model eval (dev only; not in submission)
+# Run from repo root: npm run eval:s1:live
+# Requires OPENAI_API_KEY
+
+description: S1 Spec Parser
+
+prompts:
+  - file://../../../Assignment/agents/spec-parser/prompt/Prompt.md
+
+providers:
+  - openai:gpt-4o
+
+defaultTest:
+  options:
+    provider: openai:gpt-4o
+  assert:
+    - type: javascript
+      value: file://../../../Assignment/agents/spec-parser/evals/assertions/specParser.cjs:assertSchemaCompliance
+      metric: schema_compliance
+      threshold: 1.0
+    - type: javascript
+      value: file://../../../Assignment/agents/spec-parser/evals/assertions/specParser.cjs:assertFieldCompleteness
+      metric: field_completeness
+      threshold: 1.0
+    - type: javascript
+      value: file://../../../Assignment/agents/spec-parser/evals/assertions/specParser.cjs:assertPkExtraction
+      metric: pk_extraction
+      threshold: 1.0
+
+tests:
+  - file://../../../Assignment/agents/spec-parser/evals/tests/01-batchcampaign-iud.yaml
+  - file://../../../Assignment/agents/spec-parser/evals/tests/02-vendor-composite-pk.yaml
+  - file://../../../Assignment/agents/spec-parser/evals/tests/03-insert-only.yaml
+  - file://../../../Assignment/agents/spec-parser/evals/tests/04-update-only.yaml
+  - file://../../../Assignment/agents/spec-parser/evals/tests/05-delete-only.yaml
+  - file://../../../Assignment/agents/spec-parser/evals/tests/06-explicit-schema.yaml
+  - file://../../../Assignment/agents/spec-parser/evals/tests/07-with-constraints.yaml
+  - file://../../../Assignment/agents/spec-parser/evals/tests/08-qualified-table-name.yaml
+
+evaluateOptions:
+  maxConcurrency: 8

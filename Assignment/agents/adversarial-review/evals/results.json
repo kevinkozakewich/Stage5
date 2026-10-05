@@ -1,0 +1,12 @@
+{
+  "workflow_id": "W5",
+  "model": "cursor:subagent",
+  "inference_note": "Samples in support/subagent-evals/outputs/w5-*.txt; golden mock for delegation E2E",
+  "composite_percent": 100,
+  "criteria": {
+    "A1": { "name": "challenge_json_well_formed", "pass_rate": 100 },
+    "A2": { "name": "upheld_on_clean_pass", "pass_rate": 100 },
+    "A3": { "name": "overturn_on_false_clean", "pass_rate": 100 }
+  },
+  "recorded_at": "2026-10-05"
+}

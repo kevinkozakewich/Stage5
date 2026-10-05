@@ -1,0 +1,60 @@
+description: "Replace stub sp_executesql with prep SP path"
+vars:
+  scenario: missing-prep-sp
+  expected_resolved_elements: '["Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"]'
+  review_json: |
+    {
+      "verdict": "FAIL",
+      "structure_checklist": {
+        "passed": ["SET NOCOUNT ON", "SET XACT_ABORT OFF", "BEGIN TRY / BEGIN CATCH", "IF XACT_STATE() = -1 rethrow pattern"],
+        "failed": ["Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"],
+        "missing": ["ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH"]
+      },
+      "violations": [{"id": "V1", "severity": "critical", "detail": "Missing ToGpmq_EnqueueRecordByTriggerPrep", "fix": "Call prep SP before sp_executesql; add ToGpmq_LogTriggerError in CATCH"}]
+    }
+  trigger_sql: |
+    CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]
+    ON [PurinaNA].[BatchCampaign]
+    AFTER INSERT
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        SET XACT_ABORT OFF;
+        DECLARE @Command VARCHAR(2) = 'RI';
+        BEGIN TRY
+            DECLARE @Sql NVARCHAR(MAX) = N'SELECT 1';
+            EXEC sp_executesql @Sql;
+        END TRY
+        BEGIN CATCH
+            IF XACT_STATE() = -1 THROW;
+        END CATCH
+    END
+  golden_remediated_sql: |
+    CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]
+    ON [PurinaNA].[BatchCampaign]
+    AFTER INSERT
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        SET XACT_ABORT OFF;
+        DECLARE @Command VARCHAR(2) = 'RI';
+        BEGIN TRY
+            DECLARE @Schema SYSNAME = N'PurinaNA';
+            DECLARE @Table SYSNAME = N'BatchCampaign';
+            DECLARE @Sql NVARCHAR(MAX);
+            EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]
+                @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;
+            EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',
+                @TableName = @Table, @Command = @Command;
+        END TRY
+        BEGIN CATCH
+            DECLARE @ErrNum INT = ERROR_NUMBER();
+            DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();
+            DECLARE @ErrLine INT = ERROR_LINE();
+            DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();
+            EXEC [PurinaNA].[ToGpmq_LogTriggerError]
+                @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,
+                @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;
+            IF XACT_STATE() = -1 THROW;
+        END CATCH
+    END

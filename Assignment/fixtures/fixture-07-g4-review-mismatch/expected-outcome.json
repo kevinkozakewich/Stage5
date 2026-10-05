@@ -1,0 +1,19 @@
+{
+  "fixture_id": "fixture-07-g4-review-mismatch",
+  "golden_key": "golden-g4-fail",
+  "description": "S3 PASS with dirty forbidden_patterns; G4 cross-check halts workflow",
+  "e2e_success": false,
+  "expected_run_status": "FAILED",
+  "requires_human_approval": false,
+  "expected_verdict": "PASS",
+  "max_remediate_cycles": 0,
+  "expected_guardrails": {
+    "G1": "pass",
+    "G2": "pass",
+    "G3": "pass",
+    "G4": "fail"
+  },
+  "expected_failure_origin_step": "S3",
+  "punch_out_reached": false,
+  "notes": "G4 blocks false-clean PASS — automated fail, not punch-out"
+}

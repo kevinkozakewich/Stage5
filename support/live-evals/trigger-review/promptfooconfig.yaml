@@ -1,0 +1,43 @@
+# S3 Trigger Review — live model eval (dev only; not in submission)
+# Run from repo root: npm run eval:s3:live
+# Requires OPENAI_API_KEY
+
+description: DMO downstream migration trigger review
+
+prompts:
+  - file://../../../Assignment/agents/trigger-review/prompt/Prompt.md
+
+providers:
+  - file://providers.yaml
+
+defaultTest:
+  options:
+    provider: openai:gpt-4o
+  assert:
+    - type: javascript
+      value: file://../../../Assignment/agents/trigger-review/evals/assertions/triggerReview.cjs:assertCommandDetection
+      metric: command_detection
+      threshold: 1.0
+    - type: javascript
+      value: file://../../../Assignment/agents/trigger-review/evals/assertions/triggerReview.cjs:assertStructureChecklist
+      metric: structure_checklist
+      threshold: 0.95
+    - type: javascript
+      value: file://../../../Assignment/agents/trigger-review/evals/assertions/triggerReview.cjs:assertForbiddenPatterns
+      metric: forbidden_patterns
+      threshold: 1.0
+
+tests:
+  - file://../../../Assignment/agents/trigger-review/evals/tests/01-good-reference.yaml
+  - file://../../../Assignment/agents/trigger-review/evals/tests/02-composite-pk-good.yaml
+  - file://../../../Assignment/agents/trigger-review/evals/tests/03-insert-only-good.yaml
+  - file://../../../Assignment/agents/trigger-review/evals/tests/04-missing-trycatch.yaml
+  - file://../../../Assignment/agents/trigger-review/evals/tests/05-missing-source.yaml
+  - file://../../../Assignment/agents/trigger-review/evals/tests/06-hardcoded-columns.yaml
+  - file://../../../Assignment/agents/trigger-review/evals/tests/07-missing-xact-abort-off.yaml
+  - file://../../../Assignment/agents/trigger-review/evals/tests/08-catch-rethrows-all.yaml
+  - file://../../../Assignment/agents/trigger-review/evals/tests/09-update-wrong-command.yaml
+  - file://../../../Assignment/agents/trigger-review/evals/tests/10-delete-missing-error-logging.yaml
+
+evaluateOptions:
+  maxConcurrency: 8

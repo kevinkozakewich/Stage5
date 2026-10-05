@@ -1,0 +1,7 @@
+{
+  "table": "VendorContact",
+  "schema": "PurinaNA",
+  "pk": ["vendor_id", "contact_seq"],
+  "trigger_type": "AFTER INSERT, UPDATE, DELETE",
+  "constraints": ["composite_pk_fan_out_via_prep_sp"]
+}

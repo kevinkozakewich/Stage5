@@ -1,0 +1,4 @@
+{
+  "table": "BatchCampaign",
+  "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+}

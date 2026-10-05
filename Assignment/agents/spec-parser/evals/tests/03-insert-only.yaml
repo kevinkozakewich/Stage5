@@ -1,0 +1,19 @@
+description: "Insert-only trigger type"
+vars:
+  scenario: insert-only
+  expected_table: CampaignMember
+  expected_schema: PurinaNA
+  expected_pk: cm_id
+  expect_pk_scalar: true
+  expected_trigger_type: "AFTER INSERT"
+  brief_md: |
+    # Migration Brief — CampaignMember INSERT Only
+
+    ## Target Table
+    Schema: PurinaNA
+    Table: CampaignMember
+    Primary key: cm_id
+
+    ## Trigger Specification
+    - **Type:** AFTER INSERT
+    - **Command:** Hard-code @Command = 'RI' for insert-only workload

@@ -1,0 +1,13 @@
+node_modules/
+Assignment/node_modules/
+Assignment/artifacts/
+artifacts/
+audit-runs/
+.env
+.env.*
+*.log
+.submission-staging/
+
+# Regenerate with npm run package:zip
+level-5-certification.zip
+level-5-certification-v2.zip

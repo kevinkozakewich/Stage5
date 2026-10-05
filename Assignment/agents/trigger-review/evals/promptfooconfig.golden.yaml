@@ -1,0 +1,43 @@
+# S3 trigger review, golden provider, no API key
+# Run: promptfoo eval -c evals/promptfooconfig.golden.yaml
+
+description: DMO downstream migration trigger review (golden)
+
+prompts:
+  - file://../prompt/Prompt.md
+
+providers:
+  - id: file://providers/goldenProvider.cjs
+    label: Golden Output (offline)
+
+defaultTest:
+  options:
+    provider: golden
+  assert:
+    - type: javascript
+      value: file://assertions/triggerReview.cjs:assertCommandDetection
+      metric: command_detection
+      threshold: 1.0
+    - type: javascript
+      value: file://assertions/triggerReview.cjs:assertStructureChecklist
+      metric: structure_checklist
+      threshold: 0.95
+    - type: javascript
+      value: file://assertions/triggerReview.cjs:assertForbiddenPatterns
+      metric: forbidden_patterns
+      threshold: 1.0
+
+tests:
+  - file://tests/01-good-reference.yaml
+  - file://tests/02-composite-pk-good.yaml
+  - file://tests/03-insert-only-good.yaml
+  - file://tests/04-missing-trycatch.yaml
+  - file://tests/05-missing-source.yaml
+  - file://tests/06-hardcoded-columns.yaml
+  - file://tests/07-missing-xact-abort-off.yaml
+  - file://tests/08-catch-rethrows-all.yaml
+  - file://tests/09-update-wrong-command.yaml
+  - file://tests/10-delete-missing-error-logging.yaml
+
+evaluateOptions:
+  maxConcurrency: 4

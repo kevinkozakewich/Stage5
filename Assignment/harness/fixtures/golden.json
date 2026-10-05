@@ -1,0 +1,230 @@
+{
+  "golden-pass": {
+    "brief": "# Migration Brief\n\nTable: dbo.Orders\nPrimary Key: OrderId\nTrigger Type: INSERT",
+    "requirements": {
+      "table": "dbo.Orders",
+      "primary_key": ["OrderId"],
+      "trigger_type": "INSERT",
+      "constraints": ["no_direct_queue_insert"]
+    },
+    "trigger_sql": "CREATE TRIGGER trg_Orders_Downstream\nON dbo.Orders\nAFTER INSERT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC dbo.usp_PrepareDownstreamMigration @TableName = 'dbo.Orders';\nEND",
+    "review_pass": {
+      "verdict": "PASS",
+      "violations": [],
+      "forbidden_patterns": { "clean": true }
+    },
+    "review_fail": {
+      "verdict": "FAIL",
+      "violations": [{ "code": "MISSING_NOCOUNT", "message": "SET NOCOUNT ON missing" }],
+      "forbidden_patterns": { "clean": true }
+    },
+    "review_fail_then_pass": {
+      "first": {
+        "verdict": "FAIL",
+        "violations": [{ "code": "MISSING_NOCOUNT", "message": "SET NOCOUNT ON missing" }],
+        "forbidden_patterns": { "clean": true }
+      },
+      "remediated": {
+        "verdict": "PASS",
+        "violations": [],
+        "forbidden_patterns": { "clean": true }
+      },
+      "revised_sql": "CREATE TRIGGER trg_Orders_Downstream\nON dbo.Orders\nAFTER INSERT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC dbo.usp_PrepareDownstreamMigration @TableName = 'dbo.Orders';\nEND"
+    },
+    "guardrails": {
+      "G1": true,
+      "G2": true,
+      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G4": true
+    },
+    "tokens": {
+      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
+      "S2": { "input": 310, "output": 920, "cost": 0.0068 },
+      "S3": { "input": 1842, "output": 512, "cost": 0.0089 },
+      "S4": { "input": 980, "output": 640, "cost": 0.0054 },
+      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
+    }
+  },
+  "golden-remediate": {
+    "brief": "# Migration Brief — VendorContact\n\nComposite PK; first pass may omit TRY/CATCH",
+    "requirements": {
+      "table": "PurinaNA.VendorContact",
+      "primary_key": ["vendor_id", "contact_seq"],
+      "trigger_type": "AFTER INSERT, UPDATE, DELETE",
+      "constraints": ["no_direct_queue_insert"]
+    },
+    "trigger_sql": "CREATE TRIGGER trg_VendorContact_Downstream\nON PurinaNA.VendorContact\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\nEND",
+    "review_fail_then_pass": {
+      "first": {
+        "verdict": "FAIL",
+        "violations": [{ "code": "MISSING_TRYCATCH", "message": "BEGIN TRY / BEGIN CATCH missing" }],
+        "forbidden_patterns": { "clean": true }
+      },
+      "remediated": {
+        "verdict": "PASS",
+        "violations": [],
+        "forbidden_patterns": { "clean": true }
+      },
+      "revised_sql": "CREATE TRIGGER trg_VendorContact_Downstream\nON PurinaNA.VendorContact\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  BEGIN TRY\n    EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\n  END TRY\n  BEGIN CATCH\n    EXEC PurinaNA.ToGpmq_LogTriggerError;\n  END CATCH\nEND"
+    },
+    "guardrails": {
+      "G1": true,
+      "G2": true,
+      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G4": true
+    },
+    "tokens": {
+      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
+      "S2": { "input": 310, "output": 920, "cost": 0.0068 },
+      "S3": { "input": 1842, "output": 512, "cost": 0.0089 },
+      "S4": { "input": 980, "output": 640, "cost": 0.0054 },
+      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
+    }
+  },
+  "golden-g2-halt": {
+    "brief": "# Migration Brief — BatchCampaign INSERT-only\n\nBrief incorrectly suggests direct queue INSERT",
+    "requirements": {
+      "table": "PurinaNA.BatchCampaign",
+      "primary_key": ["scm_id"],
+      "trigger_type": "AFTER INSERT",
+      "constraints": ["no_direct_queue_insert"]
+    },
+    "trigger_sql": "CREATE TRIGGER trg_BatchCampaign_Bad\nON PurinaNA.BatchCampaign\nAFTER INSERT\nAS\nBEGIN\n  INSERT INTO NAF.DownstreamMigrationQueue SELECT * FROM inserted;\nEND",
+    "review_pass": {
+      "verdict": "PASS",
+      "violations": [],
+      "forbidden_patterns": { "clean": false }
+    },
+    "guardrails": {
+      "G1": true,
+      "G2": false,
+      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G4": true
+    },
+    "tokens": {
+      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
+      "S2": { "input": 310, "output": 920, "cost": 0.0068 }
+    }
+  },
+  "golden-composite-pk": {
+    "brief": "# Migration Brief — OrderLine composite PK",
+    "requirements": {
+      "table": "PurinaNA.OrderLine",
+      "primary_key": ["order_id", "line_seq"],
+      "trigger_type": "AFTER INSERT, UPDATE, DELETE",
+      "constraints": ["no_direct_queue_insert"]
+    },
+    "trigger_sql": "CREATE TRIGGER trg_OrderLine_Downstream\nON PurinaNA.OrderLine\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\nEND",
+    "review_pass": {
+      "verdict": "PASS",
+      "violations": [],
+      "forbidden_patterns": { "clean": true }
+    },
+    "guardrails": {
+      "G1": true,
+      "G2": true,
+      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G4": true
+    },
+    "tokens": {
+      "S1": { "input": 430, "output": 190, "cost": 0.0022 },
+      "S2": { "input": 320, "output": 940, "cost": 0.0070 },
+      "S3": { "input": 1850, "output": 520, "cost": 0.0090 },
+      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
+    }
+  },
+  "golden-insert-only": {
+    "brief": "# Migration Brief — AuditEvent insert-only",
+    "requirements": {
+      "table": "PurinaNA.AuditEvent",
+      "primary_key": ["event_id"],
+      "trigger_type": "AFTER INSERT",
+      "constraints": ["no_direct_queue_insert"]
+    },
+    "trigger_sql": "CREATE TRIGGER trg_AuditEvent_Downstream\nON PurinaNA.AuditEvent\nAFTER INSERT\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\nEND",
+    "review_pass": {
+      "verdict": "PASS",
+      "violations": [],
+      "forbidden_patterns": { "clean": true }
+    },
+    "guardrails": {
+      "G1": true,
+      "G2": true,
+      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G4": true
+    },
+    "tokens": {
+      "S1": { "input": 400, "output": 170, "cost": 0.0020 },
+      "S2": { "input": 300, "output": 880, "cost": 0.0065 },
+      "S3": { "input": 1800, "output": 500, "cost": 0.0085 },
+      "G3": { "input": 610, "output": 88, "cost": 0.0013 }
+    }
+  },
+  "golden-guardrail-halt": {
+    "brief": "# Migration Brief\n\nTable: dbo.Orders",
+    "requirements": {
+      "table": "dbo.Orders"
+    },
+    "guardrails": {
+      "G1": false
+    },
+    "tokens": {
+      "S1": { "input": 420, "output": 180, "cost": 0.0021 }
+    }
+  },
+  "golden-g4-fail": {
+    "brief": "# Migration Brief — G4 cross-check mismatch",
+    "requirements": {
+      "table": "PurinaNA.BatchCampaign",
+      "primary_key": ["scm_id"],
+      "trigger_type": "AFTER INSERT, UPDATE, DELETE",
+      "constraints": ["no_direct_queue_insert"]
+    },
+    "trigger_sql": "CREATE TRIGGER trg_BatchCampaign_Downstream\nON PurinaNA.BatchCampaign\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n  SET NOCOUNT ON;\n  EXEC PurinaNA.ToGpmq_EnqueueRecordByTriggerPrep;\nEND",
+    "review_pass": {
+      "verdict": "PASS",
+      "violations": [],
+      "forbidden_patterns": { "clean": false }
+    },
+    "guardrails": {
+      "G1": true,
+      "G2": true,
+      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G4": true
+    },
+    "tokens": {
+      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
+      "S2": { "input": 310, "output": 920, "cost": 0.0068 },
+      "S3": { "input": 1842, "output": 512, "cost": 0.0089 },
+      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
+    }
+  },
+  "golden-fail-exhausted": {
+    "brief": "# Migration Brief\n\nTable: dbo.Orders\nPrimary Key: OrderId\nTrigger Type: INSERT",
+    "requirements": {
+      "table": "dbo.Orders",
+      "primary_key": ["OrderId"],
+      "trigger_type": "INSERT",
+      "constraints": ["no_direct_queue_insert"]
+    },
+    "trigger_sql": "CREATE TRIGGER trg_Orders_Bad\nON dbo.Orders\nAFTER INSERT\nAS\nBEGIN\n  INSERT INTO DownstreamMigrationQueue SELECT * FROM inserted;\nEND",
+    "review_always_fail": {
+      "verdict": "FAIL",
+      "violations": [{ "code": "DIRECT_QUEUE_INSERT", "message": "Direct queue insert forbidden" }],
+      "forbidden_patterns": { "clean": false }
+    },
+    "guardrails": {
+      "G1": true,
+      "G2": true,
+      "G3": { "challenge": "UPHELD", "verdict_confirmed": true },
+      "G4": true
+    },
+    "tokens": {
+      "S1": { "input": 420, "output": 180, "cost": 0.0021 },
+      "S2": { "input": 310, "output": 920, "cost": 0.0068 },
+      "S3": { "input": 1842, "output": 512, "cost": 0.0089 },
+      "S4": { "input": 980, "output": 640, "cost": 0.0054 },
+      "G3": { "input": 620, "output": 90, "cost": 0.0014 }
+    }
+  }
+}

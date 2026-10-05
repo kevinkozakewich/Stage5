@@ -1,0 +1,4 @@
+{
+  "table": "BatchCampaign",
+  "pk": ["batch_id", "campaign_id"]
+}

@@ -1,0 +1,17 @@
+description: "Constraints array from brief bullets"
+vars:
+  scenario: with-constraints
+  expected_table: BatchCampaign
+  expected_schema: PurinaNA
+  expected_pk: scm_id
+  expect_pk_scalar: true
+  expected_trigger_type: "AFTER INSERT, UPDATE, DELETE"
+  expected_constraints: '["no_hardcoded_columns", "no_direct_queue_insert"]'
+  brief_md: |
+    # Migration Brief — BatchCampaign with Constraints
+
+    Target: PurinaNA.BatchCampaign, PK scm_id, AFTER INSERT UPDATE DELETE.
+
+    ## Constraints
+    - No hard-coded business column names in static SQL
+    - No direct INSERT into DownstreamMigrationQueue

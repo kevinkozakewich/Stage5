@@ -1,0 +1,27 @@
+{
+  "name": "level-5-certification-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm test --prefix Assignment",
+    "delegation:golden": "npm run delegation:golden --prefix Assignment",
+    "delegation:batch": "npm run delegation:batch --prefix Assignment",
+    "validate": "npm run validate --prefix Assignment",
+    "validate:submission": "node scripts/validate-submission.js",
+    "package:zip": "powershell -NoProfile -File scripts/package-zip.ps1",
+    "eval:all": "npm run eval:all --prefix Assignment",
+    "packets:build": "node scripts/build-subagent-packets.js && node scripts/build-stage5-packets.js",
+    "eval:subagent:sample": "node scripts/assert-subagent-output.js s1 support/subagent-evals/outputs/s1-01-batchcampaign-iud.txt --test 01-batchcampaign-iud.yaml && node scripts/assert-subagent-output.js s2 support/subagent-evals/outputs/s2-01-batchcampaign-iud.txt --test 01-batchcampaign-iud.yaml && node scripts/assert-subagent-output.js s3 support/subagent-evals/outputs/s3-01-good-reference.txt --test 01-good-reference.yaml && node scripts/assert-subagent-output.js s4 support/subagent-evals/outputs/s4-01-missing-trycatch.txt --test 01-missing-trycatch.yaml",
+    "eval:subagent:stage5": "node scripts/assert-stage5-subagent.js w5-upheld support/subagent-evals/outputs/w5-upheld-good-pass.txt && node scripts/assert-stage5-subagent.js w5-overturn support/subagent-evals/outputs/w5-overturn-missing-source.txt && node scripts/assert-stage5-subagent.js w6-pass support/subagent-evals/outputs/w6-synthesis-pass.txt && node scripts/assert-stage5-subagent.js c1-overturn support/subagent-evals/outputs/coordinator-c1-overturn.txt",
+    "eval:subagent:all": "node scripts/assert-subagent-all.js && npm run eval:subagent:stage5",
+    "eval:s1:live": "npm exec --prefix Assignment -- promptfoo eval -c support/live-evals/spec-parser/promptfooconfig.yaml",
+    "eval:s2:live": "npm exec --prefix Assignment -- promptfoo eval -c support/live-evals/trigger-codegen/promptfooconfig.yaml",
+    "eval:s3:live": "npm exec --prefix Assignment -- promptfoo eval -c support/live-evals/trigger-review/promptfooconfig.yaml",
+    "eval:s4:live": "npm exec --prefix Assignment -- promptfoo eval -c support/live-evals/remediator/promptfooconfig.yaml",
+    "eval:live:all": "npm run eval:s1:live && npm run eval:s2:live && npm run eval:s3:live && npm run eval:s4:live",
+    "workflow:golden": "npm run workflow:golden --prefix Assignment"
+  },
+  "devDependencies": {
+    "promptfoo": "^0.123.0"
+  }
+}

@@ -1,0 +1,242 @@
+{
+  "recorded_at": "2026-10-05",
+  "agents": {
+    "s1": {
+      "tests": 8,
+      "passed": 8,
+      "composite_percent": 100,
+      "rows": [
+        {
+          "test": "01-batchcampaign-iud.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertSchemaCompliance: Output conforms to requirements.json schema\n  [PASS] assertFieldCompleteness: Required fields match fixture ground truth\n  [PASS] assertPkExtraction: PK extracted correctly (scm_id)"
+        },
+        {
+          "test": "02-vendor-composite-pk.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertSchemaCompliance: Output conforms to requirements.json schema\n  [PASS] assertFieldCompleteness: Required fields match fixture ground truth\n  [PASS] assertPkExtraction: PK extracted correctly (vendor_id, contact_seq)"
+        },
+        {
+          "test": "03-insert-only.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertSchemaCompliance: Output conforms to requirements.json schema\n  [PASS] assertFieldCompleteness: Required fields match fixture ground truth\n  [PASS] assertPkExtraction: PK extracted correctly (cm_id)"
+        },
+        {
+          "test": "04-update-only.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertSchemaCompliance: Output conforms to requirements.json schema\n  [PASS] assertFieldCompleteness: Required fields match fixture ground truth\n  [PASS] assertPkExtraction: PK extracted correctly (price_id)"
+        },
+        {
+          "test": "05-delete-only.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertSchemaCompliance: Output conforms to requirements.json schema\n  [PASS] assertFieldCompleteness: Required fields match fixture ground truth\n  [PASS] assertPkExtraction: PK extracted correctly (archive_id)"
+        },
+        {
+          "test": "06-explicit-schema.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertSchemaCompliance: Output conforms to requirements.json schema\n  [PASS] assertFieldCompleteness: Required fields match fixture ground truth\n  [PASS] assertPkExtraction: PK extracted correctly (product_id)"
+        },
+        {
+          "test": "07-with-constraints.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertSchemaCompliance: Output conforms to requirements.json schema\n  [PASS] assertFieldCompleteness: Required fields match fixture ground truth\n  [PASS] assertPkExtraction: PK extracted correctly (scm_id)"
+        },
+        {
+          "test": "08-qualified-table-name.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertSchemaCompliance: Output conforms to requirements.json schema\n  [PASS] assertFieldCompleteness: Required fields match fixture ground truth\n  [PASS] assertPkExtraction: PK extracted correctly (account_id)"
+        }
+      ]
+    },
+    "s2": {
+      "tests": 8,
+      "passed": 8,
+      "composite_percent": 100,
+      "rows": [
+        {
+          "test": "01-batchcampaign-iud.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertStructuralContract: All structural contract markers present\n  [PASS] assertDynamicEnqueue: Dynamic enqueue via prep SP + sp_executesql\n  [PASS] assertForbiddenPatterns: No forbidden patterns; command detection OK"
+        },
+        {
+          "test": "02-composite-pk.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertStructuralContract: All structural contract markers present\n  [PASS] assertDynamicEnqueue: Dynamic enqueue via prep SP + sp_executesql\n  [PASS] assertForbiddenPatterns: No forbidden patterns; command detection OK"
+        },
+        {
+          "test": "03-insert-only.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertStructuralContract: All structural contract markers present\n  [PASS] assertDynamicEnqueue: Dynamic enqueue via prep SP + sp_executesql\n  [PASS] assertForbiddenPatterns: No forbidden patterns; command detection OK"
+        },
+        {
+          "test": "04-update-only.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertStructuralContract: All structural contract markers present\n  [PASS] assertDynamicEnqueue: Dynamic enqueue via prep SP + sp_executesql\n  [PASS] assertForbiddenPatterns: No forbidden patterns; command detection OK"
+        },
+        {
+          "test": "05-delete-only.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertStructuralContract: All structural contract markers present\n  [PASS] assertDynamicEnqueue: Dynamic enqueue via prep SP + sp_executesql\n  [PASS] assertForbiddenPatterns: No forbidden patterns; command detection OK"
+        },
+        {
+          "test": "06-custom-schema.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertStructuralContract: All structural contract markers present\n  [PASS] assertDynamicEnqueue: Dynamic enqueue via prep SP + sp_executesql\n  [PASS] assertForbiddenPatterns: No forbidden patterns; command detection OK"
+        },
+        {
+          "test": "07-minimal-fields.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertStructuralContract: All structural contract markers present\n  [PASS] assertDynamicEnqueue: Dynamic enqueue via prep SP + sp_executesql\n  [PASS] assertForbiddenPatterns: No forbidden patterns; command detection OK"
+        },
+        {
+          "test": "08-with-constraints.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertStructuralContract: All structural contract markers present\n  [PASS] assertDynamicEnqueue: Dynamic enqueue via prep SP + sp_executesql\n  [PASS] assertForbiddenPatterns: No forbidden patterns; command detection OK"
+        }
+      ]
+    },
+    "s3": {
+      "tests": 10,
+      "passed": 10,
+      "composite_percent": 100,
+      "rows": [
+        {
+          "test": "01-good-reference.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RU, correct=true)\n  [PASS] assertStructureChecklist: All required structural elements present\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=true"
+        },
+        {
+          "test": "02-composite-pk-good.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RU, correct=true)\n  [PASS] assertStructureChecklist: All required structural elements present\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=true"
+        },
+        {
+          "test": "03-insert-only-good.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RI, correct=true)\n  [PASS] assertStructureChecklist: All required structural elements present\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=true"
+        },
+        {
+          "test": "04-missing-trycatch.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RU, correct=true)\n  [PASS] assertStructureChecklist: Structure checklist correctly identifies violations\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=true"
+        },
+        {
+          "test": "05-missing-source.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RI, correct=true)\n  [PASS] assertStructureChecklist: Structure checklist correctly identifies violations\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=false"
+        },
+        {
+          "test": "06-hardcoded-columns.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RI, correct=true)\n  [PASS] assertStructureChecklist: Structure checklist correctly identifies violations\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=false"
+        },
+        {
+          "test": "07-missing-xact-abort-off.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RU, correct=true)\n  [PASS] assertStructureChecklist: Structure checklist correctly identifies violations\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=true"
+        },
+        {
+          "test": "08-catch-rethrows-all.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RU, correct=true)\n  [PASS] assertStructureChecklist: Structure checklist correctly identifies violations\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=false"
+        },
+        {
+          "test": "09-update-wrong-command.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RU, correct=false)\n  [PASS] assertStructureChecklist: Structure checklist correctly identifies violations\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=true"
+        },
+        {
+          "test": "10-delete-missing-error-logging.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertCommandDetection: Command detection as expected (RD, correct=true)\n  [PASS] assertStructureChecklist: Structure checklist correctly identifies violations\n  [PASS] assertForbiddenPatterns: Forbidden pattern scan clean=true"
+        }
+      ]
+    },
+    "s4": {
+      "tests": 8,
+      "passed": 8,
+      "composite_percent": 100,
+      "rows": [
+        {
+          "test": "01-missing-trycatch.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertFixesApplied: Applied fixes for 3 violation(s)\n  [PASS] assertNoForbiddenPatterns: No forbidden patterns in remediated SQL\n  [PASS] assertStructuralContract: Post-remediation structural contract satisfied"
+        },
+        {
+          "test": "02-missing-xact-abort.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertFixesApplied: Applied fixes for 1 violation(s)\n  [PASS] assertNoForbiddenPatterns: No forbidden patterns in remediated SQL\n  [PASS] assertStructuralContract: Post-remediation structural contract satisfied"
+        },
+        {
+          "test": "03-direct-queue-insert.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertFixesApplied: Applied fixes for 2 violation(s)\n  [PASS] assertNoForbiddenPatterns: No forbidden patterns in remediated SQL\n  [PASS] assertStructuralContract: Post-remediation structural contract satisfied"
+        },
+        {
+          "test": "04-hardcoded-columns.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertFixesApplied: Applied fixes for 1 violation(s)\n  [PASS] assertNoForbiddenPatterns: No forbidden patterns in remediated SQL\n  [PASS] assertStructuralContract: Post-remediation structural contract satisfied"
+        },
+        {
+          "test": "05-ungated-catch.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertFixesApplied: Applied fixes for 1 violation(s)\n  [PASS] assertNoForbiddenPatterns: No forbidden patterns in remediated SQL\n  [PASS] assertStructuralContract: Post-remediation structural contract satisfied"
+        },
+        {
+          "test": "06-missing-nocount.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertFixesApplied: Applied fixes for 2 violation(s)\n  [PASS] assertNoForbiddenPatterns: No forbidden patterns in remediated SQL\n  [PASS] assertStructuralContract: Post-remediation structural contract satisfied"
+        },
+        {
+          "test": "07-missing-prep-sp.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertFixesApplied: Applied fixes for 1 violation(s)\n  [PASS] assertNoForbiddenPatterns: No forbidden patterns in remediated SQL\n  [PASS] assertStructuralContract: Post-remediation structural contract satisfied"
+        },
+        {
+          "test": "08-missing-error-logging.yaml",
+          "status": "PASS",
+          "pass": true,
+          "log": "[PASS] assertFixesApplied: Applied fixes for 1 violation(s)\n  [PASS] assertNoForbiddenPatterns: No forbidden patterns in remediated SQL\n  [PASS] assertStructuralContract: Post-remediation structural contract satisfied"
+        }
+      ]
+    }
+  },
+  "overall": {
+    "tests": 34,
+    "passed": 34,
+    "composite_percent": 100
+  }
+}

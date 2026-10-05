@@ -1,0 +1,41 @@
+# S4 Remediator — live model eval (dev only; not in submission)
+# Run from repo root: npm run eval:s4:live
+# Requires OPENAI_API_KEY
+
+description: S4 Remediator
+
+prompts:
+  - file://../../../Assignment/agents/remediator/prompt/Prompt.md
+
+providers:
+  - openai:gpt-4o
+
+defaultTest:
+  options:
+    provider: openai:gpt-4o
+  assert:
+    - type: javascript
+      value: file://../../../Assignment/agents/remediator/evals/assertions/remediator.cjs:assertFixesApplied
+      metric: fixes_applied
+      threshold: 1.0
+    - type: javascript
+      value: file://../../../Assignment/agents/remediator/evals/assertions/remediator.cjs:assertNoForbiddenPatterns
+      metric: forbidden_patterns
+      threshold: 1.0
+    - type: javascript
+      value: file://../../../Assignment/agents/remediator/evals/assertions/remediator.cjs:assertStructuralContract
+      metric: structural_contract
+      threshold: 1.0
+
+tests:
+  - file://../../../Assignment/agents/remediator/evals/tests/01-missing-trycatch.yaml
+  - file://../../../Assignment/agents/remediator/evals/tests/02-missing-xact-abort.yaml
+  - file://../../../Assignment/agents/remediator/evals/tests/03-direct-queue-insert.yaml
+  - file://../../../Assignment/agents/remediator/evals/tests/04-hardcoded-columns.yaml
+  - file://../../../Assignment/agents/remediator/evals/tests/05-ungated-catch.yaml
+  - file://../../../Assignment/agents/remediator/evals/tests/06-missing-nocount.yaml
+  - file://../../../Assignment/agents/remediator/evals/tests/07-missing-prep-sp.yaml
+  - file://../../../Assignment/agents/remediator/evals/tests/08-missing-error-logging.yaml
+
+evaluateOptions:
+  maxConcurrency: 8

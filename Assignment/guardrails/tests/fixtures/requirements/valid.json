@@ -1,0 +1,7 @@
+{
+  "schema": "PurinaNA",
+  "table": "BatchCampaign",
+  "pk": "batch_id",
+  "trigger_type": "AFTER INSERT, UPDATE, DELETE",
+  "constraints": ["no hard-coded business columns"]
+}

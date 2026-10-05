@@ -1,0 +1,24 @@
+{
+  "name": "level-5-certification",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/check-submission.js",
+    "test": "node --test guardrails/tests/*.test.js workflow/evals/routing.test.js coordinator/evals/coordinator.test.js",
+    "test:guardrails": "node --test guardrails/tests/*.test.js",
+    "eval:all": "npm run eval:s1 && npm run eval:s2 && npm run eval:s3 && npm run eval:s4",
+    "eval:s1": "promptfoo eval -c agents/spec-parser/evals/promptfooconfig.golden.yaml",
+    "eval:s2": "promptfoo eval -c agents/trigger-codegen/evals/promptfooconfig.golden.yaml",
+    "eval:s3": "promptfoo eval -c agents/trigger-review/evals/promptfooconfig.golden.yaml",
+    "eval:s4": "promptfoo eval -c agents/remediator/evals/promptfooconfig.golden.yaml",
+    "workflow": "node harness/run-workflow.js",
+    "workflow:golden": "node harness/run-workflow.js --fixture golden-pass --human-approved",
+    "workflow:batch": "node harness/batch-run.js --seed-trends",
+    "delegation": "node harness/run-delegation.js",
+    "delegation:golden": "node harness/run-delegation.js --fixture golden-pass --human-approved --substance-continue --correlation-id example-golden-pass",
+    "delegation:batch": "node harness/batch-run-delegation.js --seed-trends"
+  },
+  "devDependencies": {
+    "promptfoo": "^0.123.0"
+  }
+}

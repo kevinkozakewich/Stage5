@@ -1,0 +1,10 @@
+{
+  "verdict": "PASS",
+  "command_detection": { "expected": "RI", "correct": true, "notes": "Insert-only trigger" },
+  "structure_checklist": {
+    "passed": ["SET NOCOUNT ON", "BEGIN TRY / BEGIN CATCH"],
+    "failed": [],
+    "missing": []
+  },
+  "forbidden_patterns": { "clean": true, "found": [] }
+}

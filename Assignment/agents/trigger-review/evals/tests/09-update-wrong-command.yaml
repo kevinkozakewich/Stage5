@@ -1,0 +1,37 @@
+description: "Hard coded @Command, wrong RI on update path (FAIL)"
+vars:
+  scenario: update
+  expected_command: RU
+  expected_verdict: FAIL
+  expect_command_correct: false
+  expect_forbidden_clean: true
+  expected_failed_elements: "Command detection block (inserted/deleted → RI/RU/RD)"
+  trigger_sql: |
+    CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]
+    ON [PurinaNA].[BatchCampaign]
+    AFTER INSERT, UPDATE, DELETE
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        SET XACT_ABORT OFF;
+        DECLARE @Command VARCHAR(2) = 'RI';
+        BEGIN TRY
+            DECLARE @Schema SYSNAME = N'PurinaNA';
+            DECLARE @Table SYSNAME = N'BatchCampaign';
+            DECLARE @Sql NVARCHAR(MAX);
+            EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]
+                @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;
+            EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',
+                @TableName = @Table, @Command = @Command;
+        END TRY
+        BEGIN CATCH
+            DECLARE @ErrNum INT = ERROR_NUMBER();
+            DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();
+            DECLARE @ErrLine INT = ERROR_LINE();
+            DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();
+            EXEC [PurinaNA].[ToGpmq_LogTriggerError]
+                @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,
+                @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;
+            IF XACT_STATE() = -1 THROW;
+        END CATCH
+    END

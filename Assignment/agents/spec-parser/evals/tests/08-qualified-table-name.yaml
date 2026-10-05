@@ -1,0 +1,14 @@
+description: "Schema-qualified table reference in brief"
+vars:
+  scenario: qualified-table-name
+  expected_table: LoyaltyAccount
+  expected_schema: PurinaNA
+  expected_pk: account_id
+  expect_pk_scalar: true
+  expected_trigger_type: "AFTER INSERT, UPDATE, DELETE"
+  brief_md: |
+    # Migration Brief — LoyaltyAccount
+
+    Deploy downstream trigger on [PurinaNA].[LoyaltyAccount].
+    Primary key column: account_id.
+    Trigger events: INSERT, UPDATE, DELETE (full IUD).

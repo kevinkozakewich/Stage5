@@ -1,0 +1,1 @@
+{"table":"PriceHistory","schema":"PurinaNA","pk":"price_id","trigger_type":"AFTER UPDATE","constraints":[]}

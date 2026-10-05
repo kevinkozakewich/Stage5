@@ -1,0 +1,9 @@
+{
+  "workflow_id": "W6",
+  "name": "delivery-report",
+  "substance": "peripheral",
+  "allowed_tools": [],
+  "isolated_context": false,
+  "agent_path": "agents/delivery-report",
+  "output_artifact": "report-body.md"
+}

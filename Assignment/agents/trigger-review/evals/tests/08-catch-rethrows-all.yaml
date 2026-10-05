@@ -1,0 +1,41 @@
+description: "CATCH rethrows on all errors without gating on XACT_STATE() = -1 (FAIL)"
+vars:
+  scenario: catch-rethrows-all
+  expected_command: RU
+  expected_verdict: FAIL
+  expect_forbidden_clean: false
+  expected_failed_elements: "IF XACT_STATE() = -1 rethrow pattern"
+  trigger_sql: |
+    CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]
+    ON [PurinaNA].[BatchCampaign]
+    AFTER INSERT, UPDATE, DELETE
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        SET XACT_ABORT OFF;
+        DECLARE @Command VARCHAR(2);
+        IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RU';
+        ELSE IF EXISTS (SELECT 1 FROM inserted)
+            SET @Command = 'RI';
+        ELSE IF EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RD';
+        ELSE RETURN;
+        BEGIN TRY
+            DECLARE @Schema SYSNAME = N'PurinaNA';
+            DECLARE @Table SYSNAME = N'BatchCampaign';
+            DECLARE @Sql NVARCHAR(MAX);
+            EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]
+                @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;
+            EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',
+                @TableName = @Table, @Command = @Command;
+        END TRY
+        BEGIN CATCH
+            DECLARE @ErrNum INT = ERROR_NUMBER();
+            DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();
+            EXEC [PurinaNA].[ToGpmq_LogTriggerError]
+                @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,
+                @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = 0, @ErrProc = NULL;
+            THROW;
+        END CATCH
+    END

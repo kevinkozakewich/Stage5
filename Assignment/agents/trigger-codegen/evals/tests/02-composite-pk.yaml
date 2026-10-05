@@ -1,0 +1,10 @@
+description: "Composite PK, same dynamic pattern"
+vars:
+  scenario: composite-pk
+  requirements_json: |
+    {
+      "table": "VendorContact",
+      "schema": "PurinaNA",
+      "pk": ["vendor_id", "contact_seq"],
+      "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+    }

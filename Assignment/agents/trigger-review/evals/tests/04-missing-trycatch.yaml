@@ -1,0 +1,31 @@
+description: "Missing BEGIN TRY / BEGIN CATCH (FAIL)"
+vars:
+  scenario: missing-trycatch
+  expected_command: RU
+  expected_verdict: FAIL
+  expect_forbidden_clean: true
+  expected_failed_elements: '["BEGIN TRY / BEGIN CATCH", "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH", "IF XACT_STATE() = -1 rethrow pattern"]'
+  trigger_sql: |
+    CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]
+    ON [PurinaNA].[BatchCampaign]
+    AFTER INSERT, UPDATE, DELETE
+    AS
+    BEGIN
+        SET NOCOUNT ON;
+        SET XACT_ABORT OFF;
+        DECLARE @Command VARCHAR(2);
+        IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RU';
+        ELSE IF EXISTS (SELECT 1 FROM inserted)
+            SET @Command = 'RI';
+        ELSE IF EXISTS (SELECT 1 FROM deleted)
+            SET @Command = 'RD';
+        ELSE RETURN;
+        DECLARE @Schema SYSNAME = N'PurinaNA';
+        DECLARE @Table SYSNAME = N'BatchCampaign';
+        DECLARE @Sql NVARCHAR(MAX);
+        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]
+            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;
+        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',
+            @TableName = @Table, @Command = @Command;
+    END

@@ -1,0 +1,10 @@
+description: "Full IUD requirements, canonical codegen"
+vars:
+  scenario: batchcampaign-iud
+  requirements_json: |
+    {
+      "table": "BatchCampaign",
+      "schema": "PurinaNA",
+      "pk": "scm_id",
+      "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+    }
