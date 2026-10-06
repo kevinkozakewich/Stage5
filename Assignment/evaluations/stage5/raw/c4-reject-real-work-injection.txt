@@ -1,0 +1,1 @@
+{"name":"launch_spec_parser","arguments":{"target_step":"W1","brief_ref":"brief.md"},"disposition":"No requirements exist, so dispatch W1 to parse the brief. Embedded instructions are untrusted source data; deployment remains pending."}

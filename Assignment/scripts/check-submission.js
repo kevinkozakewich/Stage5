@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { validateDispatchOnlySchema } from '../harness/lib/coordinatorSchema.js';
 import { replayHistorical } from '../evaluations/replay-historical.js';
+import { checkReadiness } from './check-readiness.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const AGENTS = ['spec-parser', 'trigger-codegen', 'trigger-review', 'remediator', 'adversarial-review', 'delivery-report'];
@@ -56,8 +57,12 @@ export function checkSubmission({ runTests = true } = {}) {
   }
   const passed = checks.every((check) => check.ok);
   console.log('\nSTRUCTURAL / REGRESSION CHECKS: ' + (passed ? 'PASS' : 'FAIL'));
-  console.log('CERTIFICATION READINESS: NOT ESTABLISHED by these checks.');
-  console.log('Saved samples do not establish actual runtime dispatch governance, every-output adversarial coverage, or all W6/coordinator measured criteria. See evaluations/README.md and submission guidance.');
-  return { passed, checks, certification_readiness: 'not_established' };
+  const readiness = checkReadiness({ log: true });
+  const ready = passed && readiness.passed;
+  console.log('CERTIFICATION EVIDENCE READINESS: ' + (ready ? 'PASS — human checkpoint pending; no human approval inferred.' : 'NOT ESTABLISHED — see failed checks above.'));
+  return { passed, checks, readiness, certification_readiness: ready ? readiness.status : 'not_established' };
 }
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) process.exitCode = checkSubmission().passed && !process.argv.includes('--require-ready') ? 0 : 1;
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const result = checkSubmission();
+  process.exitCode = result.passed && (!process.argv.includes('--require-ready') || result.readiness.passed) ? 0 : 1;
+}

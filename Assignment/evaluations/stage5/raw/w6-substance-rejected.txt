@@ -1,0 +1,3 @@
+`requirements.json` received PASS: VendorContact keeps vendor_id and contact_seq (E1). `trigger.sql` received PASS for the required source marker and contract structure (E2). `review.json` received PASS with no contract violations found (E3), and `adversarial.json` received PASS with the independent reviewer upholding the current artifacts (E4). No findings were supplied.
+
+Despite these technical verdicts, the coordinator’s outcome is REJECTED, with direction to preserve the technical report verbatim (D1). DBA-17 rejected the substance checkpoint because two peripheral workflows lack a billable client use case (G2). The separate human gate remains PENDING, awaiting a decision (G1).

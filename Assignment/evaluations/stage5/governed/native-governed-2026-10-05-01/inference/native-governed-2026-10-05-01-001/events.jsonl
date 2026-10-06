@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a10e89-ed2a-7da2-a1cc-8e67ede14535"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"name\":\"launch_spec_parser\",\"arguments\":{\"target_step\":\"W1\",\"brief_ref\":\"brief.md\"},\"disposition\":\"No requirements artifact exists. Dispatch W1 to parse the supplied brief; its output must receive independent W5 review before downstream use.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":19607,"cached_input_tokens":13312,"cache_write_input_tokens":0,"output_tokens":95,"reasoning_output_tokens":37}}

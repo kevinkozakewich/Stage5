@@ -1,0 +1,47 @@
+{
+  "requestId": "native-governed-2026-10-05-02-008",
+  "output": "{\"artifact_id\":\"006-trigger.sql\",\"workflow_id\":\"W2\",\"challenge\":\"UPHELD\",\"original_verdict\":\"PASS\",\"confidence\":\"high\",\"findings\":[],\"recommended_verdict\":\"PASS\",\"notes\":\"The SQL matches the brief and requirements: correct schema, table, INSERT-only scope and RI command; metadata-driven enqueue and Source=Trigger through the prep procedure with sp_executesql; required session settings; and TRY/CATCH with error fields captured before logging and THROW gated by XACT_STATE() = -1. No direct queue inserts or hard-coded business payload columns appear. Human substance and deployment approvals remain pending.\"}",
+  "usage": {
+    "input_tokens": 20613,
+    "cached_input_tokens": 16512,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 252,
+    "reasoning_output_tokens": 120,
+    "total_tokens": 20865,
+    "model": "gpt-6-astra",
+    "provider": "codex:native-subagent",
+    "response_id": "resp_0b026bb602fdbe7c016ac43cd0efd487d1b55e194780597f7b",
+    "response_ids": [
+      "resp_0b026bb602fdbe7c016ac43cd0efd487d1b55e194780597f7b"
+    ],
+    "thread_id": "01a10e8d-9389-7ee1-bb90-822becc9518e",
+    "cost": {
+      "usd": null,
+      "status": "not_reported",
+      "source_status": "not_exposed_by_native_host"
+    },
+    "standard_credit_equivalent": {
+      "value": 1.75305,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "usage_source": "native_response_token_usage_record",
+    "telemetry_ref": "inference\\native-governed-2026-10-05-02-008\\telemetry.json",
+    "raw_sha256": "2df35cbb1b5d12a035171137f602158e5072aef315f8aa02a71e089fa9ba4fc6",
+    "packet_sha256": "aa9b21ac525855af52bd38e614ab52417e2ec7171aa580b6ff655f34a470ce77",
+    "cost_usd": null,
+    "cost_status": "not_reported"
+  }
+}

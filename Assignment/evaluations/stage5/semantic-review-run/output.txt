@@ -1,0 +1,132 @@
+{
+  "reviews": [
+    {
+      "case_id": "case-01",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly targets requirements.json and upholds PASS: schema, table, both primary-key columns, and trigger events match the brief. The prep constraint is consistent with the supplied contract, and no defects are invented."
+    },
+    {
+      "case_id": "case-02",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly overturns requirements.json to FAIL because its pk contains only vendor_id while the brief explicitly requires vendor_id and contact_seq. The evidence accurately identifies the missing column."
+    },
+    {
+      "case_id": "case-03",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly upholds trigger.sql: the required settings, command detection, prep and dynamic execution path, Source=Trigger, logging, and gated rethrow are present. The empty findings array is justified under the supplied contract."
+    },
+    {
+      "case_id": "case-04",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly overturns trigger.sql to FAIL. Its command-only direct queue insert omits the required prep and dynamic execution path, composite-key processing, and Source=Trigger; all three findings are supported."
+    },
+    {
+      "case_id": "case-05",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly targets review.json and upholds its PASS because the supplied SQL supports the examiner's checklist and clean assessment. The prep path satisfies Source and dynamic discovery under the explicit contract."
+    },
+    {
+      "case_id": "case-06",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly overturns review.json's false PASS: the SQL directly inserts a command-only queue row, lacks Source and the prep execution path, and does not process composite keys. The findings accurately challenge the examiner's clean and passed-checklist claims."
+    },
+    {
+      "case_id": "case-07",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Preserves the justified FAIL while identifying the actual checklist defect: dynamic discovery is marked passed despite the absence of both required calls. The direct queue insert and missing Source support retaining FAIL."
+    },
+    {
+      "case_id": "case-08",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly upholds trigger.remediated.sql. The replacement prep and sp_executesql path with Source=Trigger resolves V1, and the required settings, event scope, command detection, logging, and rethrow gate remain present."
+    },
+    {
+      "case_id": "case-09",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly overturns the remediated SQL's PASS because line 7 enables XACT_ABORT contrary to the required OFF setting. It accurately distinguishes this regression from the repaired direct-insert defect."
+    },
+    {
+      "case_id": "case-10",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly upholds report.body.md: all four artifacts and evidence labels are covered, the bundle has no findings, and WAITING_HUMAN, pending P1 approval, blocked deployment, and the substance state match the sources."
+    },
+    {
+      "case_id": "case-11",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly overturns report.body.md for inventing a SQL injection vulnerability. The quoted claim is present in the report, while the complete supplied bundle contains no findings or supporting vulnerability evidence."
+    },
+    {
+      "case_id": "case-12",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Correctly identifies the report's false approval and deployment-authorization claims. G1 records PENDING with no reviewer, and D1 explicitly blocks deployment until approval for the current artifact hash."
+    },
+    {
+      "case_id": "case-13",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Covers every current artifact with its verdict and evidence label, accurately states that no findings were supplied, and cites the coordinator and both gate states. It preserves pending human review and the deployment block without implying approval."
+    },
+    {
+      "case_id": "case-14",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Covers all five artifacts and F1 with the supplied evidence labels, correctly retaining F1 as OPEN because sp_executesql still lacks Source. It accurately reports REMEDIATION_REQUIRED, the requested repair and fresh reviews, pending human review, and the substance state."
+    },
+    {
+      "case_id": "case-15",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Accurately covers all technical PASS artifacts and distinguishes them from the coordinator's REJECTED outcome. It cites DBA-17's substance rejection and its recorded reason while preserving the separate PENDING human gate."
+    },
+    {
+      "case_id": "case-16",
+      "supported_by_sources": true,
+      "complete": true,
+      "tone_appropriate": true,
+      "unsupported_claims": [],
+      "reason": "Covers all artifacts and evidence labels and accurately reports SUCCESS based on matching approved hashes. It limits DBA-22's approval to the current artifacts, explicitly preserves the absence of production execution, and correctly reports the substance gate."
+    }
+  ]
+}

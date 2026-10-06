@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a10e8e-1dfc-76b2-955c-6a62ba9f5a69"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"name\":\"launch_adversarial_reviewer\",\"arguments\":{\"target_step\":\"W5\",\"artifact_id\":\"010-review.json\"},\"disposition\":\"W3 returned PASS in 010-review.json, but this immutable output has no independent review and is listed in required_reviews. Dispatch W5 before using it downstream or dispatching W6. Human substance and deployment approvals remain pending.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":23491,"cached_input_tokens":16512,"cache_write_input_tokens":0,"output_tokens":127,"reasoning_output_tokens":45}}

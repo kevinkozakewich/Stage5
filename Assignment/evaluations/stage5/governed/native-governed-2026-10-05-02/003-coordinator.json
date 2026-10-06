@@ -1,0 +1,8 @@
+{
+  "name": "launch_adversarial_reviewer",
+  "arguments": {
+    "target_step": "W5",
+    "artifact_id": "002-requirements.json"
+  },
+  "disposition": "W1 produced validated requirements, but this immutable artifact has no independent review. Dispatch W5 against the supplied brief before using the requirements in W2."
+}

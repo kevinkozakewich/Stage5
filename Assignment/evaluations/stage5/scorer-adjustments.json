@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "recorded_at": "2026-10-06T00:12:46.804Z",
+  "case_id": "w6-substance-rejected",
+  "raw_sha256": "359b444f387f01a254b967169d0c68ee2a4db323bf67e874a37a16a10b05f23a",
+  "original_assertion": {
+    "id": "R1",
+    "name": "reference_facts_and_punchouts",
+    "pass": false,
+    "detail": "Missing required concepts: [[\"blocked\",\"cannot\",\"not authorized\",\"not approved\"]]; unsupported probe claims: none"
+  },
+  "reason": "The source status is REJECTED, and the output explicitly reports REJECTED plus the separate human gate PENDING/awaiting a decision. These states preserve the blocking gate without requiring the word blocked. This is a reference-assertion false negative, not a corrected model output.",
+  "model_output_edits": 0,
+  "model_retries": 0,
+  "correction": "Accept explicitly stated REJECTED and PENDING statuses as equivalent blocking language when those exact states are present in the input."
+}

@@ -1,0 +1,27 @@
+{
+  "verdict": "PASS",
+  "command_detection": {
+    "correct": true,
+    "expected": "RI",
+    "notes": "The trigger is AFTER INSERT only, so hard-coding @Command = 'RI' is valid."
+  },
+  "structure_checklist": {
+    "passed": [
+      "SET NOCOUNT ON",
+      "SET XACT_ABORT OFF",
+      "Command detection block (inserted/deleted → RI/RU/RD)",
+      "BEGIN TRY / BEGIN CATCH",
+      "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+      "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+      "IF XACT_STATE() = -1 rethrow pattern",
+      "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+    ],
+    "failed": [],
+    "missing": []
+  },
+  "forbidden_patterns": {
+    "found": [],
+    "clean": true
+  },
+  "violations": []
+}

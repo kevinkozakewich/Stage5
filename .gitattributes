@@ -1,0 +1,3 @@
+# Evaluation records and source snapshots are SHA-256-bound to their exact bytes.
+# Preserve those bytes across Windows/Linux checkout rather than translating EOLs.
+Assignment/** -text

@@ -1,0 +1,1 @@
+{"name":"launch_adversarial_reviewer","arguments":{"target_step":"W5","artifact_id":"W1.v1.requirements.json"},"disposition":"W1 requirements passed validation but have not been independently upheld. Dispatch W5 review before using them in W2."}

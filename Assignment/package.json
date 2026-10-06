@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "validate": "node scripts/check-submission.js",
-    "test": "node --test guardrails/tests/*.test.js workflow/evals/routing.test.js coordinator/evals/*.test.js",
+    "test": "node --test guardrails/tests/*.test.js workflow/evals/routing.test.js coordinator/evals/*.test.js evaluations/stage5/*.test.js",
     "test:guardrails": "node --test guardrails/tests/*.test.js",
     "eval:all": "npm run eval:s1 && npm run eval:s2 && npm run eval:s3 && npm run eval:s4",
     "eval:s1": "promptfoo eval -c agents/spec-parser/evals/promptfooconfig.golden.yaml",
@@ -17,7 +17,10 @@
     "delegation": "node harness/run-delegation.js",
     "delegation:golden": "node harness/run-delegation.js --fixture golden-pass",
     "delegation:batch": "node harness/batch-run-delegation.js",
-    "eval:historical": "node evaluations/replay-historical.js"
+    "eval:historical": "node evaluations/replay-historical.js",
+    "eval:stage5": "node evaluations/stage5/score.js",
+    "governed": "node harness/run-governed.js",
+    "eval:governed:native": "node evaluations/stage5/run-governed-native.js"
   },
   "devDependencies": {
     "promptfoo": "^0.123.0"

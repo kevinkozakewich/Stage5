@@ -1,0 +1,1 @@
+{"name":"launch_spec_parser","arguments":{"target_step":"W1","brief_ref":"brief.md"},"disposition":"No requirements artifact exists. Dispatch W1 to parse the supplied brief; its output must receive independent W5 review before downstream use."}

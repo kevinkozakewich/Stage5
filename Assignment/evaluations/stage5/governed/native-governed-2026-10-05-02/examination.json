@@ -1,0 +1,46 @@
+{
+  "run_id": "native-governed-2026-10-05-02",
+  "correlation_id": "native-governed-2026-10-05-02",
+  "execution_mode": "native_model_evaluation",
+  "report_hash": "sha256:baaa3f8be9a028747877b77e45539a490390f054ab93cede9b4478c31125e6a2",
+  "created_at": "2026-10-06T00:14:20.568Z",
+  "audit_dir": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\audit",
+  "artifact_hashes": {
+    "requirements.json": "sha256:d8607a810c107c10f06655ff89ae7c107f816f3fb5a6ef1a4ab54e70c885b374",
+    "trigger.sql": "sha256:0e194a3d538cbf46b01d92295407ba42a0e8e991ea6fe086dd07b9df01488a29",
+    "review.json": "sha256:7ecb58da383d246ec322358d795cb68f0e99b3931bfdd320c7921b90582a7671",
+    "adversarial.json": "sha256:e0417bf4000378a7525f976a050f453a21287d72299b49b34d5c150f81e5d062",
+    "report-body.md": "sha256:c4057d8d95755c3481c3fdb509f37d0e2aad454eb29922128d0b31c6178ef5c7",
+    "delivery-report.md": "sha256:baaa3f8be9a028747877b77e45539a490390f054ab93cede9b4478c31125e6a2"
+  },
+  "reviewed_artifacts": [
+    {
+      "artifact_id": "002-requirements.json",
+      "hash": "sha256:d8607a810c107c10f06655ff89ae7c107f816f3fb5a6ef1a4ab54e70c885b374",
+      "review_id": "004-adversarial.json"
+    },
+    {
+      "artifact_id": "006-trigger.sql",
+      "hash": "sha256:0e194a3d538cbf46b01d92295407ba42a0e8e991ea6fe086dd07b9df01488a29",
+      "review_id": "008-adversarial.json"
+    },
+    {
+      "artifact_id": "010-review.json",
+      "hash": "sha256:7ecb58da383d246ec322358d795cb68f0e99b3931bfdd320c7921b90582a7671",
+      "review_id": "012-adversarial.json"
+    },
+    {
+      "artifact_id": "015-report-body.md",
+      "hash": "sha256:c4057d8d95755c3481c3fdb509f37d0e2aad454eb29922128d0b31c6178ef5c7",
+      "review_id": "017-adversarial.json"
+    }
+  ],
+  "application_coordinator_tools": [
+    "launch_spec_parser",
+    "launch_trigger_codegen",
+    "launch_trigger_review",
+    "launch_remediator",
+    "launch_adversarial_reviewer",
+    "launch_delivery_report_writer"
+  ]
+}

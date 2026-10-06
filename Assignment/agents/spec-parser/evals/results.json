@@ -5,13 +5,22 @@
   "packaged_evidence": "evaluations/historical/",
   "replay": "node evaluations/replay-historical.js",
   "provenance_limitations": "Original model/response IDs, inference usage, and first-attempt/manual-edit history were not recorded. Percentages apply to saved outputs under the archived assertions.",
-  "current_runtime_readiness": "not_established",
   "inference_note": "Measured via subagent packets; full matrix in repo support/subagent-evals/results.json",
   "composite_percent": 100,
   "criteria": {
-    "E1": { "name": "schema_compliance", "pass_rate": 100 },
-    "E2": { "name": "field_completeness", "pass_rate": 100 },
-    "E3": { "name": "pk_extraction", "pass_rate": 100 }
+    "E1": {
+      "name": "schema_compliance",
+      "pass_rate": 100
+    },
+    "E2": {
+      "name": "field_completeness",
+      "pass_rate": 100
+    },
+    "E3": {
+      "name": "pk_extraction",
+      "pass_rate": 100
+    }
   },
-  "recorded_at": "2026-10-05"
+  "recorded_at": "2026-10-05",
+  "additional_current_evidence": "evaluations/stage5/governed/native-governed-2026-10-05-02 (W1-W3 actual execution) and evaluations/stage5/results.json (independent review of W1-W4 outputs); current boundary regressions in coordinator/evals/governed-delegation.test.js"
 }

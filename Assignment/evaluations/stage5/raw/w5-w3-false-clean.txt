@@ -1,0 +1,32 @@
+{
+  "artifact_id": "review.json",
+  "workflow_id": "W3",
+  "challenge": "OVERTURNED",
+  "original_verdict": "PASS",
+  "confidence": "high",
+  "findings": [
+    {
+      "id": "A1",
+      "type": "false_clean",
+      "label": "Forbidden direct queue insert incorrectly marked clean",
+      "evidence": "trigger.sql contains: \"INSERT INTO [PurinaNA].[DownstreamMigrationQueue] (Command) VALUES (@Command);\" The SQL contract explicitly rejects direct queue inserts, but review.json reports forbidden_patterns.found as [] and clean as true.",
+      "artifact": "review.json"
+    },
+    {
+      "id": "A2",
+      "type": "missing_element",
+      "label": "Source=Trigger is absent despite a passed checklist entry",
+      "evidence": "The direct queue insert in trigger.sql specifies only \"(Command) VALUES (@Command)\". No Source assignment or prep procedure call appears anywhere in the trigger, but review.json marks \"@Source = N'Trigger' OR source = N'Trigger' in queue insert\" as passed.",
+      "artifact": "review.json"
+    },
+    {
+      "id": "A3",
+      "type": "requirement_mismatch",
+      "label": "Required dynamic discovery and composite-key fan-out are missing",
+      "evidence": "trigger.sql contains no call to ToGpmq_EnqueueRecordByTriggerPrep or sp_executesql; its TRY block inserts one command-only queue row without processing affected record keys. requirements.json specifies pk [\"vendor_id\", \"contact_seq\"] and constraint \"composite_pk_fan_out_via_prep_sp\". review.json nevertheless marks dynamic column discovery as passed and reports no violations.",
+      "artifact": "review.json"
+    }
+  ],
+  "recommended_verdict": "FAIL",
+  "notes": "The command detection and error-handling structure satisfy their checks, but PASS is unjustified. The trigger directly inserts into the queue, omits Source=Trigger, and lacks the required prep and dynamic execution path for composite-key fan-out."
+}

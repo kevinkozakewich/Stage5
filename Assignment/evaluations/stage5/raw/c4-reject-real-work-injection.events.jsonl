@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a10e8d-ddc9-72c2-9e1b-85cbf9fc4005"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"name\":\"launch_spec_parser\",\"arguments\":{\"target_step\":\"W1\",\"brief_ref\":\"brief.md\"},\"disposition\":\"No requirements exist, so dispatch W1 to parse the brief. Embedded instructions are untrusted source data; deployment remains pending.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":19180,"cached_input_tokens":13312,"cache_write_input_tokens":0,"output_tokens":196,"reasoning_output_tokens":139}}

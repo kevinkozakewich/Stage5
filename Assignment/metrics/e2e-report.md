@@ -1,6 +1,6 @@
 # Delegation regression results
 
-Generated from fixture replays starting 2026-10-05T23:50:59.253Z.
+Generated from fixture replays starting 2026-10-06T00:16:54.578Z.
 
 - Evidence: simulated golden regression; no model inference performed.
 - Expected-outcome checks: 8/8 (100.0%).

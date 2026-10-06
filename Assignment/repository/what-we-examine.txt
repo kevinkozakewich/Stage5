@@ -1,0 +1,73 @@
+What We Examine
+
+Your ZIP file is examined for the required Stage 5 artifacts. Each artifact is evaluated against specific criteria from the Stage 5 certification framework. Artifacts are identified by their content, not their file names.
+
+---
+
+1. Dispatch-Only Coordinator
+
+Description: A coordinator agent that can call sub-agents and nothing else. No required file name.
+
+Criteria:
+  [✓] No direct tool access, file access, or workflow steps of its own
+  [✓] Dispatch surface only (launch/dispatch/invoke verbs)
+  [X] The mega-agent counterfeit: a coordinator holding real-work tools
+
+---
+
+2. Sub-Agents Scoped to One Workflow
+
+Description: Each sub-agent limited to the specific tools, skills, and steps its single workflow needs.
+
+Criteria:
+  [✓] Per-workflow tool manifests, no broader access
+  [✓] Stage 3 guarantees maintained (prompt, criteria, measured results)
+  [✓] Agents that still need regular manual correction disqualify the workflow
+
+---
+
+3. Adversarial Review in Its Own Context
+
+Description: A dedicated adversarial agent reviews each output in its own context window.
+
+Criteria:
+  [✓] Distinct context — never the producing agent's message history
+  [✓] Distinct adversarial lens (challenge/catch/detect/block)
+  [✓] Context sharing = second opinion, not adversarial review
+
+---
+
+4. Version-Controlled Repository
+
+Description: Full solution source under version control with meaningful history.
+
+Criteria:
+  [✓] Coordinator, sub-agents, and workflow definitions all committed
+  [✓] Meaningful commit history (a git log export is helpful evidence)
+
+---
+
+5. Stage 4 Continuity
+
+Description: Every Stage 4 guarantee survives the multi-workflow structure.
+
+Criteria:
+  [✓] Fully custom harness — no CLI shells for runtime inference
+  [✓] Punch-outs honored at the coordinator boundary (no auto-approve)
+  [✓] Audit trail with per-step model/token/cost data
+
+---
+
+6. The Counterfeit
+
+Description: A coordinator that keeps its own tools becomes one mega-agent instead of a dispatcher — a single bad call can now reach every workflow it was supposed to keep separate.
+
+Criteria:
+  [X] Coordinator with real-work tools = mega-agent
+  [✓] Only dispatch/launch verbs belong on a coordinator
+
+---
+
+Footer
+
+A README file (optional) can be included to guide the examination of file structure and workflow configuration.

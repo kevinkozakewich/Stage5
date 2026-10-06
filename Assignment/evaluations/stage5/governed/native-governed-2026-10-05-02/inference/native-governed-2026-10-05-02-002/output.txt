@@ -1,0 +1,23 @@
+{
+  "table": "BatchCampaign",
+  "schema": "PurinaNA",
+  "pk": "scm_id",
+  "trigger_type": "AFTER INSERT",
+  "constraints": [
+    "no_direct_queue_insert",
+    "dynamic_enqueue_only",
+    "use_existing_purinana_togpmq_enqueuerecordbytriggerprep",
+    "execute_returned_sql_with_sp_executesql_inside_trigger",
+    "metadata_driven_payload_columns",
+    "no_hardcoded_business_payload_columns",
+    "nocount_on",
+    "xact_abort_off",
+    "use_try_catch",
+    "capture_error_fields_before_nested_procedure_calls",
+    "log_errors_through_purinana_togpmq_logtriggererror",
+    "rethrow_only_when_xact_state_equals_minus_one",
+    "source_trigger_through_prep_enqueue_path",
+    "human_deployment_not_authorized",
+    "human_substance_decisions_not_authorized"
+  ]
+}

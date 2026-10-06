@@ -1,7 +1,8 @@
 # Git repository
 
-**Canonical URL (requested):** https://github.com/ImaginetKevinK/Stage5  
+Source, prompts, manifests, tests and captured evaluation evidence are committed locally with meaningful change history.
 
-**Current remote:** https://github.com/kevinkozakewich/Stage5 — transfer to `ImaginetKevinK` was initiated; accept the transfer on the `ImaginetKevinK` account if pending.
+Configured origin: `https://github.com/kevinkozakewich/Stage5.git`.
 
-**Examiner evidence:** `git-log-export.txt` · clone and run commands in root `README.md`.
+The submission contains `Assignment/repository/git-log-export.txt` and a package manifest identifying the source commit and file hashes. Remote publication or repository transfer status is not asserted by this local submission check.
+

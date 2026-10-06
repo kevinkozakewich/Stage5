@@ -2,9 +2,9 @@
   "evidence_type": "simulated_regression",
   "inference_performed": false,
   "usage_source": "simulated",
-  "batch_id": "regression-2026-10-05T23-50-59-253Z-8c354c84",
-  "started_at": "2026-10-05T23:50:59.253Z",
-  "completed_at": "2026-10-05T23:50:59.312Z",
+  "batch_id": "regression-2026-10-06T00-16-54-578Z-b4603538",
+  "started_at": "2026-10-06T00:16:54.578Z",
+  "completed_at": "2026-10-06T00:16:54.637Z",
   "tests": 8,
   "passed": 8,
   "regression_percent": 100,
@@ -12,8 +12,8 @@
   "note": "Successful golden fixtures stop at the human checkpoint. This measures expected harness outcomes, not production delivery or model quality. Usage values are simulated.",
   "rows": [
     {
-      "run_id": "regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-01-clean",
-      "recorded_at": "2026-10-05T23:50:59.270Z",
+      "run_id": "regression-2026-10-06T00-16-54-578Z-b4603538-fixture-01-clean",
+      "recorded_at": "2026-10-06T00:16:54.595Z",
       "fixture_id": "fixture-01-clean",
       "evidence_type": "simulated_regression",
       "regression_pass": true,
@@ -26,8 +26,8 @@
       "simulated_cost_usd": 0.0242
     },
     {
-      "run_id": "regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-02-remediate",
-      "recorded_at": "2026-10-05T23:50:59.281Z",
+      "run_id": "regression-2026-10-06T00-16-54-578Z-b4603538-fixture-02-remediate",
+      "recorded_at": "2026-10-06T00:16:54.606Z",
       "fixture_id": "fixture-02-remediate",
       "evidence_type": "simulated_regression",
       "regression_pass": true,
@@ -40,8 +40,8 @@
       "simulated_cost_usd": 0.0401
     },
     {
-      "run_id": "regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-03-guardrail-fail",
-      "recorded_at": "2026-10-05T23:50:59.284Z",
+      "run_id": "regression-2026-10-06T00-16-54-578Z-b4603538-fixture-03-guardrail-fail",
+      "recorded_at": "2026-10-06T00:16:54.609Z",
       "fixture_id": "fixture-03-guardrail-fail",
       "evidence_type": "simulated_regression",
       "regression_pass": true,
@@ -54,8 +54,8 @@
       "simulated_cost_usd": 0.0105
     },
     {
-      "run_id": "regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-04-composite-pk",
-      "recorded_at": "2026-10-05T23:50:59.291Z",
+      "run_id": "regression-2026-10-06T00-16-54-578Z-b4603538-fixture-04-composite-pk",
+      "recorded_at": "2026-10-06T00:16:54.616Z",
       "fixture_id": "fixture-04-composite-pk",
       "evidence_type": "simulated_regression",
       "regression_pass": true,
@@ -68,8 +68,8 @@
       "simulated_cost_usd": 0.0246
     },
     {
-      "run_id": "regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-05-insert-only",
-      "recorded_at": "2026-10-05T23:50:59.298Z",
+      "run_id": "regression-2026-10-06T00-16-54-578Z-b4603538-fixture-05-insert-only",
+      "recorded_at": "2026-10-06T00:16:54.623Z",
       "fixture_id": "fixture-05-insert-only",
       "evidence_type": "simulated_regression",
       "regression_pass": true,
@@ -82,8 +82,8 @@
       "simulated_cost_usd": 0.0233
     },
     {
-      "run_id": "regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-06-g1-schema-fail",
-      "recorded_at": "2026-10-05T23:50:59.300Z",
+      "run_id": "regression-2026-10-06T00-16-54-578Z-b4603538-fixture-06-g1-schema-fail",
+      "recorded_at": "2026-10-06T00:16:54.625Z",
       "fixture_id": "fixture-06-g1-schema-fail",
       "evidence_type": "simulated_regression",
       "regression_pass": true,
@@ -96,8 +96,8 @@
       "simulated_cost_usd": 0.0029
     },
     {
-      "run_id": "regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-07-g4-review-mismatch",
-      "recorded_at": "2026-10-05T23:50:59.304Z",
+      "run_id": "regression-2026-10-06T00-16-54-578Z-b4603538-fixture-07-g4-review-mismatch",
+      "recorded_at": "2026-10-06T00:16:54.629Z",
       "fixture_id": "fixture-07-g4-review-mismatch",
       "evidence_type": "simulated_regression",
       "regression_pass": true,
@@ -110,8 +110,8 @@
       "simulated_cost_usd": 0.0202
     },
     {
-      "run_id": "regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-08-retries-exhausted",
-      "recorded_at": "2026-10-05T23:50:59.312Z",
+      "run_id": "regression-2026-10-06T00-16-54-578Z-b4603538-fixture-08-retries-exhausted",
+      "recorded_at": "2026-10-06T00:16:54.636Z",
       "fixture_id": "fixture-08-retries-exhausted",
       "evidence_type": "simulated_regression",
       "regression_pass": true,

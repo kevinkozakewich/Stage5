@@ -1,35 +1,93 @@
 {
+  "schema_version": 2,
   "workflow_id": "W6",
-  "provider_claim": "cursor:subagent",
-  "evidence_type": "historical_saved_sample",
-  "raw_evidence": "evaluations/historical/outputs/w6-synthesis-pass.txt",
-  "replay": "node evaluations/replay-historical.js",
-  "historical_reported_composite_percent": 100,
-  "composite_percent": null,
-  "readiness": "not_established",
+  "evidence_type": "actual_native_model_evaluations",
+  "provider": "codex:native-subagent",
+  "transport": "evaluation_only_codex_exec_fresh_sessions",
+  "measured_at": "2026-10-06T00:13:31.442Z",
+  "readiness": "measured_pass",
+  "passed": 4,
+  "total": 4,
+  "composite_percent": 100,
+  "models": [
+    "gpt-6-astra"
+  ],
   "criteria": {
     "R1": {
-      "name": "no_new_findings",
-      "status": "unverified",
-      "reason": "The original phrase blacklist is not a semantic check against the supplied evidence."
+      "name": "grounded_findings_and_checkpoint_status",
+      "status": "measured_pass",
+      "passed": 4,
+      "total": 4,
+      "case_ids": [
+        "w6-clean-pending-human",
+        "w6-partial-repair-blocked",
+        "w6-substance-rejected",
+        "w6-approved-handoff"
+      ]
     },
     "R2": {
-      "name": "covers_all_artifacts",
-      "status": "unverified",
-      "reason": "The original scorer did not check artifact coverage."
+      "name": "every_artifact_finding_and_evidence_reference",
+      "status": "measured_pass",
+      "passed": 4,
+      "total": 4,
+      "case_ids": [
+        "w6-clean-pending-human",
+        "w6-partial-repair-blocked",
+        "w6-substance-rejected",
+        "w6-approved-handoff"
+      ]
     },
     "R3": {
-      "name": "concise_tone",
-      "status": "partially_measured",
-      "reason": "One saved example passed the original format checks. Tone was not evaluated; the scorer allowed four paragraphs while the prompt specified three."
+      "name": "concise_heading_free_prose",
+      "status": "measured_pass",
+      "passed": 4,
+      "total": 4,
+      "case_ids": [
+        "w6-clean-pending-human",
+        "w6-partial-repair-blocked",
+        "w6-substance-rejected",
+        "w6-approved-handoff"
+      ]
+    },
+    "R4": {
+      "name": "independent_semantic_grounding_and_tone",
+      "status": "measured_pass",
+      "passed": 4,
+      "total": 4,
+      "case_ids": [
+        "w6-clean-pending-human",
+        "w6-partial-repair-blocked",
+        "w6-substance-rejected",
+        "w6-approved-handoff"
+      ]
     }
   },
-  "measured_checks": {
-    "original_format_smoke_check": {
-      "passed": 1,
-      "total": 1
-    }
-  },
-  "provenance": "Original model/response IDs, usage, and first-attempt/manual-edit history were not recorded.",
-  "original_recorded_at": "2026-10-05"
+  "source_results": "evaluations/stage5/results.json",
+  "source_cases": "evaluations/stage5/cases.json",
+  "source_captures": "evaluations/stage5/captures.json",
+  "raw_outputs": [
+    "evaluations/stage5/raw/w6-clean-pending-human.txt",
+    "evaluations/stage5/raw/w6-partial-repair-blocked.txt",
+    "evaluations/stage5/raw/w6-substance-rejected.txt",
+    "evaluations/stage5/raw/w6-approved-handoff.txt"
+  ],
+  "prompt_sha256": [
+    "3d8b41a5f3c2d923a223b3e1115addeed346a35f4f359010473f112fb012a3f3"
+  ],
+  "native_telemetry": [
+    "evaluations/stage5/raw/w6-clean-pending-human.telemetry.json",
+    "evaluations/stage5/raw/w6-partial-repair-blocked.telemetry.json",
+    "evaluations/stage5/raw/w6-substance-rejected.telemetry.json",
+    "evaluations/stage5/raw/w6-approved-handoff.telemetry.json"
+  ],
+  "attempts_per_case": 1,
+  "manual_model_output_corrections": 0,
+  "model_retries": 0,
+  "scorer_adjustments": "evaluations/stage5/scorer-adjustments.json",
+  "semantic_review": "evaluations/stage5/semantic-reviews.json",
+  "cost_usd": null,
+  "cost_status": "not_exposed_by_native_host",
+  "replay": "node evaluations/stage5/score.js",
+  "limitations": "Finite fresh-context semantic evaluations measure the listed cases, not a guarantee about every future input. Producer output text was never manually corrected. Billing USD is not exposed; measured tokens and separately labeled credit estimates are archived.",
+  "historical_evidence_retained": "evaluations/historical/agents/delivery-report/evals/results.json"
 }

@@ -1,0 +1,47 @@
+{
+  "requestId": "native-governed-2026-10-05-02-015",
+  "output": "`002-requirements.json` defines the INSERT-only trigger requirements for `PurinaNA.BatchCampaign`, including metadata-driven enqueueing and error handling; `004-adversarial.json` independently upheld its PASS with no findings. `006-trigger.sql` implements the RI command, prep-procedure and `sp_executesql` execution path, required session settings, error capture before logging, and rethrow only when `XACT_STATE() = -1`; `008-adversarial.json` independently upheld its PASS with no findings. `010-review.json` records W3’s PASS, with no failed or missing checklist items, forbidden patterns, or violations; `012-adversarial.json` independently upheld that PASS with no findings.\n\nThe prior coordinator dispositions required independent W5 review before advancing each artifact downstream. Those prerequisite reviews are now complete. The latest disposition directs W6 to use existing artifact `010-review.json` as its focus to correct the VALIDATION_ERROR and preserve W3’s PASS. This report uses that focus. No findings, challenges, or remediation are recorded, so there are no finding dispositions to classify as resolved or open.\n\nThis W6 report still requires independent W5 review. Delivery remains `pending_human`: neither substance Continue nor deployment approval has been granted. Human reviewers must still make both decisions; deployment is not authorized.",
+  "usage": {
+    "input_tokens": 25499,
+    "cached_input_tokens": 13312,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 627,
+    "reasoning_output_tokens": 352,
+    "total_tokens": 26126,
+    "model": "gpt-6-astra",
+    "provider": "codex:native-subagent",
+    "response_id": "resp_08cea4cf1434fe35016ac43d2bf80887d18b8c1192c8189e2a",
+    "response_ids": [
+      "resp_08cea4cf1434fe35016ac43d2bf80887d18b8c1192c8189e2a"
+    ],
+    "thread_id": "01a10e8e-f69b-7262-a24d-7e7892f01268",
+    "cost": {
+      "usd": null,
+      "status": "not_reported",
+      "source_status": "not_exposed_by_native_host"
+    },
+    "standard_credit_equivalent": {
+      "value": 4.1633,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "usage_source": "native_response_token_usage_record",
+    "telemetry_ref": "inference\\native-governed-2026-10-05-02-015\\telemetry.json",
+    "raw_sha256": "c4057d8d95755c3481c3fdb509f37d0e2aad454eb29922128d0b31c6178ef5c7",
+    "packet_sha256": "ffff5d46b4e73365a9aec51fa6d17213b87dc6d7374450c86e653d7f89ccae74",
+    "cost_usd": null,
+    "cost_status": "not_reported"
+  }
+}

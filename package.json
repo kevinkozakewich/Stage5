@@ -20,7 +20,8 @@
     "eval:s4:live": "npm exec --prefix Assignment -- promptfoo eval -c support/live-evals/remediator/promptfooconfig.yaml",
     "eval:live:all": "npm run eval:s1:live && npm run eval:s2:live && npm run eval:s3:live && npm run eval:s4:live",
     "workflow:golden": "npm run workflow:golden --prefix Assignment",
-    "validate:readiness": "node scripts/validate-submission.js --require-ready"
+    "validate:readiness": "node scripts/validate-submission.js --require-ready",
+    "eval:stage5": "npm run eval:stage5 --prefix Assignment"
   },
   "devDependencies": {
     "promptfoo": "^0.123.0"

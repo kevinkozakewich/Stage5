@@ -66,12 +66,17 @@ export function hasSubstanceContinue(overridesPath, correlationId, reportHash) {
  */
 export function checkSubstanceGate(overridesPath, correlationId, options = {}) {
   const config = options && typeof options === 'object' ? options : {};
-  const assessment = assessSubstanceElevation(config.workflowsRoot);
-  if (!assessment.requiresElevation) return { ...assessment, blocked: false, reason: null, decision: null };
+  const assessed = assessSubstanceElevation(config.workflowsRoot);
+  // Legacy examinations did not bind their workflow assessment. Missing old
+  // evidence may require a human decision, but may never waive one.
+  const assessment = config.requireElevation === true && !assessed.requiresElevation
+    ? { ...assessed, requiresElevation: true, reason: 'Original substance assessment is unavailable; human Continue/Reject is required' }
+    : assessed;
   const decision = readSubstanceDecision(overridesPath, correlationId);
   if (decision?.decision === 'Reject') {
     return { ...assessment, blocked: true, reason: 'SUBSTANCE_REJECTED — latest human decision is Reject', decision };
   }
+  if (!assessment.requiresElevation) return { ...assessment, blocked: false, reason: null, decision };
   if (decision?.decision === 'Continue' && (!config.reportHash || decision.report_hash === config.reportHash)) {
     return { ...assessment, blocked: false, reason: null, decision };
   }

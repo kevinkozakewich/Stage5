@@ -1,0 +1,45 @@
+{
+  "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-012\\output.txt",
+  "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-012\\telemetry.json",
+  "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-012\\packet.md",
+  "threadId": "01a10e8e-4069-7cb3-be32-4cbec75c00e0",
+  "model": "gpt-6-astra",
+  "responseId": "resp_0c29d660f0e0d738016ac43cfcd568819081967958ed873b46",
+  "responseIds": [
+    "resp_0c29d660f0e0d738016ac43cfcd568819081967958ed873b46"
+  ],
+  "usage": {
+    "input_tokens": 21593,
+    "cached_input_tokens": 13312,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 270,
+    "reasoning_output_tokens": 140,
+    "total_tokens": 21863
+  },
+  "cost_usd": null,
+  "cost_status": "not_exposed_by_native_host",
+  "standard_credit_equivalent": {
+    "value": 2.74055,
+    "unit": "standard_credit_equivalent",
+    "status": "estimate_only",
+    "rates_per_million_tokens": {
+      "gpt-6-astra": {
+        "input": 250,
+        "cached_input": 25,
+        "output": 1250
+      }
+    },
+    "unknown_models": [],
+    "missing_cached_input_usage": false,
+    "source": "https://learn.chatgpt.com/docs/pricing",
+    "rates_verified_on": "2026-10-05",
+    "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+  },
+  "packet_sha256": "4d0523c5b0f5c2f1196cba86b756a37bb78adc7a0f5622d358b5760852eb9f5c",
+  "raw_sha256": "15d749af359a5fb5863664b04af6c4dd97c6a65c606f995d49f7a9b0ab7dc64a",
+  "attempt": 1,
+  "manual_corrections": 0,
+  "provider": "codex:native-subagent",
+  "invocation": "evaluation_only_codex_exec_fresh_context",
+  "host_tool_calls": []
+}

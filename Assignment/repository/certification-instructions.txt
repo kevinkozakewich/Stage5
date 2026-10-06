@@ -1,0 +1,45 @@
+What does Stage 5 look like?
+Stage 4 taught us the importance of linking Stage 3 prompts into a cohesive workflow, with guardrails between steps, proven punch-outs to humans, end-to-end success monitoring, and a per-step audit trail showing model, tokens, and cost. The critical question for Stage 4 was "When you chain prompts together, how do you keep them from sliding into chaos?"
+
+In Stage 5, we now look to delegate. The critical question for Stage 5 is "When you give an AI system the authority to coordinate other AI systems, how do you ensure it governs wisely instead of becoming a mega-agent that does everything itself?"
+
+Stage 5 is about building a coordinator agent — an LLM that holds only dispatch tools and reasons over the results of sub-agents it launches. The coordinator does not do the work itself. It does not read files, call HTTP endpoints, or run commands. It dispatches sub-agents to do those things, reads their results, reasons over them, and decides what to do next.
+
+Now you may be thinking to yourself … but I don't have a way to get an API Key that would let me build something like this.  But I'm happy to say you now indeed do have such a way: Request an API key — Improving just request a key and keep in mind that the spending will flow to your AI Usage for the month.
+
+The Coordinator
+The coordinator is an LLM agent with one tool per sub-agent. Each tool is purpose-built — launch_examiner, launch_adversarial_reviewer, launch_final_review_writer — and each tool can target a specific step of a workflow, not just the whole workflow from the top. The coordinator calls a sub-agent, reads the result, reasons, and calls the next one. If the adversarial reviewer raises a critical challenge, the coordinator re-invokes the examiner with the challenges as added context, targeting the specific artifact that was challenged. Then it re-reviews. The governance is in the LLM's reasoning, not in imperative if/while code.
+
+The coordinator must be dispatch-only. If the coordinator holds a read_file tool, or an http_get tool, or a bash tool — that is the mega-agent counterfeit. A coordinator that can do real work is a single agent pretending to be a delegation system. One bad call can reach every workflow it was supposed to keep separate. This is the primary counterfeit we watch for in Stage 5.
+
+Sub-Agents Scoped to One Workflow
+Each sub-agent is limited to the specific tools, workflow skills, and steps needed for its single assigned workflow. No broader access. An adversarial reviewer is scoped by its review assignment, not by a single workflow — a reviewer covering several sub-agents is the required pattern, not a scoping violation. Scoping is judged against the submission's declared tools, not from what the workflow name suggests.
+
+Each workflow keeps its Stage 3 guarantees: prompt, at least 3 named evaluation criteria, and measured results. The evaluation artifacts must be present or clearly referenced. Measured results must be structured evidence — a committed results.json, a results table, or a CI run record — not a prose claim.
+
+Adversarial Review in Its Own Context
+A dedicated adversarial agent reviews each sub-agent's output in its own distinct context window, separate from the agent whose work it is checking. The reviewer should have read_file access to verify the draft's claims against actual source files. A reviewer without file access can only judge internal consistency — the strongest pattern gives the reviewer the tools to substantiate claims.
+
+Isolation is provable by construction (a fresh API call per review) or by manifest declaration (isolated_context: true). A reviewer that shares the producing agent's message history fails — it is a second opinion inside the same context, not adversarial review.
+
+The Final Review Writer
+The final review is a distinct workflow of its own. It receives all context from all agents as moderated by the coordinator — the original workflow output, the adversarial review verdict and challenges, and the coordinator's disposition — and synthesizes them into a polished report. The tone is polite, encouraging but direct, matching the grading style used throughout. The final review writer does not add new findings the examiner and adversarial reviewer did not raise. Its value is clarity, tone, and completeness of synthesis.
+
+The report headings are deterministic — they come from the artifact findings, not from the LLM. A PASS artifact gets a PASS heading. A FAIL artifact gets a FAIL heading. The LLM writes the prose; the harness assembles the structure. The headings can never be wrong because they never pass through the LLM.
+
+Stage 4 Continuity
+All Stage 4 guarantees must be maintained across every sub-workflow:
+
+Custom harness: Runtime inference via agentic CLI shells (claude, codex, devin, etc.) is an automatic FAIL. CLI usage inside evals/, tests/, or evaluations/ directories is evaluation, not runtime — that is exempt.
+Punch-outs honored: The coordinator may not auto-approve past a human checkpoint. The substance elevation gate blocks final disposition on toy or peripheral workflows until a human records a Continue/Reject decision.
+Per-step evals: Every workflow keeps its Stage 3 guarantees with structured measured results.
+Audit trail: Per-step model/token/cost data must survive the multi-workflow structure. Each examination gets a correlation ID for end-to-end tracing. The audit trail is persisted to disk — not just in-memory — so it survives the HTTP request lifecycle and is available for post-hoc auditing.
+Deterministic Guardrails Between Steps
+Stage 5 carries forward Stage 4's deterministic guardrail discipline, but now at the delegation boundary. When the coordinator dispatches a sub-agent, the harness enforces schema validation on the sub-agent's output before the coordinator ever sees it. The examiner's JSON must pass the examination schema. The adversarial reviewer's challenges must be well-formed. The final review writer's output must be non-empty markdown. If a sub-agent returns something that doesn't validate, the coordinator gets a structured error — never garbage — and can reason over the error to decide whether to retry or proceed.
+
+This is the delegation system's version of the Stage 4 guardrails that sat between prompts in a workflow. The coordinator reasons; the harness enforces structure. The LLM decides what to do; the deterministic code ensures the inputs to that decision are well-formed.
+
+Substance Assessment
+For each workflow in your system, you should assess its relevance to an IT consultant's real work: core (work a paying client would buy), peripheral (useful but not billable on its own), or toy (hobby, game, or demo). The substance assessment is honest self-awareness about whether your delegation system solves a real business problem.
+
+If any workflow is scored toy, or two or more are peripheral, the system elevates for human review. This is not a failure — it is a routing judgment. A human reviewer decides whether to accept or reject the substance. The human override is append-only — the system's report is retained verbatim, the decision is logged with the reviewer's identity.

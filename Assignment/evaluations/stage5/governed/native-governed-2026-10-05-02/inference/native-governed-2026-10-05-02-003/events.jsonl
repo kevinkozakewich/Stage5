@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a10e8c-5ea8-7d70-8e96-f9791f364e09"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"name\":\"launch_adversarial_reviewer\",\"arguments\":{\"target_step\":\"W5\",\"artifact_id\":\"002-requirements.json\"},\"disposition\":\"W1 produced validated requirements, but this immutable artifact has no independent review. Dispatch W5 against the supplied brief before using the requirements in W2.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":20455,"cached_input_tokens":13312,"cache_write_input_tokens":0,"output_tokens":119,"reasoning_output_tokens":51}}

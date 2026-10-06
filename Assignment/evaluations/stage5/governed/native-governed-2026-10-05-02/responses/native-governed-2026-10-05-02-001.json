@@ -1,0 +1,47 @@
+{
+  "requestId": "native-governed-2026-10-05-02-001",
+  "output": "{\"name\":\"launch_spec_parser\",\"arguments\":{\"target_step\":\"W1\",\"brief_ref\":\"brief.md\"},\"disposition\":\"No requirements or other artifacts exist. Dispatch W1 to parse the supplied migration brief; its output must receive independent W5 review before downstream use.\"}",
+  "usage": {
+    "input_tokens": 19759,
+    "cached_input_tokens": 13312,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 116,
+    "reasoning_output_tokens": 55,
+    "total_tokens": 19875,
+    "model": "gpt-6-astra",
+    "provider": "codex:native-subagent",
+    "response_id": "resp_0769a6a681915d63016ac43c68c06881968dadddde41be22fe",
+    "response_ids": [
+      "resp_0769a6a681915d63016ac43c68c06881968dadddde41be22fe"
+    ],
+    "thread_id": "01a10e8b-fda0-7293-b061-e01774e37173",
+    "cost": {
+      "usd": null,
+      "status": "not_reported",
+      "source_status": "not_exposed_by_native_host"
+    },
+    "standard_credit_equivalent": {
+      "value": 2.08955,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "usage_source": "native_response_token_usage_record",
+    "telemetry_ref": "inference\\native-governed-2026-10-05-02-001\\telemetry.json",
+    "raw_sha256": "7a9db47f8e46b256f07e1a5e3a47de5fdde75ed1e320419281da0043aaa0248a",
+    "packet_sha256": "add60be7cff813dfba012ee6ed2af50708a3cc4103ace763b0858bce51e89fe8",
+    "cost_usd": null,
+    "cost_status": "not_reported"
+  }
+}

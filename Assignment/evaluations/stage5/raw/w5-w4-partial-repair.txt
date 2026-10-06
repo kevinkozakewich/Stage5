@@ -1,0 +1,18 @@
+{
+  "artifact_id": "trigger.remediated.sql",
+  "workflow_id": "W4",
+  "challenge": "OVERTURNED",
+  "original_verdict": "PASS",
+  "confidence": "high",
+  "findings": [
+    {
+      "id": "A1",
+      "type": "requirement_mismatch",
+      "label": "Remediation enables XACT_ABORT contrary to the required contract",
+      "evidence": "trigger.remediated.sql, line 7: \"SET XACT_ABORT ON;\". The SQL CONTRACT explicitly requires \"SET XACT_ABORT OFF;\", which trigger.before.sql correctly included at line 7.",
+      "artifact": "trigger.remediated.sql"
+    }
+  ],
+  "recommended_verdict": "FAIL",
+  "notes": "The remediation fixes the direct queue insertion by restoring the prep procedure and sp_executesql with Source=Trigger, but introduces an explicit contract regression by changing XACT_ABORT from OFF to ON. The PASS verdict must be overturned."
+}

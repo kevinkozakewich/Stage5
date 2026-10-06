@@ -1,0 +1,47 @@
+{
+  "requestId": "native-governed-2026-10-05-02-005",
+  "output": "{\"name\":\"launch_trigger_codegen\",\"arguments\":{\"target_step\":\"W2\"},\"disposition\":\"Requirements artifact 002-requirements.json was independently upheld by W5 review 004-adversarial.json with no findings. Dispatch W2 to generate SQL from the accepted requirements; its output must receive W5 review before W3.\"}",
+  "usage": {
+    "input_tokens": 20997,
+    "cached_input_tokens": 16512,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 161,
+    "reasoning_output_tokens": 88,
+    "total_tokens": 21158,
+    "model": "gpt-6-astra",
+    "provider": "codex:native-subagent",
+    "response_id": "resp_037cd062f62055b6016ac43c97d6e087d1818ece7d539508e8",
+    "response_ids": [
+      "resp_037cd062f62055b6016ac43c97d6e087d1818ece7d539508e8"
+    ],
+    "thread_id": "01a10e8c-af8f-74d3-b10a-c44d9f40dedf",
+    "cost": {
+      "usd": null,
+      "status": "not_reported",
+      "source_status": "not_exposed_by_native_host"
+    },
+    "standard_credit_equivalent": {
+      "value": 1.7353,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "usage_source": "native_response_token_usage_record",
+    "telemetry_ref": "inference\\native-governed-2026-10-05-02-005\\telemetry.json",
+    "raw_sha256": "aa473555b9fd0a7d508c9059c0b44a1e1dace70a87fba4972eb262ae89d82231",
+    "packet_sha256": "4216ab257d0a756cabbbd22b12c79e3c4b71f2c28f7e0129aee685a8b4dad6a9",
+    "cost_usd": null,
+    "cost_status": "not_reported"
+  }
+}

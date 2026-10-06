@@ -1,0 +1,47 @@
+{
+  "requestId": "native-governed-2026-10-05-02-017",
+  "output": "{\"artifact_id\":\"015-report-body.md\",\"workflow_id\":\"W6\",\"challenge\":\"UPHELD\",\"original_verdict\":\"PASS\",\"confidence\":\"high\",\"findings\":[],\"recommended_verdict\":\"PASS\",\"notes\":\"The report accurately covers all current source artifacts, independent review verdicts, and prior coordinator dispositions. It preserves W3’s PASS, correctly records no findings, challenges, or remediation, and acknowledges its required W5 review. Delivery remains pending_human, with neither substance Continue nor deployment approval granted.\"}",
+  "usage": {
+    "input_tokens": 29571,
+    "cached_input_tokens": 13312,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 236,
+    "reasoning_output_tokens": 127,
+    "total_tokens": 29807,
+    "model": "gpt-6-astra",
+    "provider": "codex:native-subagent",
+    "response_id": "resp_07eeb812d45df2d8016ac43d4ffeec87d182daa5e9bc5bfebf",
+    "response_ids": [
+      "resp_07eeb812d45df2d8016ac43d4ffeec87d182daa5e9bc5bfebf"
+    ],
+    "thread_id": "01a10e8f-8478-7ee2-a72c-fc1379aea9fb",
+    "cost": {
+      "usd": null,
+      "status": "not_reported",
+      "source_status": "not_exposed_by_native_host"
+    },
+    "standard_credit_equivalent": {
+      "value": 4.69255,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "usage_source": "native_response_token_usage_record",
+    "telemetry_ref": "inference\\native-governed-2026-10-05-02-017\\telemetry.json",
+    "raw_sha256": "3e72da0787189dcc935b92414c547a3618d6a139fc658b1d56cc2094657f0d6a",
+    "packet_sha256": "df7190736822615be03f71d8f9cd8795d67dacc8b40e5e2d427e53a97c39befa",
+    "cost_usd": null,
+    "cost_status": "not_reported"
+  }
+}

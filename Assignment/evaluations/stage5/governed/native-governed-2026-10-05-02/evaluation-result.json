@@ -1,0 +1,62 @@
+{
+  "evidence_type": "actual_native_model_governed_execution",
+  "inference_performed": true,
+  "run_id": "native-governed-2026-10-05-02",
+  "correlation_id": "native-governed-2026-10-05-02",
+  "status": "pending_human",
+  "reason": "SUBSTANCE_ELEVATION — an identified human must record Continue/Reject for this correlation ID and unchanged report",
+  "manual_corrections": 0,
+  "request_count": 17,
+  "producer_artifacts": [
+    {
+      "id": "002-requirements.json",
+      "workflow_id": "W1",
+      "hash": "sha256:d8607a810c107c10f06655ff89ae7c107f816f3fb5a6ef1a4ab54e70c885b374"
+    },
+    {
+      "id": "006-trigger.sql",
+      "workflow_id": "W2",
+      "hash": "sha256:0e194a3d538cbf46b01d92295407ba42a0e8e991ea6fe086dd07b9df01488a29"
+    },
+    {
+      "id": "010-review.json",
+      "workflow_id": "W3",
+      "hash": "sha256:7ecb58da383d246ec322358d795cb68f0e99b3931bfdd320c7921b90582a7671"
+    },
+    {
+      "id": "015-report-body.md",
+      "workflow_id": "W6",
+      "hash": "sha256:c4057d8d95755c3481c3fdb509f37d0e2aad454eb29922128d0b31c6178ef5c7"
+    }
+  ],
+  "independent_reviews": [
+    {
+      "id": "004-adversarial.json",
+      "artifact_id": "002-requirements.json",
+      "isolated_context": true,
+      "isolated_session_id": "8f736b63-43da-4711-a19b-db2780bb830f"
+    },
+    {
+      "id": "008-adversarial.json",
+      "artifact_id": "006-trigger.sql",
+      "isolated_context": true,
+      "isolated_session_id": "73c69839-1db8-4259-abbf-17b70f1ff9a4"
+    },
+    {
+      "id": "012-adversarial.json",
+      "artifact_id": "010-review.json",
+      "isolated_context": true,
+      "isolated_session_id": "a73fc0a0-c1d5-4a10-a452-daa7aa550f81"
+    },
+    {
+      "id": "017-adversarial.json",
+      "artifact_id": "015-report-body.md",
+      "isolated_context": true,
+      "isolated_session_id": "a620cb78-9ced-47eb-ab3e-10faecf0fd13"
+    }
+  ],
+  "all_outputs_reviewed": true,
+  "all_provider_calls_tool_free": true,
+  "human_approval_inferred": false,
+  "cost_status": "Native USD billing is unavailable; per-step audit preserves measured tokens and separately labeled Standard credit equivalents."
+}

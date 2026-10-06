@@ -1,9 +1,9 @@
 run_id,recorded_at,fixture_id,evidence_type,regression_pass,expected_outcome,actual_status,human_approved,remediate_cycles,simulated_tokens,simulated_cost_usd,failure_origin_step
-regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-01-clean,2026-10-05T23:50:59.270Z,fixture-01-clean,simulated_regression,true,pending_human,pending_human,false,0,5974,0.0242,
-regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-02-remediate,2026-10-05T23:50:59.281Z,fixture-02-remediate,simulated_regression,true,pending_human,pending_human,false,1,10268,0.0401,
-regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-03-guardrail-fail,2026-10-05T23:50:59.284Z,fixture-03-guardrail-fail,simulated_regression,true,failed,halted,false,0,2150,0.0105,W2
-regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-04-composite-pk,2026-10-05T23:50:59.291Z,fixture-04-composite-pk,simulated_regression,true,pending_human,pending_human,false,0,6040,0.0246,
-regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-05-insert-only,2026-10-05T23:50:59.298Z,fixture-05-insert-only,simulated_regression,true,pending_human,pending_human,false,0,5828,0.0233,
-regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-06-g1-schema-fail,2026-10-05T23:50:59.300Z,fixture-06-g1-schema-fail,simulated_regression,true,failed,halted,false,0,760,0.0029,W1
-regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-07-g4-review-mismatch,2026-10-05T23:50:59.304Z,fixture-07-g4-review-mismatch,simulated_regression,true,failed,halted,false,0,4664,0.0202,W3
-regression-2026-10-05T23-50-59-253Z-8c354c84-fixture-08-retries-exhausted,2026-10-05T23:50:59.312Z,fixture-08-retries-exhausted,simulated_regression,true,failed,failure,false,2,13252,0.052,W3
+regression-2026-10-06T00-16-54-578Z-b4603538-fixture-01-clean,2026-10-06T00:16:54.595Z,fixture-01-clean,simulated_regression,true,pending_human,pending_human,false,0,5974,0.0242,
+regression-2026-10-06T00-16-54-578Z-b4603538-fixture-02-remediate,2026-10-06T00:16:54.606Z,fixture-02-remediate,simulated_regression,true,pending_human,pending_human,false,1,10268,0.0401,
+regression-2026-10-06T00-16-54-578Z-b4603538-fixture-03-guardrail-fail,2026-10-06T00:16:54.609Z,fixture-03-guardrail-fail,simulated_regression,true,failed,halted,false,0,2150,0.0105,W2
+regression-2026-10-06T00-16-54-578Z-b4603538-fixture-04-composite-pk,2026-10-06T00:16:54.616Z,fixture-04-composite-pk,simulated_regression,true,pending_human,pending_human,false,0,6040,0.0246,
+regression-2026-10-06T00-16-54-578Z-b4603538-fixture-05-insert-only,2026-10-06T00:16:54.623Z,fixture-05-insert-only,simulated_regression,true,pending_human,pending_human,false,0,5828,0.0233,
+regression-2026-10-06T00-16-54-578Z-b4603538-fixture-06-g1-schema-fail,2026-10-06T00:16:54.625Z,fixture-06-g1-schema-fail,simulated_regression,true,failed,halted,false,0,760,0.0029,W1
+regression-2026-10-06T00-16-54-578Z-b4603538-fixture-07-g4-review-mismatch,2026-10-06T00:16:54.629Z,fixture-07-g4-review-mismatch,simulated_regression,true,failed,halted,false,0,4664,0.0202,W3
+regression-2026-10-06T00-16-54-578Z-b4603538-fixture-08-retries-exhausted,2026-10-06T00:16:54.636Z,fixture-08-retries-exhausted,simulated_regression,true,failed,failure,false,2,13252,0.052,W3

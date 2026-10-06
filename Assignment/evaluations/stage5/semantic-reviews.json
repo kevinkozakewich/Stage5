@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "description": "Actual fresh-context semantic evaluation, unedited first attempt. Same judge checks every source/output pair independently of producer histories.",
+  "reviews": [
+    {
+      "case_id": "w5-w1-clean-composite",
+      "blind_case_id": "case-01",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w1-clean-composite",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly targets requirements.json and upholds PASS: schema, table, both primary-key columns, and trigger events match the brief. The prep constraint is consistent with the supplied contract, and no defects are invented."
+      }
+    },
+    {
+      "case_id": "w5-w1-lost-composite-key",
+      "blind_case_id": "case-02",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w1-lost-composite-key",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly overturns requirements.json to FAIL because its pk contains only vendor_id while the brief explicitly requires vendor_id and contact_seq. The evidence accurately identifies the missing column."
+      }
+    },
+    {
+      "case_id": "w5-w2-clean-sql",
+      "blind_case_id": "case-03",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w2-clean-sql",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly upholds trigger.sql: the required settings, command detection, prep and dynamic execution path, Source=Trigger, logging, and gated rethrow are present. The empty findings array is justified under the supplied contract."
+      }
+    },
+    {
+      "case_id": "w5-w2-direct-queue-bypass",
+      "blind_case_id": "case-04",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w2-direct-queue-bypass",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly overturns trigger.sql to FAIL. Its command-only direct queue insert omits the required prep and dynamic execution path, composite-key processing, and Source=Trigger; all three findings are supported."
+      }
+    },
+    {
+      "case_id": "w5-w3-clean-review",
+      "blind_case_id": "case-05",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w3-clean-review",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly targets review.json and upholds its PASS because the supplied SQL supports the examiner's checklist and clean assessment. The prep path satisfies Source and dynamic discovery under the explicit contract."
+      }
+    },
+    {
+      "case_id": "w5-w3-false-clean",
+      "blind_case_id": "case-06",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w3-false-clean",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly overturns review.json's false PASS: the SQL directly inserts a command-only queue row, lacks Source and the prep execution path, and does not process composite keys. The findings accurately challenge the examiner's clean and passed-checklist claims."
+      }
+    },
+    {
+      "case_id": "w5-w3-preserve-fail",
+      "blind_case_id": "case-07",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w3-preserve-fail",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Preserves the justified FAIL while identifying the actual checklist defect: dynamic discovery is marked passed despite the absence of both required calls. The direct queue insert and missing Source support retaining FAIL."
+      }
+    },
+    {
+      "case_id": "w5-w4-repair-complete",
+      "blind_case_id": "case-08",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w4-repair-complete",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly upholds trigger.remediated.sql. The replacement prep and sp_executesql path with Source=Trigger resolves V1, and the required settings, event scope, command detection, logging, and rethrow gate remain present."
+      }
+    },
+    {
+      "case_id": "w5-w4-partial-repair",
+      "blind_case_id": "case-09",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w4-partial-repair",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly overturns the remediated SQL's PASS because line 7 enables XACT_ABORT contrary to the required OFF setting. It accurately distinguishes this regression from the repaired direct-insert defect."
+      }
+    },
+    {
+      "case_id": "w5-w6-grounded-report",
+      "blind_case_id": "case-10",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w6-grounded-report",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly upholds report.body.md: all four artifacts and evidence labels are covered, the bundle has no findings, and WAITING_HUMAN, pending P1 approval, blocked deployment, and the substance state match the sources."
+      }
+    },
+    {
+      "case_id": "w5-w6-invented-finding",
+      "blind_case_id": "case-11",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w6-invented-finding",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly overturns report.body.md for inventing a SQL injection vulnerability. The quoted claim is present in the report, while the complete supplied bundle contains no findings or supporting vulnerability evidence."
+      }
+    },
+    {
+      "case_id": "w5-w6-premature-approval",
+      "blind_case_id": "case-12",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w5-w6-premature-approval",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly identifies the report's false approval and deployment-authorization claims. G1 records PENDING with no reviewer, and D1 explicitly blocks deployment until approval for the current artifact hash."
+      }
+    },
+    {
+      "case_id": "w6-clean-pending-human",
+      "blind_case_id": "case-13",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w6-clean-pending-human",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Covers every current artifact with its verdict and evidence label, accurately states that no findings were supplied, and cites the coordinator and both gate states. It preserves pending human review and the deployment block without implying approval."
+      }
+    },
+    {
+      "case_id": "w6-partial-repair-blocked",
+      "blind_case_id": "case-14",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w6-partial-repair-blocked",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Covers all five artifacts and F1 with the supplied evidence labels, correctly retaining F1 as OPEN because sp_executesql still lacks Source. It accurately reports REMEDIATION_REQUIRED, the requested repair and fresh reviews, pending human review, and the substance state."
+      }
+    },
+    {
+      "case_id": "w6-substance-rejected",
+      "blind_case_id": "case-15",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w6-substance-rejected",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Accurately covers all technical PASS artifacts and distinguishes them from the coordinator's REJECTED outcome. It cites DBA-17's substance rejection and its recorded reason while preserving the separate PENDING human gate."
+      }
+    },
+    {
+      "case_id": "w6-approved-handoff",
+      "blind_case_id": "case-16",
+      "thread_id": "01a10e8d-24dd-7ed2-b571-eaf82692a7b8",
+      "model": "gpt-6-astra",
+      "response_id": "resp_083ab5cf58fb75cd016ac43cb4b02087d1a976208976879ec3",
+      "raw_path": "semantic-review-run/output.txt",
+      "raw_sha256": "bbad3ab357f086515e6201363ad0e48a1ee51b8d9edd3adc3aa2f58253d0ffc1",
+      "packet_sha256": "2d47a817e439421478951603fed9b6f986d85d6c2c6b0687aa51fc4e1155d01e",
+      "verdict": {
+        "case_id": "w6-approved-handoff",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Covers all artifacts and evidence labels and accurately reports SUCCESS based on matching approved hashes. It limits DBA-22's approval to the current artifacts, explicitly preserves the absence of production execution, and correctly reports the substance gate."
+      }
+    }
+  ]
+}

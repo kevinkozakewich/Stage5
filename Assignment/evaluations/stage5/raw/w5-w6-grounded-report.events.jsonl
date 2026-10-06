@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a10e8b-03f0-7910-a367-487dff5bf6ec"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"{\"artifact_id\":\"report.body.md\",\"workflow_id\":\"W6\",\"challenge\":\"UPHELD\",\"original_verdict\":\"PASS\",\"confidence\":\"high\",\"findings\":[],\"recommended_verdict\":\"PASS\",\"notes\":\"The report accurately covers all four current artifacts and their supporting evidence. The source bundle contains no findings. WAITING_HUMAN, pending P1 approval, blocked deployment, and no required substance elevation are all supported; no human approval is implied or granted.\"}"}}
+{"type":"turn.completed","usage":{"input_tokens":18931,"cached_input_tokens":16512,"cache_write_input_tokens":0,"output_tokens":181,"reasoning_output_tokens":81}}

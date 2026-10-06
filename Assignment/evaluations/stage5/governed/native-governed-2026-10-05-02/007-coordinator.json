@@ -1,0 +1,8 @@
+{
+  "name": "launch_adversarial_reviewer",
+  "arguments": {
+    "target_step": "W5",
+    "artifact_id": "006-trigger.sql"
+  },
+  "disposition": "W2 produced 006-trigger.sql from independently upheld requirements. This immutable SQL artifact has no independent review and is listed in required_reviews. Dispatch W5 before using it in W3; human substance and deployment approvals remain pending."
+}

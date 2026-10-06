@@ -47,7 +47,10 @@
       "type": "integer"
     },
     "cost_usd": {
-      "type": "number"
+      "type": [
+        "number",
+        "null"
+      ]
     },
     "input_hash": {
       "type": "string"
@@ -83,6 +86,13 @@
     },
     "execution_mode": {
       "type": "string"
+    },
+    "cost_status": {
+      "type": "string"
+    },
+    "standard_credit_equivalent": {
+      "description": "Explicit standard-rate estimate, not billed subscription usage",
+      "type": "object"
     }
   }
 }

@@ -1,0 +1,835 @@
+[
+  {
+    "request_id": "native-governed-2026-10-05-02-001",
+    "role": "coordinator",
+    "workflow_id": "C",
+    "output": "{\"name\":\"launch_spec_parser\",\"arguments\":{\"target_step\":\"W1\",\"brief_ref\":\"brief.md\"},\"disposition\":\"No requirements or other artifacts exist. Dispatch W1 to parse the supplied migration brief; its output must receive independent W5 review before downstream use.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-001\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-001\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-001\\packet.md",
+    "threadId": "01a10e8b-fda0-7293-b061-e01774e37173",
+    "model": "gpt-6-astra",
+    "responseId": "resp_0769a6a681915d63016ac43c68c06881968dadddde41be22fe",
+    "responseIds": [
+      "resp_0769a6a681915d63016ac43c68c06881968dadddde41be22fe"
+    ],
+    "usage": {
+      "input_tokens": 19759,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 116,
+      "reasoning_output_tokens": 55,
+      "total_tokens": 19875
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.08955,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "add60be7cff813dfba012ee6ed2af50708a3cc4103ace763b0858bce51e89fe8",
+    "raw_sha256": "7a9db47f8e46b256f07e1a5e3a47de5fdde75ed1e320419281da0043aaa0248a",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-002",
+    "role": "workflow",
+    "workflow_id": "W1",
+    "output": "{\n  \"table\": \"BatchCampaign\",\n  \"schema\": \"PurinaNA\",\n  \"pk\": \"scm_id\",\n  \"trigger_type\": \"AFTER INSERT\",\n  \"constraints\": [\n    \"no_direct_queue_insert\",\n    \"dynamic_enqueue_only\",\n    \"use_existing_purinana_togpmq_enqueuerecordbytriggerprep\",\n    \"execute_returned_sql_with_sp_executesql_inside_trigger\",\n    \"metadata_driven_payload_columns\",\n    \"no_hardcoded_business_payload_columns\",\n    \"nocount_on\",\n    \"xact_abort_off\",\n    \"use_try_catch\",\n    \"capture_error_fields_before_nested_procedure_calls\",\n    \"log_errors_through_purinana_togpmq_logtriggererror\",\n    \"rethrow_only_when_xact_state_equals_minus_one\",\n    \"source_trigger_through_prep_enqueue_path\",\n    \"human_deployment_not_authorized\",\n    \"human_substance_decisions_not_authorized\"\n  ]\n}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-002\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-002\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-002\\packet.md",
+    "threadId": "01a10e8c-1c0a-7583-865a-ab630f214bfc",
+    "model": "gpt-6-astra",
+    "responseId": "resp_0b7a56e8a450bb35016ac43c70cf1881949b0175c86068083a",
+    "responseIds": [
+      "resp_0b7a56e8a450bb35016ac43c70cf1881949b0175c86068083a"
+    ],
+    "usage": {
+      "input_tokens": 19082,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 545,
+      "reasoning_output_tokens": 338,
+      "total_tokens": 19627
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.45655,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "3a841a66f853a031da5f126a5f88ab3d5bb8035d11b773815e4fe95f8d64b22f",
+    "raw_sha256": "d8607a810c107c10f06655ff89ae7c107f816f3fb5a6ef1a4ab54e70c885b374",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-003",
+    "role": "coordinator",
+    "workflow_id": "C",
+    "output": "{\"name\":\"launch_adversarial_reviewer\",\"arguments\":{\"target_step\":\"W5\",\"artifact_id\":\"002-requirements.json\"},\"disposition\":\"W1 produced validated requirements, but this immutable artifact has no independent review. Dispatch W5 against the supplied brief before using the requirements in W2.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-003\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-003\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-003\\packet.md",
+    "threadId": "01a10e8c-5ea8-7d70-8e96-f9791f364e09",
+    "model": "gpt-6-astra",
+    "responseId": "resp_09c93ec54ee7d5a5016ac43c81d41887d1a93847be1b374c34",
+    "responseIds": [
+      "resp_09c93ec54ee7d5a5016ac43c81d41887d1a93847be1b374c34"
+    ],
+    "usage": {
+      "input_tokens": 20455,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 119,
+      "reasoning_output_tokens": 51,
+      "total_tokens": 20574
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.2673,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "1506fd00b31eac035a16f209b28c35cf93fafb59b907dfc32300fe06f88c702a",
+    "raw_sha256": "5b36a39fad0d7a68bb3f34e84a71f4e60fa1c6a8ffbf4001e1490138f22773c8",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-004",
+    "role": "workflow",
+    "workflow_id": "W5",
+    "output": "{\"artifact_id\":\"002-requirements.json\",\"workflow_id\":\"W1\",\"challenge\":\"UPHELD\",\"original_verdict\":\"PASS\",\"confidence\":\"high\",\"findings\":[],\"recommended_verdict\":\"PASS\",\"notes\":\"The requirements accurately capture the brief’s schema, table, primary key, INSERT-only trigger scope, enqueue procedure and execution path, metadata-driven payload rules, error-handling constraints, and lack of human authorization for deployment or substance decisions. No missing, contradictory, or invented requirements were found.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-004\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-004\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-004\\packet.md",
+    "threadId": "01a10e8c-834a-7153-8f85-be4436af3e41",
+    "model": "gpt-6-astra",
+    "responseId": "resp_04733fdd34b517b5016ac43c8b530487d1b0d12177e177e79f",
+    "responseIds": [
+      "resp_04733fdd34b517b5016ac43c8b530487d1b0d12177e177e79f"
+    ],
+    "usage": {
+      "input_tokens": 19513,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 206,
+      "reasoning_output_tokens": 98,
+      "total_tokens": 19719
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.14055,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "3ea1e040c9b8a243163312eec0ea5f9bb5c80b326890712d85998cca2874f938",
+    "raw_sha256": "3881c7fb8f5fea12115e421c3dc05c2f77381ea14825299afa7cd6c50960ad54",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-005",
+    "role": "coordinator",
+    "workflow_id": "C",
+    "output": "{\"name\":\"launch_trigger_codegen\",\"arguments\":{\"target_step\":\"W2\"},\"disposition\":\"Requirements artifact 002-requirements.json was independently upheld by W5 review 004-adversarial.json with no findings. Dispatch W2 to generate SQL from the accepted requirements; its output must receive W5 review before W3.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-005\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-005\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-005\\packet.md",
+    "threadId": "01a10e8c-af8f-74d3-b10a-c44d9f40dedf",
+    "model": "gpt-6-astra",
+    "responseId": "resp_037cd062f62055b6016ac43c97d6e087d1818ece7d539508e8",
+    "responseIds": [
+      "resp_037cd062f62055b6016ac43c97d6e087d1818ece7d539508e8"
+    ],
+    "usage": {
+      "input_tokens": 20997,
+      "cached_input_tokens": 16512,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 161,
+      "reasoning_output_tokens": 88,
+      "total_tokens": 21158
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 1.7353,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "4216ab257d0a756cabbbd22b12c79e3c4b71f2c28f7e0129aee685a8b4dad6a9",
+    "raw_sha256": "aa473555b9fd0a7d508c9059c0b44a1e1dace70a87fba4972eb262ae89d82231",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-006",
+    "role": "workflow",
+    "workflow_id": "W2",
+    "output": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n\n    DECLARE @Command varchar(2) = 'RI';\n\n    BEGIN TRY\n        DECLARE @Schema sysname = N'PurinaNA',\n                @Table sysname = N'BatchCampaign',\n                @Sql nvarchar(max);\n\n        DECLARE @TableName sysname = @Table;\n\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema, @TableName, @Command, @Sql OUTPUT;\n\n        EXEC sys.sp_executesql\n            @Sql,\n            N'@TableName sysname, @Command varchar(2)',\n            @TableName = @TableName,\n            @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrorNumber int = ERROR_NUMBER(),\n                @ErrorMessage nvarchar(4000) = ERROR_MESSAGE(),\n                @ErrorLine int = ERROR_LINE(),\n                @ErrorProcedure nvarchar(128) = ERROR_PROCEDURE();\n\n        DECLARE @TriggerName nvarchar(517) =\n            QUOTENAME(OBJECT_SCHEMA_NAME(@@PROCID)) + N'.' +\n            QUOTENAME(OBJECT_NAME(@@PROCID));\n\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName,\n            @Command,\n            @ErrorNumber,\n            @ErrorMessage,\n            @ErrorLine,\n            @ErrorProcedure;\n\n        IF XACT_STATE() = -1\n            THROW;\n    END CATCH;\nEND;\n",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-006\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-006\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-006\\packet.md",
+    "threadId": "01a10e8c-eba8-75d1-93ce-dfec492222c7",
+    "model": "gpt-6-astra",
+    "responseId": "resp_0508f23512013025016ac43ca5cc4087d1a6b9c315bb0faa68",
+    "responseIds": [
+      "resp_0508f23512013025016ac43ca5cc4087d1a6b9c315bb0faa68"
+    ],
+    "usage": {
+      "input_tokens": 19871,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1040,
+      "reasoning_output_tokens": 685,
+      "total_tokens": 20911
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 3.27255,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "3829cb29954651eb3fe17ec2c6559d39fe1fbf7134fe7db77d464cfeeed6e39e",
+    "raw_sha256": "0e194a3d538cbf46b01d92295407ba42a0e8e991ea6fe086dd07b9df01488a29",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-007",
+    "role": "coordinator",
+    "workflow_id": "C",
+    "output": "{\"name\":\"launch_adversarial_reviewer\",\"arguments\":{\"target_step\":\"W5\",\"artifact_id\":\"006-trigger.sql\"},\"disposition\":\"W2 produced 006-trigger.sql from independently upheld requirements. This immutable SQL artifact has no independent review and is listed in required_reviews. Dispatch W5 before using it in W3; human substance and deployment approvals remain pending.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-007\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-007\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-007\\packet.md",
+    "threadId": "01a10e8d-6155-78c1-8fb2-66136bb669c4",
+    "model": "gpt-6-astra",
+    "responseId": "resp_0dd740241f80c2ee016ac43cc438a087d1801b58d5df001733",
+    "responseIds": [
+      "resp_0dd740241f80c2ee016ac43cc438a087d1801b58d5df001733"
+    ],
+    "usage": {
+      "input_tokens": 22096,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 117,
+      "reasoning_output_tokens": 36,
+      "total_tokens": 22213
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.67505,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "7266c862cbd02d712bf6037221c5d756482c73e222fcdda8fd24a889d03f2e05",
+    "raw_sha256": "b6d6d47edf3e5c5ff079ed362fc53f0d0049db5e1b8ae1daa708d2eea4fa218e",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-008",
+    "role": "workflow",
+    "workflow_id": "W5",
+    "output": "{\"artifact_id\":\"006-trigger.sql\",\"workflow_id\":\"W2\",\"challenge\":\"UPHELD\",\"original_verdict\":\"PASS\",\"confidence\":\"high\",\"findings\":[],\"recommended_verdict\":\"PASS\",\"notes\":\"The SQL matches the brief and requirements: correct schema, table, INSERT-only scope and RI command; metadata-driven enqueue and Source=Trigger through the prep procedure with sp_executesql; required session settings; and TRY/CATCH with error fields captured before logging and THROW gated by XACT_STATE() = -1. No direct queue inserts or hard-coded business payload columns appear. Human substance and deployment approvals remain pending.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-008\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-008\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-008\\packet.md",
+    "threadId": "01a10e8d-9389-7ee1-bb90-822becc9518e",
+    "model": "gpt-6-astra",
+    "responseId": "resp_0b026bb602fdbe7c016ac43cd0efd487d1b55e194780597f7b",
+    "responseIds": [
+      "resp_0b026bb602fdbe7c016ac43cd0efd487d1b55e194780597f7b"
+    ],
+    "usage": {
+      "input_tokens": 20613,
+      "cached_input_tokens": 16512,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 252,
+      "reasoning_output_tokens": 120,
+      "total_tokens": 20865
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 1.75305,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "aa9b21ac525855af52bd38e614ab52417e2ec7171aa580b6ff655f34a470ce77",
+    "raw_sha256": "2df35cbb1b5d12a035171137f602158e5072aef315f8aa02a71e089fa9ba4fc6",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-009",
+    "role": "coordinator",
+    "workflow_id": "C",
+    "output": "{\"name\":\"launch_trigger_review\",\"arguments\":{\"target_step\":\"W3\",\"artifact_focus\":\"006-trigger.sql\"},\"disposition\":\"W5 review 008-adversarial.json independently upheld 006-trigger.sql with no findings, and its requirements are independently upheld. Dispatch W3 to examine the current SQL against the contract; its output must receive W5 review. Human substance and deployment approvals remain pending.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-009\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-009\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-009\\packet.md",
+    "threadId": "01a10e8d-c355-7671-b9f5-f66c00604901",
+    "model": "gpt-6-astra",
+    "responseId": "resp_044e6d3dff37f2b0016ac43cdcd6e487d1b637b0ad103df977",
+    "responseIds": [
+      "resp_044e6d3dff37f2b0016ac43cdcd6e487d1b637b0ad103df977"
+    ],
+    "usage": {
+      "input_tokens": 22720,
+      "cached_input_tokens": 16512,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 199,
+      "reasoning_output_tokens": 112,
+      "total_tokens": 22919
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.21355,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "d0c16fd382f06ec1c98ec527f995f703f9006546429ace76a1a2173a9d0c7197",
+    "raw_sha256": "29eea6259991447b34e77e25f5f1858a65af06b5f74ce11959c5d1ae82b39bb7",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-010",
+    "role": "workflow",
+    "workflow_id": "W3",
+    "output": "{\n  \"verdict\": \"PASS\",\n  \"command_detection\": {\n    \"correct\": true,\n    \"expected\": \"RI\",\n    \"notes\": \"The trigger is AFTER INSERT only, so hard-coding @Command = 'RI' is valid.\"\n  },\n  \"structure_checklist\": {\n    \"passed\": [\n      \"SET NOCOUNT ON\",\n      \"SET XACT_ABORT OFF\",\n      \"Command detection block (inserted/deleted → RI/RU/RD)\",\n      \"BEGIN TRY / BEGIN CATCH\",\n      \"ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH\",\n      \"@Source = N'Trigger' OR source = N'Trigger' in queue insert\",\n      \"IF XACT_STATE() = -1 rethrow pattern\",\n      \"Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)\"\n    ],\n    \"failed\": [],\n    \"missing\": []\n  },\n  \"forbidden_patterns\": {\n    \"found\": [],\n    \"clean\": true\n  },\n  \"violations\": []\n}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-010\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-010\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-010\\packet.md",
+    "threadId": "01a10e8d-ef04-7d21-b87f-d38a8e3d15c4",
+    "model": "gpt-6-astra",
+    "responseId": "resp_0faa93d92f6dd526016ac43ce872d487d1a447f6a311790b24",
+    "responseIds": [
+      "resp_0faa93d92f6dd526016ac43ce872d487d1a447f6a311790b24"
+    ],
+    "usage": {
+      "input_tokens": 22830,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 299,
+      "reasoning_output_tokens": 66,
+      "total_tokens": 23129
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 3.08605,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "c39001ca5df220258e2d7283c6e244e00e303a74b1cce7ca496efccb0d3b82d0",
+    "raw_sha256": "7ecb58da383d246ec322358d795cb68f0e99b3931bfdd320c7921b90582a7671",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-011",
+    "role": "coordinator",
+    "workflow_id": "C",
+    "output": "{\"name\":\"launch_adversarial_reviewer\",\"arguments\":{\"target_step\":\"W5\",\"artifact_id\":\"010-review.json\"},\"disposition\":\"W3 returned PASS in 010-review.json, but this immutable output has no independent review and is listed in required_reviews. Dispatch W5 before using it downstream or dispatching W6. Human substance and deployment approvals remain pending.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-011\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-011\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-011\\packet.md",
+    "threadId": "01a10e8e-1dfc-76b2-955c-6a62ba9f5a69",
+    "model": "gpt-6-astra",
+    "responseId": "resp_05a8ca5a6e94d69c016ac43cf4af54819795dc5780e1c170fd",
+    "responseIds": [
+      "resp_05a8ca5a6e94d69c016ac43cf4af54819795dc5780e1c170fd"
+    ],
+    "usage": {
+      "input_tokens": 23491,
+      "cached_input_tokens": 16512,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 127,
+      "reasoning_output_tokens": 45,
+      "total_tokens": 23618
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.3163,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "20c78fed99e3741b62e0cc58d6d00b82a68e3e569e3455ffdf85e239240aa838",
+    "raw_sha256": "4b7950aed3e18a6fc5a9c30e581667208e70e195a12be76605760a263924d1a4",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-012",
+    "role": "workflow",
+    "workflow_id": "W5",
+    "output": "{\"artifact_id\":\"010-review.json\",\"workflow_id\":\"W3\",\"challenge\":\"UPHELD\",\"original_verdict\":\"PASS\",\"confidence\":\"high\",\"findings\":[],\"recommended_verdict\":\"PASS\",\"notes\":\"The supplied SQL supports the examiner’s PASS and checklist: AFTER INSERT permits constant RI; both session settings are present; the prep procedure and sp_executesql satisfy dynamic discovery and Source=Trigger; and TRY/CATCH captures error fields before logging, with THROW gated by XACT_STATE() = -1. No direct queue inserts or hard-coded business payload columns appear. Human substance and deployment approvals remain pending.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-012\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-012\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-012\\packet.md",
+    "threadId": "01a10e8e-4069-7cb3-be32-4cbec75c00e0",
+    "model": "gpt-6-astra",
+    "responseId": "resp_0c29d660f0e0d738016ac43cfcd568819081967958ed873b46",
+    "responseIds": [
+      "resp_0c29d660f0e0d738016ac43cfcd568819081967958ed873b46"
+    ],
+    "usage": {
+      "input_tokens": 21593,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 270,
+      "reasoning_output_tokens": 140,
+      "total_tokens": 21863
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.74055,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "4d0523c5b0f5c2f1196cba86b756a37bb78adc7a0f5622d358b5760852eb9f5c",
+    "raw_sha256": "15d749af359a5fb5863664b04af6c4dd97c6a65c606f995d49f7a9b0ab7dc64a",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-013",
+    "role": "coordinator",
+    "workflow_id": "C",
+    "output": "{\"name\":\"launch_delivery_report_writer\",\"arguments\":{\"target_step\":\"W6\",\"challenges\":[],\"artifact_focus\":\"Synthesize 002-requirements.json, 006-trigger.sql, and 010-review.json with their independent W5 reviews 004-adversarial.json, 008-adversarial.json, and 012-adversarial.json, preserving all review verdicts and prior coordinator dispositions.\"},\"disposition\":\"W6 prerequisites are met: all current producer artifacts are independently UPHELD with PASS recommendations, W3 returned PASS, and no current or historical challenges remain. Dispatch report synthesis using the complete moderated evidence. The W6 output must receive independent W5 review; substance and deployment checkpoints remain not_approved, so even an upheld report remains pending_human.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-013\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-013\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-013\\packet.md",
+    "threadId": "01a10e8e-7389-7f23-9e76-92264307189e",
+    "model": "gpt-6-astra",
+    "responseId": "resp_07704ac1dd7bea95016ac43d0a2e1887d18ca5eee63f9c5de0",
+    "responseIds": [
+      "resp_07704ac1dd7bea95016ac43d0a2e1887d18ca5eee63f9c5de0"
+    ],
+    "usage": {
+      "input_tokens": 24125,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 571,
+      "reasoning_output_tokens": 409,
+      "total_tokens": 24696
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 3.7498,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "fbb45cfc86805ba586975921c8585c645a6ce55c67223d3e7721d9c2fa988c34",
+    "raw_sha256": "f648f029c3939b162e2462e09ef23670e3e086db3d7b948027d64a3f312414bc",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-014",
+    "role": "coordinator",
+    "workflow_id": "C",
+    "output": "{\"name\":\"launch_delivery_report_writer\",\"arguments\":{\"target_step\":\"W6\",\"challenges\":[],\"artifact_focus\":\"010-review.json\"},\"disposition\":\"Correct the VALIDATION_ERROR by using existing artifact 010-review.json as the focus. W6 prerequisites are met: 002-requirements.json, 006-trigger.sql, and 010-review.json were independently upheld with PASS recommendations and no findings by 004-adversarial.json, 008-adversarial.json, and 012-adversarial.json, respectively. Preserve W3's PASS and synthesize all current artifacts, review verdicts, and prior coordinator dispositions; no challenges or remediation exist. The W6 output must receive W5 review. Human substance and deployment checkpoints remain unapproved, so delivery remains pending_human.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-014\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-014\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-014\\packet.md",
+    "threadId": "01a10e8e-bc08-7d53-a742-66d1b45306d9",
+    "model": "gpt-6-astra",
+    "responseId": "resp_046368fd13be25ac016ac43d1cd9e087d19bc5a3ee696adb98",
+    "responseIds": [
+      "resp_046368fd13be25ac016ac43d1cd9e087d19bc5a3ee696adb98"
+    ],
+    "usage": {
+      "input_tokens": 24212,
+      "cached_input_tokens": 16512,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 408,
+      "reasoning_output_tokens": 243,
+      "total_tokens": 24620
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.8478,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "36956d2d09486f64f26a96195caf2d6c13363bb321820ba1ead44502d275b7e2",
+    "raw_sha256": "18539cb401818520b453d6c2603be73ca9fa6edd2309b1000fb4034d52f3b5db",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-015",
+    "role": "workflow",
+    "workflow_id": "W6",
+    "output": "`002-requirements.json` defines the INSERT-only trigger requirements for `PurinaNA.BatchCampaign`, including metadata-driven enqueueing and error handling; `004-adversarial.json` independently upheld its PASS with no findings. `006-trigger.sql` implements the RI command, prep-procedure and `sp_executesql` execution path, required session settings, error capture before logging, and rethrow only when `XACT_STATE() = -1`; `008-adversarial.json` independently upheld its PASS with no findings. `010-review.json` records W3’s PASS, with no failed or missing checklist items, forbidden patterns, or violations; `012-adversarial.json` independently upheld that PASS with no findings.\n\nThe prior coordinator dispositions required independent W5 review before advancing each artifact downstream. Those prerequisite reviews are now complete. The latest disposition directs W6 to use existing artifact `010-review.json` as its focus to correct the VALIDATION_ERROR and preserve W3’s PASS. This report uses that focus. No findings, challenges, or remediation are recorded, so there are no finding dispositions to classify as resolved or open.\n\nThis W6 report still requires independent W5 review. Delivery remains `pending_human`: neither substance Continue nor deployment approval has been granted. Human reviewers must still make both decisions; deployment is not authorized.",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-015\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-015\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-015\\packet.md",
+    "threadId": "01a10e8e-f69b-7262-a24d-7e7892f01268",
+    "model": "gpt-6-astra",
+    "responseId": "resp_08cea4cf1434fe35016ac43d2bf80887d18b8c1192c8189e2a",
+    "responseIds": [
+      "resp_08cea4cf1434fe35016ac43d2bf80887d18b8c1192c8189e2a"
+    ],
+    "usage": {
+      "input_tokens": 25499,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 627,
+      "reasoning_output_tokens": 352,
+      "total_tokens": 26126
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 4.1633,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "ffff5d46b4e73365a9aec51fa6d17213b87dc6d7374450c86e653d7f89ccae74",
+    "raw_sha256": "c4057d8d95755c3481c3fdb509f37d0e2aad454eb29922128d0b31c6178ef5c7",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-016",
+    "role": "coordinator",
+    "workflow_id": "C",
+    "output": "{\"name\":\"launch_adversarial_reviewer\",\"arguments\":{\"target_step\":\"W5\",\"artifact_id\":\"015-report-body.md\"},\"disposition\":\"W6 produced 015-report-body.md, which has no independent review and is listed in required_reviews. Dispatch W5 to review this immutable report against the moderated evidence and dispositions. Prior requirements, SQL, and W3 outputs were independently upheld. Delivery remains pending_human; substance and deployment approvals have not been granted.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-016\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-016\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-016\\packet.md",
+    "threadId": "01a10e8f-5301-75d2-8d4f-fd5e2dc3d67d",
+    "model": "gpt-6-astra",
+    "responseId": "resp_00e19068a8d4e9bc016ac43d438b9c87d1b97ca8643debc5e5",
+    "responseIds": [
+      "resp_00e19068a8d4e9bc016ac43d438b9c87d1b97ca8643debc5e5"
+    ],
+    "usage": {
+      "input_tokens": 25170,
+      "cached_input_tokens": 16512,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 165,
+      "reasoning_output_tokens": 64,
+      "total_tokens": 25335
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 2.78355,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "3d4224153d459e8c4140d6d08fddf0dc6f9db91fac7377a5dacce1fbe11e778d",
+    "raw_sha256": "ef7b7dd6029d603a67cafbb882c5d513a25a2262e988cc64da9c33d042e209bd",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  },
+  {
+    "request_id": "native-governed-2026-10-05-02-017",
+    "role": "workflow",
+    "workflow_id": "W5",
+    "output": "{\"artifact_id\":\"015-report-body.md\",\"workflow_id\":\"W6\",\"challenge\":\"UPHELD\",\"original_verdict\":\"PASS\",\"confidence\":\"high\",\"findings\":[],\"recommended_verdict\":\"PASS\",\"notes\":\"The report accurately covers all current source artifacts, independent review verdicts, and prior coordinator dispositions. It preserves W3’s PASS, correctly records no findings, challenges, or remediation, and acknowledges its required W5 review. Delivery remains pending_human, with neither substance Continue nor deployment approval granted.\"}",
+    "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-017\\output.txt",
+    "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-017\\telemetry.json",
+    "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\governed\\native-governed-2026-10-05-02\\inference\\native-governed-2026-10-05-02-017\\packet.md",
+    "threadId": "01a10e8f-8478-7ee2-a72c-fc1379aea9fb",
+    "model": "gpt-6-astra",
+    "responseId": "resp_07eeb812d45df2d8016ac43d4ffeec87d182daa5e9bc5bfebf",
+    "responseIds": [
+      "resp_07eeb812d45df2d8016ac43d4ffeec87d182daa5e9bc5bfebf"
+    ],
+    "usage": {
+      "input_tokens": 29571,
+      "cached_input_tokens": 13312,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 236,
+      "reasoning_output_tokens": 127,
+      "total_tokens": 29807
+    },
+    "cost_usd": null,
+    "cost_status": "not_exposed_by_native_host",
+    "standard_credit_equivalent": {
+      "value": 4.69255,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "packet_sha256": "df7190736822615be03f71d8f9cd8795d67dacc8b40e5e2d427e53a97c39befa",
+    "raw_sha256": "3e72da0787189dcc935b92414c547a3618d6a139fc658b1d56cc2094657f0d6a",
+    "attempt": 1,
+    "manual_corrections": 0,
+    "provider": "codex:native-subagent",
+    "invocation": "evaluation_only_codex_exec_fresh_context",
+    "host_tool_calls": []
+  }
+]

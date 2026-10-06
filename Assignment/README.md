@@ -1,36 +1,47 @@
 # Level 5 submission
 
-Delegated downstream migration trigger delivery system.
+Delegated SQL Server migration-trigger delivery with a dispatch-only LLM coordinator, scoped workers, independent review, and human checkpoints. The source and evidence map to the supplied Stage 5 instructions; no particular API vendor or API key is required.
 
-**Status: structural checks available; full certification readiness not yet established.**
+## Verify the submission
 
-## Local verification
-
-Node.js runs the deterministic checks without installing additional dependencies:
+Node.js runs the packaged checks without installing dependencies:
 
 ```powershell
 npm test
 npm run validate
-npm run delegation:batch
 npm run eval:historical
+npm run eval:stage5
+npm run delegation:batch
 ```
 
-`npm run delegation:golden` writes a report and stops at `pending_human` with exit code 2. The default run uses simulated fixtures. It never represents fixture token/cost estimates as observed model usage, and `--mode live` is rejected because this runner does not implement a live transport.
+The readiness checker inspects the archived responses, provenance, governance trace, and boundary enforcement. Missing or altered evidence fails the check. Golden routing tests remain explicitly simulated and do not stand in for model evaluation.
 
-## Evidence map
+## Application runtime
 
-- `coordinator/`: dispatch-only tool declaration, prompt, and routing/boundary evaluations.
-- `workflows/`: W1-W6 tool, context, artifact, and substance manifests.
-- `agents/`: prompts and named evaluation criteria.
-- `guardrails/`: actual requirements, SQL, review, and adversarial validators.
-- `evaluations/`: self-contained historical raw responses, packets, assertions, limitations, and deterministic replay results.
-- `metrics/`: current golden fixture regression outcomes, explicitly separate from delivered success.
-- `audit/`: schema and historical samples. Current runs persist under the sibling `audit-runs/` directory.
-- `repository/`: exported Git history included by packaging.
+`harness/lib/governedDelegation.js` is the custom provider-neutral application harness. `createGovernedSession()` exposes `nextRequest()` and `submitResponse()`; `runGovernedDelegation()` accepts inference callbacks. `harness/run-governed.js` exposes the same contract over JSON lines. It never launches a model CLI or shell.
+
+Each coordinator request exposes exactly six purpose-built launch tools. The model returns `{name, arguments, disposition}`; the harness enforces the declared argument schema and executes only the corresponding workflow. It never chooses the coordinator's next workflow. Each worker receives its own prompt and assigned sources. W5 alone has `read_file`, limited to assigned immutable source artifacts and checked against their hashes and resolved paths. Other workers have no application tools.
+
+Worker output passes deterministic validation before becoming coordinator context. Invalid output is retained in the audit, while the coordinator receives a structured error. Accepted versions are immutable; a revision invalidates dependent reviews. Every producing output, including W6 prose, requires an independent W5 review. The writer receives the complete moderated evidence and dispositions; the harness derives PASS/FAIL headings.
+
+An inference adapter must honor the request's application tools and separate review context. It returns the exact output plus provider-reported model, measured input/output tokens, and cost provenance. The included evaluation adapter exercises this interface using fresh signed-in native sessions only under `evaluations/`, where the certification explicitly permits CLI inference. The broader evaluation host is not claimed as a production sandbox. Its archived event records establish whether any host tool was used.
+
+## Evidence and telemetry
+
+- `coordinator/`, `workflows/`, `agents/`: declarations, prompts, named criteria and measured results.
+- `guardrails/` and `coordinator/evals/`: boundary, governance, scope, report and checkpoint regressions.
+- `evaluations/historical/`: original 34 S1–S4 outputs with archived assertions and documented provenance limits.
+- `evaluations/stage5/`: fresh W5, W6 and coordinator evaluations, exact packets/responses, independent semantic judgments, measured tokens and model identities, and replay scorers.
+- `evaluations/stage5/governed/`: native-model application trace and retained earlier integration failure. Raw responses are never manually corrected.
+- `repository/` and `package-integrity.json`: meaningful Git history and every packaged file's SHA-256.
+
+Native session records expose model identity and response-level input, cached-input and output tokens. They do not expose billed USD. Audit records preserve `cost_usd: null`, the reason, and a separately labelled Standard credit equivalent computed from documented model rates. That equivalent is an estimate of cost in credits, not actual charged credits, a subscription allowance, or an invented dollar bill. Audit entries persist correlation IDs, response IDs, hashes and model usage for every inference step, including failed outputs.
 
 ## Human checkpoints
 
-No flag grants substance or deployment approval. A human reviews the generated report and artifacts, then explicitly records a decision. Replace placeholders with the actual run and reviewer; these are operator commands, absent from coordinator tools.
+The governed evaluation must end at `pending_human`: W5 and W6 are assessed as peripheral, so the substance gate elevates. This is the required routing behavior. No model or command-line flag grants human approval.
+
+A human reviews the exact report and artifacts, then records a decision using these separate operator commands (replace the placeholders). They are absent from coordinator tools:
 
 ```powershell
 node harness/record-substance-decision.js --correlation-id RUN_ID --decision Continue --reviewer "Human reviewer" --report "artifacts/RUN_ID/delivery-report.md"
@@ -38,10 +49,5 @@ node harness/record-deployment-decision.js --run-dir "artifacts/RUN_ID" --review
 node harness/finalize-delegation.js --run-dir "artifacts/RUN_ID"
 ```
 
-Substance accepts Continue or Reject; deployment accepts Approve or Reject. Substance records append the report verbatim, its hash, the reviewer, and decision. Finalization checks the unchanged report and all examined artifacts and honors rejection. No SQL is deployed by these commands.
+Substance accepts Continue/Reject; deployment accepts Approve/Reject. Records append the report verbatim, its hash, identified reviewer and decision. Finalization checks unchanged artifacts and decision timing and honors rejection. No SQL is deployed by these commands. Certification examination and approval of a generated SQL delivery are separate decisions.
 
-## Remaining verification
-
-The instructions allow native hosted subagents; no particular API vendor is mandatory. The existing saved samples do not demonstrate a complete execution in which an LLM coordinator holds only dispatch tools, each worker output is adversarially reviewed in isolation, and actual per-step model/token/cost data persists. The W6 and coordinator sample assertions also do not substantiate every named semantic criterion or establish freedom from regular manual correction.
-
-These are evidence gaps, not proof that hosted subagents are disallowed. Golden tests measure harness behavior, not LLM governance or runtime model quality. No approval is inferred from a passing test.

@@ -1,0 +1,5 @@
+`requirements.json` passed: VendorContact retains `vendor_id` and `contact_seq` (E1). `trigger.sql` failed because its `sp_executesql` call omits `@Source` (E2). `review.json` failed, with the examiner raising F1 for the missing source marker (E3); `adversarial.json` also failed, agreeing with F1 and blocking the current SQL (E4).
+
+`trigger.remediated.sql` failed because the repair updated preparation only; the `sp_executesql` argument remains missing (E5). F1—missing `@Source = N'Trigger'` on `sp_executesql`—remains **OPEN**, not resolved (E5).
+
+The coordinator recorded **REMEDIATION_REQUIRED**: please retry the repair targeting `trigger.remediated.sql` and obtain fresh examiner and adversarial reviews (D1). The human gate remains **PENDING**, awaiting a decision, with no reviewer assigned (G1). The substance gate is **NOT_REQUIRED** because all workflows are core (G2).

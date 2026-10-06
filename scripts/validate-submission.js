@@ -83,8 +83,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     console.log('ZIP SHA-256: ' + result.zip_sha256);
   } catch (error) { console.log('[FAIL] Package freshness/integrity: ' + error.message); }
   console.log('\nPACKAGE / REGRESSION VALIDATION: ' + (structure.passed && packaged ? 'PASS' : 'FAIL'));
-  console.log('CERTIFICATION READINESS: NOT ESTABLISHED. This command checks artifact integrity and deterministic regressions, not unmeasured model/runtime behavior.');
   const readyRequired = process.argv.includes('--require-ready');
-  if (readyRequired) console.log('[FAIL] Required certification readiness has not been demonstrated. Hosted subagent or model evidence is acceptable; no specific API vendor is required.');
-  process.exitCode = structure.passed && packaged && !readyRequired ? 0 : 1;
+  const ready = structure.passed && packaged && structure.readiness.passed;
+  console.log('PACKAGED CERTIFICATION EVIDENCE READINESS: ' + (ready ? 'PASS — human checkpoint pending; no human approval inferred.' : 'NOT ESTABLISHED — package, regression, or evidence checks failed.'));
+  if (readyRequired && !ready) console.log('[FAIL] Required certification evidence readiness failed; see the actual failed artifact checks above.');
+  process.exitCode = structure.passed && packaged && (!readyRequired || ready) ? 0 : 1;
 }

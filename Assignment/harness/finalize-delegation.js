@@ -5,20 +5,24 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { AuditLogger } from './lib/auditLogger.js';
 import { checkSubstanceGate } from './lib/substanceGate.js';
-import { verifyExaminationArtifacts, validApprovalTime } from './lib/examinationIntegrity.js';
+import { verifyExaminationArtifacts, validApprovalTime, examinationSubstanceOptions } from './lib/examinationIntegrity.js';
 
 const ASSIGNMENT_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-export function finalizeDelegation({ runDir, substanceOverridesPath = join(ASSIGNMENT_ROOT, 'delegation', 'substance-overrides.jsonl') }) {
+export function finalizeDelegation({ runDir, substanceOverridesPath = join(ASSIGNMENT_ROOT, 'delegation', 'substance-overrides.jsonl'), workflowsRoot }) {
   const examination = JSON.parse(readFileSync(join(runDir, 'examination.json'), 'utf8'));
   verifyExaminationArtifacts(runDir, examination);
   const reportHash = AuditLogger.hash(readFileSync(join(runDir, 'delivery-report.md'), 'utf8'));
   if (reportHash !== examination.report_hash) throw new Error('Report changed; approval cannot be reused.');
-  const gate = checkSubstanceGate(substanceOverridesPath, examination.correlation_id, { reportHash });
+  const gate = checkSubstanceGate(substanceOverridesPath, examination.correlation_id,
+    { reportHash, workflowsRoot, ...examinationSubstanceOptions(runDir, examination) });
   let status = gate.blocked ? (gate.decision?.decision === 'Reject' ? 'rejected' : 'pending_human') : 'pending_human';
   let detail = gate.reason ?? 'Awaiting recorded deployment decision';
   const approvalPath = join(runDir, '.human-approved');
-  if (!gate.blocked && existsSync(approvalPath)) {
+  if (!gate.blocked && examination.terminal_outcome === 'FAIL') {
+    status = 'failure';
+    detail = 'EXAMINATION_FAILED — supported findings remain unresolved; a human approval cannot convert this examination to PASS';
+  } else if (!gate.blocked && existsSync(approvalPath)) {
     const approval = JSON.parse(readFileSync(approvalPath, 'utf8'));
     const valid = approval.correlation_id === examination.correlation_id
       && approval.report_hash === reportHash

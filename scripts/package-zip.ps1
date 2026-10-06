@@ -1,8 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $TaskRoot = [IO.Path]::GetFullPath((Split-Path -Parent $PSScriptRoot))
 $AssignmentRoot = Join-Path $TaskRoot 'Assignment'
-$StageRoot = Join-Path $TaskRoot ('.submission-staging-' + [Guid]::NewGuid().ToString('N'))
-$StagingAssignment = Join-Path $StageRoot 'Assignment'
 $ZipPath = Join-Path $TaskRoot 'level-5-certification-staging.zip'
 $Utf8 = New-Object System.Text.UTF8Encoding($false)
 
@@ -14,7 +12,6 @@ function Assert-InTaskRoot([string] $Candidate) {
     return $Resolved
 }
 
-Assert-InTaskRoot $StageRoot | Out-Null
 Assert-InTaskRoot $ZipPath | Out-Null
 if (-not (Test-Path -LiteralPath $AssignmentRoot -PathType Container)) { throw 'Assignment directory is missing' }
 $RepositoryDir = Join-Path $AssignmentRoot 'repository'
@@ -56,21 +53,19 @@ $Manifest = [ordered]@{
 }
 [IO.File]::WriteAllText((Join-Path $AssignmentRoot 'package-integrity.json'), (($Manifest | ConvertTo-Json -Depth 10) + "`n"), $Utf8)
 
+# Stream the exact manifest-listed files directly into the generated archive.
+# This needs no staging directory or recursive cleanup.
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$ZipStream = [IO.File]::Open($ZipPath, [IO.FileMode]::Create, [IO.FileAccess]::Write)
+$Archive = New-Object IO.Compression.ZipArchive($ZipStream, [IO.Compression.ZipArchiveMode]::Create, $false)
 try {
-    New-Item -ItemType Directory -Path $StagingAssignment -Force | Out-Null
-    foreach ($Relative in $Hashes.Keys) {
-        $Target = Join-Path $StagingAssignment $Relative
-        New-Item -ItemType Directory -Path (Split-Path -Parent $Target) -Force | Out-Null
-        Copy-Item -LiteralPath (Join-Path $AssignmentRoot $Relative) -Destination $Target
+    foreach ($Relative in @($Hashes.Keys) + @('package-integrity.json')) {
+        [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($Archive, (Join-Path $AssignmentRoot $Relative), ('Assignment/' + $Relative), [IO.Compression.CompressionLevel]::Optimal) | Out-Null
     }
-    Copy-Item -LiteralPath (Join-Path $AssignmentRoot 'package-integrity.json') -Destination $StagingAssignment
-    # Existing ZIP is a generated artifact at an explicitly verified workspace path.
-    Assert-InTaskRoot $ZipPath | Out-Null
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    if (Test-Path -LiteralPath $ZipPath) { Remove-Item -LiteralPath $ZipPath -Force }
-    [IO.Compression.ZipFile]::CreateFromDirectory($StageRoot, $ZipPath, [IO.Compression.CompressionLevel]::Optimal, $false)
-    Write-Host "Wrote $ZipPath with $($Hashes.Count) source files and SHA-256 manifest."
-} finally {
-    $VerifiedStage = Assert-InTaskRoot $StageRoot
-    if (Test-Path -LiteralPath $VerifiedStage) { Remove-Item -LiteralPath $VerifiedStage -Recurse -Force }
+} finally { $Archive.Dispose(); $ZipStream.Dispose() }
+Write-Host "Wrote $ZipPath with $($Hashes.Count) source files and SHA-256 manifest."
+foreach ($Alias in @('level-5-certification.zip', 'level-5-certification-v2.zip')) {
+    $AliasPath = Assert-InTaskRoot (Join-Path $TaskRoot $Alias)
+    Copy-Item -LiteralPath $ZipPath -Destination $AliasPath -Force
 }

@@ -1,0 +1,1 @@
+{"name":"launch_adversarial_reviewer","arguments":{"target_step":"W5","artifact_id":"W4.v2.trigger.sql"},"disposition":"W4.v2 passed validation and reports A1 fixed, but the revised SQL requires independent review before W3 is rerun. Earlier approvals do not transfer to changed artifacts; deployment remains pending."}

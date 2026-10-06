@@ -8,14 +8,21 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name", "description"],
+        "required": [
+          "name",
+          "description"
+        ],
         "properties": {
           "name": {
             "type": "string",
             "pattern": "^launch_[a-z_]+$"
           },
-          "description": { "type": "string" },
-          "parameters": { "type": "object" }
+          "description": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "object"
+          }
         }
       }
     }
@@ -27,9 +34,29 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "target_step": { "type": "string", "enum": ["W1"] },
-          "brief_ref": { "type": "string" }
-        }
+          "target_step": {
+            "type": "string",
+            "enum": [
+              "W1"
+            ]
+          },
+          "brief_ref": {
+            "type": "string"
+          },
+          "challenges": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "artifact_focus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_step"
+        ],
+        "additionalProperties": false
       }
     },
     {
@@ -38,8 +65,26 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "target_step": { "type": "string", "enum": ["W2"] }
-        }
+          "target_step": {
+            "type": "string",
+            "enum": [
+              "W2"
+            ]
+          },
+          "challenges": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "artifact_focus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_step"
+        ],
+        "additionalProperties": false
       }
     },
     {
@@ -48,9 +93,26 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "target_step": { "type": "string", "enum": ["W3"] },
-          "artifact_focus": { "type": "string" }
-        }
+          "target_step": {
+            "type": "string",
+            "enum": [
+              "W3"
+            ]
+          },
+          "challenges": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "artifact_focus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_step"
+        ],
+        "additionalProperties": false
       }
     },
     {
@@ -59,18 +121,50 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "target_step": { "type": "string", "enum": ["W4"] }
-        }
+          "target_step": {
+            "type": "string",
+            "enum": [
+              "W4"
+            ]
+          },
+          "challenges": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "artifact_focus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_step"
+        ],
+        "additionalProperties": false
       }
     },
     {
       "name": "launch_adversarial_reviewer",
-      "description": "Dispatch W5 isolated adversarial review of a PASS review.json",
+      "description": "Dispatch W5 in a fresh context to challenge one immutable W1/W2/W3/W4/W6 output against its source artifacts",
       "parameters": {
         "type": "object",
         "properties": {
-          "target_step": { "type": "string", "enum": ["W5"] }
-        }
+          "target_step": {
+            "type": "string",
+            "enum": [
+              "W5"
+            ]
+          },
+          "artifact_id": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "target_step",
+          "artifact_id"
+        ],
+        "additionalProperties": false
       }
     },
     {
@@ -79,8 +173,31 @@
       "parameters": {
         "type": "object",
         "properties": {
-          "target_step": { "type": "string", "enum": ["W6"] }
-        }
+          "terminal_outcome": {
+            "type": "string",
+            "enum": ["PASS", "FAIL"],
+            "description": "Defaults to PASS. Explicit FAIL synthesizes reviewed unresolved findings without granting deployment approval."
+          },
+          "target_step": {
+            "type": "string",
+            "enum": [
+              "W6"
+            ]
+          },
+          "challenges": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "artifact_focus": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_step"
+        ],
+        "additionalProperties": false
       }
     }
   ]

@@ -1,28 +1,23 @@
 # Level 5 certification
 
-This repository is checked against `Instructions.txt` and `What We Examine.txt`.
-
-**Readiness: not yet fully established.** The deterministic guardrails, human checkpoints, audit persistence, source history, and archived evaluation assertions can be verified locally. The remaining evidence needed is listed in `EXAMINER_CHECKLIST.md`. A passing structural validator is not certification sign-off.
+This submission implements the criteria in `Instructions.txt` and `What We Examine.txt`: a dispatch-only LLM coordinator, scoped workers, independent review of every producing output, deterministic boundaries and headings, persisted usage audit, and explicit human checkpoints.
 
 ## Verify
 
-From this directory, run:
+Run from this directory:
 
 ```powershell
 npm test
+npm run eval:stage5
 npm run delegation:batch
-npm run eval:subagent:all
 npm run package:zip
 npm run validate:submission
 npm run validate:readiness
 ```
 
-The strict readiness command exits nonzero while mandatory evidence remains unverified. `npm run delegation:golden` replays fixtures and correctly stops with exit code 2 at the human checkpoint; it does not grant human approval.
+The strict readiness command computes its result from archived evidence and current checks. It does not assume readiness from a checklist or fixture pass.
 
-## Inference and scope
+The custom harness in `Assignment/harness/lib/governedDelegation.js` accepts inference callbacks or a JSONL bridge. The native evaluation transport stays in `Assignment/evaluations/stage5/`, where CLI inference is explicitly exempted by the certification. No API vendor or key is imposed.
 
-The certification requires an LLM coordinator with dispatch tools only, scoped workers, separate adversarial contexts, and a custom harness. It does not name a required API vendor or require an API key as an artifact. Native hosted subagent orchestration can be used if its actual tool scope, governance, boundary validation, and per-step telemetry are demonstrated. CLI inference inside evaluations is explicitly permitted.
+See `EXAMINER_CHECKLIST.md` for criterion mapping, `Assignment/README.md` for architecture and operator instructions, and `SUBMIT.md` for the ZIP handoff. The governed evaluation correctly waits for a human substance/deployment decision; completing the certification package does not grant approval to its SQL output.
 
-The included `run-delegation.js` is a golden regression runner. The saved hosted subagent samples are separate evaluation evidence. Neither a deterministic routing oracle nor a declared tool manifest alone demonstrates a complete hosted coordinator run.
-
-Submission instructions: `SUBMIT.md`. Criterion mapping: `EXAMINER_CHECKLIST.md`.

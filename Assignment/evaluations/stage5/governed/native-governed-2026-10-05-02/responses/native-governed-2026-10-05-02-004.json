@@ -1,0 +1,47 @@
+{
+  "requestId": "native-governed-2026-10-05-02-004",
+  "output": "{\"artifact_id\":\"002-requirements.json\",\"workflow_id\":\"W1\",\"challenge\":\"UPHELD\",\"original_verdict\":\"PASS\",\"confidence\":\"high\",\"findings\":[],\"recommended_verdict\":\"PASS\",\"notes\":\"The requirements accurately capture the brief’s schema, table, primary key, INSERT-only trigger scope, enqueue procedure and execution path, metadata-driven payload rules, error-handling constraints, and lack of human authorization for deployment or substance decisions. No missing, contradictory, or invented requirements were found.\"}",
+  "usage": {
+    "input_tokens": 19513,
+    "cached_input_tokens": 13312,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 206,
+    "reasoning_output_tokens": 98,
+    "total_tokens": 19719,
+    "model": "gpt-6-astra",
+    "provider": "codex:native-subagent",
+    "response_id": "resp_04733fdd34b517b5016ac43c8b530487d1b0d12177e177e79f",
+    "response_ids": [
+      "resp_04733fdd34b517b5016ac43c8b530487d1b0d12177e177e79f"
+    ],
+    "thread_id": "01a10e8c-834a-7153-8f85-be4436af3e41",
+    "cost": {
+      "usd": null,
+      "status": "not_reported",
+      "source_status": "not_exposed_by_native_host"
+    },
+    "standard_credit_equivalent": {
+      "value": 2.14055,
+      "unit": "standard_credit_equivalent",
+      "status": "estimate_only",
+      "rates_per_million_tokens": {
+        "gpt-6-astra": {
+          "input": 250,
+          "cached_input": 25,
+          "output": 1250
+        }
+      },
+      "unknown_models": [],
+      "missing_cached_input_usage": false,
+      "source": "https://learn.chatgpt.com/docs/pricing",
+      "rates_verified_on": "2026-10-05",
+      "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+    },
+    "usage_source": "native_response_token_usage_record",
+    "telemetry_ref": "inference\\native-governed-2026-10-05-02-004\\telemetry.json",
+    "raw_sha256": "3881c7fb8f5fea12115e421c3dc05c2f77381ea14825299afa7cd6c50960ad54",
+    "packet_sha256": "3ea1e040c9b8a243163312eec0ea5f9bb5c80b326890712d85998cca2874f938",
+    "cost_usd": null,
+    "cost_status": "not_reported"
+  }
+}

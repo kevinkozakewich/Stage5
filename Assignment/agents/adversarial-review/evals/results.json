@@ -1,36 +1,141 @@
 {
+  "schema_version": 2,
   "workflow_id": "W5",
-  "provider_claim": "cursor:subagent",
-  "evidence_type": "historical_saved_samples",
-  "provenance": "The original records do not include verified model/response IDs, usage, or first-attempt/manual-edit history.",
-  "raw_evidence": "evaluations/historical/outputs/w5-*.txt",
-  "replay": "node evaluations/replay-historical.js",
-  "historical_reported_composite_percent": 100,
-  "composite_percent": null,
-  "readiness": "not_established",
+  "evidence_type": "actual_native_model_evaluations",
+  "provider": "codex:native-subagent",
+  "transport": "evaluation_only_codex_exec_fresh_sessions",
+  "measured_at": "2026-10-06T00:13:31.442Z",
+  "readiness": "measured_pass",
+  "passed": 12,
+  "total": 12,
+  "composite_percent": 100,
+  "models": [
+    "gpt-6-astra"
+  ],
   "criteria": {
     "A1": {
-      "name": "challenge_json_well_formed",
-      "measurement": "Original basic schema assertion passed for 2 of 2 saved examples; detailed challenge semantics and current runtime schemas were not measured.",
-      "passed": 2,
-      "total": 2
+      "name": "complete_json_contract_and_immutable_target",
+      "status": "measured_pass",
+      "passed": 12,
+      "total": 12,
+      "case_ids": [
+        "w5-w1-clean-composite",
+        "w5-w1-lost-composite-key",
+        "w5-w2-clean-sql",
+        "w5-w2-direct-queue-bypass",
+        "w5-w3-clean-review",
+        "w5-w3-false-clean",
+        "w5-w3-preserve-fail",
+        "w5-w4-repair-complete",
+        "w5-w4-partial-repair",
+        "w5-w6-grounded-report",
+        "w5-w6-invented-finding",
+        "w5-w6-premature-approval"
+      ]
     },
     "A2": {
-      "name": "upheld_on_clean_pass",
-      "measurement": "One saved example returned the expected UPHELD challenge.",
-      "passed": 1,
-      "total": 1
+      "name": "correct_independent_disposition",
+      "status": "measured_pass",
+      "passed": 12,
+      "total": 12,
+      "case_ids": [
+        "w5-w1-clean-composite",
+        "w5-w1-lost-composite-key",
+        "w5-w2-clean-sql",
+        "w5-w2-direct-queue-bypass",
+        "w5-w3-clean-review",
+        "w5-w3-false-clean",
+        "w5-w3-preserve-fail",
+        "w5-w4-repair-complete",
+        "w5-w4-partial-repair",
+        "w5-w6-grounded-report",
+        "w5-w6-invented-finding",
+        "w5-w6-premature-approval"
+      ]
     },
     "A3": {
-      "name": "overturn_on_false_clean",
-      "measurement": "One saved example returned the expected OVERTURNED challenge.",
-      "passed": 1,
-      "total": 1
+      "name": "detects_seeded_issue_with_source_evidence",
+      "status": "measured_pass",
+      "passed": 12,
+      "total": 12,
+      "case_ids": [
+        "w5-w1-clean-composite",
+        "w5-w1-lost-composite-key",
+        "w5-w2-clean-sql",
+        "w5-w2-direct-queue-bypass",
+        "w5-w3-clean-review",
+        "w5-w3-false-clean",
+        "w5-w3-preserve-fail",
+        "w5-w4-repair-complete",
+        "w5-w4-partial-repair",
+        "w5-w6-grounded-report",
+        "w5-w6-invented-finding",
+        "w5-w6-premature-approval"
+      ]
+    },
+    "A4": {
+      "name": "independent_semantic_grounding_and_tone",
+      "status": "measured_pass",
+      "passed": 12,
+      "total": 12,
+      "case_ids": [
+        "w5-w1-clean-composite",
+        "w5-w1-lost-composite-key",
+        "w5-w2-clean-sql",
+        "w5-w2-direct-queue-bypass",
+        "w5-w3-clean-review",
+        "w5-w3-false-clean",
+        "w5-w3-preserve-fail",
+        "w5-w4-repair-complete",
+        "w5-w4-partial-repair",
+        "w5-w6-grounded-report",
+        "w5-w6-invented-finding",
+        "w5-w6-premature-approval"
+      ]
     }
   },
-  "coverage_gaps": [
-    "Actual isolated execution and source-file tool use are not established by these saved artifacts.",
-    "Every producing workflow/output is not represented in this two-example sample."
+  "source_results": "evaluations/stage5/results.json",
+  "source_cases": "evaluations/stage5/cases.json",
+  "source_captures": "evaluations/stage5/captures.json",
+  "raw_outputs": [
+    "evaluations/stage5/raw/w5-w1-clean-composite.txt",
+    "evaluations/stage5/raw/w5-w1-lost-composite-key.txt",
+    "evaluations/stage5/raw/w5-w2-clean-sql.txt",
+    "evaluations/stage5/raw/w5-w2-direct-queue-bypass.txt",
+    "evaluations/stage5/raw/w5-w3-clean-review.txt",
+    "evaluations/stage5/raw/w5-w3-false-clean.txt",
+    "evaluations/stage5/raw/w5-w3-preserve-fail.txt",
+    "evaluations/stage5/raw/w5-w4-repair-complete.txt",
+    "evaluations/stage5/raw/w5-w4-partial-repair.txt",
+    "evaluations/stage5/raw/w5-w6-grounded-report.txt",
+    "evaluations/stage5/raw/w5-w6-invented-finding.txt",
+    "evaluations/stage5/raw/w5-w6-premature-approval.txt"
   ],
-  "original_recorded_at": "2026-10-05"
+  "prompt_sha256": [
+    "710e73ffc84dcf30a7c0aeee12e45deea69933ded5c084237cd53a72e6785028"
+  ],
+  "native_telemetry": [
+    "evaluations/stage5/raw/w5-w1-clean-composite.telemetry.json",
+    "evaluations/stage5/raw/w5-w1-lost-composite-key.telemetry.json",
+    "evaluations/stage5/raw/w5-w2-clean-sql.telemetry.json",
+    "evaluations/stage5/raw/w5-w2-direct-queue-bypass.telemetry.json",
+    "evaluations/stage5/raw/w5-w3-clean-review.telemetry.json",
+    "evaluations/stage5/raw/w5-w3-false-clean.telemetry.json",
+    "evaluations/stage5/raw/w5-w3-preserve-fail.telemetry.json",
+    "evaluations/stage5/raw/w5-w4-repair-complete.telemetry.json",
+    "evaluations/stage5/raw/w5-w4-partial-repair.telemetry.json",
+    "evaluations/stage5/raw/w5-w6-grounded-report.telemetry.json",
+    "evaluations/stage5/raw/w5-w6-invented-finding.telemetry.json",
+    "evaluations/stage5/raw/w5-w6-premature-approval.telemetry.json"
+  ],
+  "attempts_per_case": 1,
+  "manual_model_output_corrections": 0,
+  "model_retries": 0,
+  "scorer_adjustments": null,
+  "semantic_review": "evaluations/stage5/semantic-reviews.json",
+  "cost_usd": null,
+  "cost_status": "not_exposed_by_native_host",
+  "replay": "node evaluations/stage5/score.js",
+  "limitations": "Finite fresh-context semantic evaluations measure the listed cases, not a guarantee about every future input. Producer output text was never manually corrected. Billing USD is not exposed; measured tokens and separately labeled credit estimates are archived.",
+  "historical_evidence_retained": "evaluations/historical/agents/adversarial-review/evals/results.json"
 }

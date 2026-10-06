@@ -77,7 +77,7 @@ export class AuditLogger {
       model: fields.model ?? 'mock:golden',
       input_tokens: fields.input_tokens ?? 0,
       output_tokens: fields.output_tokens ?? 0,
-      cost_usd: fields.cost_usd ?? 0,
+      cost_usd: Object.hasOwn(fields, 'cost_usd') ? fields.cost_usd : null,
       usage_source: fields.usage_source ?? (String(fields.model).startsWith('mock:') ? 'fixture' : 'not_reported'),
       input_hash: fields.input_hash ?? AuditLogger.hash(''),
       output_hash: fields.output_hash ?? AuditLogger.hash(''),

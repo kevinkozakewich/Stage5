@@ -15,10 +15,15 @@ export function validateAdversarialJson(data) {
   if (!Array.isArray(data.findings)) {
     findings.push('findings must be an array');
   } else {
+    const ids = new Set();
     for (const [index, item] of data.findings.entries()) {
       if (!object(item) || !nonempty(item.type) || !nonempty(item.label) || !nonempty(item.evidence)
         || (item.artifact !== undefined && !nonempty(item.artifact))) {
         findings.push(`findings[${index}] must contain non-empty type, label, and evidence strings (and a non-empty artifact if supplied)`);
+      }
+      if (item?.id !== undefined) {
+        if (!/^A[1-9]\d*$/.test(item.id) || ids.has(item.id)) findings.push(`findings[${index}].id must be a unique A-number`);
+        ids.add(item.id);
       }
     }
   }
@@ -26,8 +31,8 @@ export function validateAdversarialJson(data) {
     findings.push('UPHELD must preserve original_verdict');
   }
   if (data.challenge === 'OVERTURNED') {
-    if (data.original_verdict !== 'PASS' || data.recommended_verdict !== 'FAIL') {
-      findings.push('OVERTURNED must change original_verdict=PASS to recommended_verdict=FAIL');
+    if (data.original_verdict === data.recommended_verdict) {
+      findings.push('OVERTURNED must change the original_verdict');
     }
     if (!Array.isArray(data.findings) || data.findings.length === 0) findings.push('OVERTURNED requires at least one evidenced finding');
   }

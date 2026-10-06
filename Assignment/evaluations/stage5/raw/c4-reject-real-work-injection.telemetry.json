@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "provider": "codex_native_rollout",
+  "scope": "full_native_evaluation_turn_including_context_tools_and_wrapper_overhead",
+  "extracted_at": "2026-10-06T00:12:31.145Z",
+  "snapshot": false,
+  "selection": {
+    "thread_ids": [
+      "01a10e8d-ddc9-72c2-9e1b-85cbf9fc4005"
+    ],
+    "turn_ids": null,
+    "not_before": null
+  },
+  "threads": [
+    {
+      "thread_id": "01a10e8d-ddc9-72c2-9e1b-85cbf9fc4005",
+      "source": "rollout-2026-10-05T19-12-20-01a10e8d-ddc9-72c2-9e1b-85cbf9fc4005.jsonl",
+      "turns": [
+        {
+          "turn_id": "01a10e8d-de61-70e2-98d3-3594f2a62e2f",
+          "model": "gpt-6-astra",
+          "started_at": "2026-10-06T00:12:21.062Z",
+          "completed_at": "2026-10-06T00:12:29.156Z",
+          "completion_source_line_sha256": "ea0d367d821e4a1f29f200cd2d8bda504ac1d6042baa3653924eaab0819859b6",
+          "complete": true,
+          "response_count": 1,
+          "usage": {
+            "input_tokens": 19180,
+            "cached_input_tokens": 13312,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 196,
+            "reasoning_output_tokens": 139,
+            "total_tokens": 19376
+          }
+        }
+      ],
+      "responses": [
+        {
+          "thread_id": "01a10e8d-ddc9-72c2-9e1b-85cbf9fc4005",
+          "turn_id": "01a10e8d-de61-70e2-98d3-3594f2a62e2f",
+          "root_turn_id": "01a10e8d-de61-70e2-98d3-3594f2a62e2f",
+          "session_id": "01a10e8d-ddc9-72c2-9e1b-85cbf9fc4005",
+          "response_id": "resp_0dd46f0e72883a42016ac43ce3fe2887d1acecfa9b4696fa3c",
+          "timestamp": "2026-10-06T00:12:29.140Z",
+          "model": "gpt-6-astra",
+          "usage": {
+            "input_tokens": 19180,
+            "cached_input_tokens": 13312,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 196,
+            "reasoning_output_tokens": 139,
+            "total_tokens": 19376
+          },
+          "source_line": 15,
+          "source_line_sha256": "a9433813ee71dcd70da8db9254af39b8192b3783fa60ebd5b13d18caa12fc8b1",
+          "model_context_sha256": "bed883f80b068af3355dd254adb79c2c3ae601e1070da983ff39b10b6ec573fc"
+        }
+      ],
+      "response_count": 1,
+      "usage": {
+        "input_tokens": 19180,
+        "cached_input_tokens": 13312,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 196,
+        "reasoning_output_tokens": 139,
+        "total_tokens": 19376
+      }
+    }
+  ],
+  "response_count": 1,
+  "totals": {
+    "input_tokens": 19180,
+    "cached_input_tokens": 13312,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 196,
+    "reasoning_output_tokens": 139,
+    "total_tokens": 19376
+  },
+  "cost_usd": null,
+  "cost_status": "not_exposed_by_native_host",
+  "standard_credit_equivalent": {
+    "value": 2.0448,
+    "unit": "standard_credit_equivalent",
+    "status": "estimate_only",
+    "rates_per_million_tokens": {
+      "gpt-6-astra": {
+        "input": 250,
+        "cached_input": 25,
+        "output": 1250
+      }
+    },
+    "unknown_models": [],
+    "missing_cached_input_usage": false,
+    "source": "https://learn.chatgpt.com/docs/pricing",
+    "rates_verified_on": "2026-10-05",
+    "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+  },
+  "notes": [
+    "Direct per-response token_usage_record values only; cumulative token_count and inherited ancestor usage are excluded.",
+    "Source paths are reduced to basenames. Only allowlisted telemetry and SHA-256 fingerprints of source lines are archived.",
+    "Native host usage is recorded telemetry, not a final bill. Re-extract after completion if the host supplies delayed records."
+  ],
+  "evidence_sha256": "6f2f820275f28d41db591667350d835bb3f502fc67645407d915390377257f4a"
+}
