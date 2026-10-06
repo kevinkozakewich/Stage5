@@ -2,6 +2,11 @@ $ErrorActionPreference = 'Stop'
 $Root = Split-Path -Parent $PSScriptRoot
 Set-Location $Root
 
+$env:GIT_AUTHOR_NAME = 'Kevin Kozakewich'
+$env:GIT_COMMITTER_NAME = 'Kevin Kozakewich'
+$env:GIT_AUTHOR_EMAIL = 'kevin.kozakewich@improving.com'
+$env:GIT_COMMITTER_EMAIL = 'kevin.kozakewich@improving.com'
+
 Write-Host "Active GitHub account:"
 gh auth status
 
