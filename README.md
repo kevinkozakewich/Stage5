@@ -2,6 +2,8 @@
 
 This submission implements the criteria in `Instructions.txt` and `What We Examine.txt`: a dispatch-only LLM coordinator, scoped workers, independent review of every producing output, deterministic boundaries and headings, persisted usage audit, and explicit human checkpoints.
 
+Published repository: [kevinkozakewich/Stage5](https://github.com/kevinkozakewich/Stage5). See `REPOSITORY.md` for the status of the requested `ImaginetKevinK/Stage5` destination.
+
 ## Verify
 
 Run from this directory:
