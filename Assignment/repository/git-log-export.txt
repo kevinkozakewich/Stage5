@@ -1,3 +1,99 @@
+2f956902725a83c08562bfc8f6402b7ec4e0f9df 2026-10-05T19:36:56-05:00 Enforce examiner response and independent re-review for every adversarial finding
+
+ Assignment/README.md                               |    3 +
+ .../agents/delivery-report/evals/results.json      |   44 +-
+ .../coordinator/evals/governed-delegation.test.js  |  141 +-
+ .../coordinator/evals/readiness-evidence.test.js   |   49 +-
+ Assignment/coordinator/evals/results.json          |  110 +-
+ Assignment/coordinator/prompt/Prompt.md            |    5 +-
+ Assignment/evaluations/README.md                   |    6 +
+ Assignment/evaluations/stage5/README.md            |    2 +
+ Assignment/evaluations/stage5/recheck/README.md    |   15 +
+ .../stage5/recheck/append-upheld-fail-case.js      |   51 +
+ .../evaluations/stage5/recheck/build-cases.js      |   89 +
+ .../evaluations/stage5/recheck/captures.json       |  293 +++
+ Assignment/evaluations/stage5/recheck/cases.json   | 2378 ++++++++++++++++++++
+ .../agents/delivery-report/prompt/Prompt.md        |   20 +
+ .../current-source/coordinator/prompt/Prompt.md    |   29 +
+ .../current-source/coordinator/tools/schema.json   |  204 ++
+ .../harness/lib/governedDelegation.js              |  548 +++++
+ .../evaluations/stage5/recheck/packets/case-01.md  |  393 ++++
+ .../evaluations/stage5/recheck/packets/case-02.md  |  455 ++++
+ .../evaluations/stage5/recheck/packets/case-03.md  |  415 ++++
+ .../evaluations/stage5/recheck/packets/case-04.md  |  440 ++++
+ .../evaluations/stage5/recheck/packets/case-05.md  |  147 ++
+ .../evaluations/stage5/recheck/packets/case-06.md  |  483 ++++
+ .../stage5/recheck/raw/case-01/capture.json        |   45 +
+ .../stage5/recheck/raw/case-01/events.jsonl        |    4 +
+ .../stage5/recheck/raw/case-01/output.txt          |    1 +
+ .../stage5/recheck/raw/case-01/packet.md           |  393 ++++
+ .../stage5/recheck/raw/case-01/stderr.txt          |    6 +
+ .../stage5/recheck/raw/case-01/telemetry.json      |  104 +
+ .../stage5/recheck/raw/case-02/capture.json        |   45 +
+ .../stage5/recheck/raw/case-02/events.jsonl        |    4 +
+ .../stage5/recheck/raw/case-02/output.txt          |    1 +
+ .../stage5/recheck/raw/case-02/packet.md           |  455 ++++
+ .../stage5/recheck/raw/case-02/stderr.txt          |    5 +
+ .../stage5/recheck/raw/case-02/telemetry.json      |  104 +
+ .../stage5/recheck/raw/case-03/capture.json        |   45 +
+ .../stage5/recheck/raw/case-03/events.jsonl        |    4 +
+ .../stage5/recheck/raw/case-03/output.txt          |    1 +
+ .../stage5/recheck/raw/case-03/packet.md           |  415 ++++
+ .../stage5/recheck/raw/case-03/stderr.txt          |    5 +
+ .../stage5/recheck/raw/case-03/telemetry.json      |  104 +
+ .../stage5/recheck/raw/case-04/capture.json        |   45 +
+ .../stage5/recheck/raw/case-04/events.jsonl        |    4 +
+ .../stage5/recheck/raw/case-04/output.txt          |    1 +
+ .../stage5/recheck/raw/case-04/packet.md           |  440 ++++
+ .../stage5/recheck/raw/case-04/stderr.txt          |    5 +
+ .../stage5/recheck/raw/case-04/telemetry.json      |  104 +
+ .../stage5/recheck/raw/case-05/capture.json        |   45 +
+ .../stage5/recheck/raw/case-05/events.jsonl        |    4 +
+ .../stage5/recheck/raw/case-05/output.txt          |    5 +
+ .../stage5/recheck/raw/case-05/packet.md           |  147 ++
+ .../stage5/recheck/raw/case-05/stderr.txt          |    5 +
+ .../stage5/recheck/raw/case-05/telemetry.json      |  104 +
+ .../stage5/recheck/raw/case-06/capture.json        |   45 +
+ .../stage5/recheck/raw/case-06/events.jsonl        |    4 +
+ .../stage5/recheck/raw/case-06/output.txt          |    1 +
+ .../stage5/recheck/raw/case-06/packet.md           |  483 ++++
+ .../stage5/recheck/raw/case-06/stderr.txt          |    5 +
+ .../stage5/recheck/raw/case-06/telemetry.json      |  104 +
+ Assignment/evaluations/stage5/recheck/results.json |  340 +++
+ Assignment/evaluations/stage5/recheck/run-cases.js |   28 +
+ .../stage5/recheck/run-semantic-review.js          |   28 +
+ Assignment/evaluations/stage5/recheck/score.js     |   90 +
+ .../stage5/recheck/semantic-review/capture.json    |   45 +
+ .../stage5/recheck/semantic-review/events.jsonl    |    4 +
+ .../stage5/recheck/semantic-review/output.txt      |    1 +
+ .../stage5/recheck/semantic-review/packet.md       | 2168 ++++++++++++++++++
+ .../stage5/recheck/semantic-review/stderr.txt      |    6 +
+ .../stage5/recheck/semantic-review/telemetry.json  |  104 +
+ .../stage5/recheck/semantic-reviews.json           |  113 +
+ .../agents/delivery-report/prompt/Prompt.md        |   20 +
+ .../final-policy/coordinator/prompt/Prompt.md      |   29 +
+ .../final-policy/coordinator/tools/schema.json     |  204 ++
+ .../final-policy/harness/lib/governedDelegation.js |  548 +++++
+ .../recheck/source/final-policy/snapshot.json      |   11 +
+ .../agents/delivery-report/prompt/Prompt.md        |   20 +
+ .../coordinator/prompt/Prompt.md                   |   29 +
+ .../coordinator/tools/schema.json                  |  204 ++
+ .../harness/lib/governedDelegation.js              |  548 +++++
+ .../source/prior-corrected-policy/snapshot.json    |   11 +
+ .../stage5/recheck/summarize-results.js            |   43 +
+ Assignment/harness/lib/governedDelegation.js       |  113 +-
+ Assignment/package.json                            |    6 +-
+ Assignment/scripts/check-readiness.js              |  162 +-
+ COMPLETION.md                                      |   11 +-
+ EXAMINER_CHECKLIST.md                              |   22 +-
+ 86 files changed, 14436 insertions(+), 84 deletions(-)
+af4badc7ea7bc649436ec721f4be276248d8d275 2026-10-05T19:21:17-05:00 Package verified Stage 5 submission and source integrity manifest
+
+ Assignment/package-integrity.json        |  381 ++++++++++-
+ Assignment/repository/git-log-export.txt |  619 +++++++++++++++++
+ git-log-export.txt                       | 1100 ++++++++++++++++++++++++++++++
+ level-5-certification-staging.zip        |  Bin 495526 -> 1114567 bytes
+ 4 files changed, 2071 insertions(+), 29 deletions(-)
 c8d79502d17a1c41e537857a09df75483deeab49 2026-10-05T19:20:31-05:00 Complete governed delegation and archive measured Stage 5 evidence
 
  .gitattributes                                     |    3 +
