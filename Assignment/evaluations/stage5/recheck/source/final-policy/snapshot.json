@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "hash_algorithm": "sha256",
+  "provenance": "Exact current source bytes saved for the additional UPHELD FAIL findings policy case. Earlier inference calls retain their earlier source hashes and packets.",
+  "files": {
+    "harness/lib/governedDelegation.js": "947d71b1c19bab3d29ff82f7617986248db57dc15ed74c8533334d6dd0c4e401",
+    "coordinator/prompt/Prompt.md": "cc4826727e22e51d8e3b449c0d09b9ff0d389cbcfb3b8c9925140d3f324a4069",
+    "agents/delivery-report/prompt/Prompt.md": "efd3cdbd323470a0a1c2e096ca358792d43f05e5bba540840dc4f5055f6308bc",
+    "coordinator/tools/schema.json": "42d306d17947d25bfcc30e49e3e42e5f101cafaa1dac19569b0aba8968d8d394"
+  }
+}

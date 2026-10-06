@@ -89,5 +89,47 @@
   "cost_status": "not_exposed_by_native_host",
   "replay": "node evaluations/stage5/score.js",
   "limitations": "Finite fresh-context semantic evaluations measure the listed cases, not a guarantee about every future input. Producer output text was never manually corrected. Billing USD is not exposed; measured tokens and separately labeled credit estimates are archived.",
-  "historical_evidence_retained": "evaluations/historical/agents/delivery-report/evals/results.json"
+  "historical_evidence_retained": "evaluations/historical/agents/delivery-report/evals/results.json",
+  "current_terminal_fail_evidence": {
+    "source_results": "evaluations/stage5/recheck/results.json",
+    "case_id": "terminal-fail-grounded-synthesis",
+    "passed": true,
+    "prompt_sha256": "5a7c12c64e8d370e3ae5c8eaa4de791e34d6fcb7f4e117ecf6162cbbd50da811",
+    "raw_output": "evaluations/stage5/recheck/raw/case-05/output.txt",
+    "native_telemetry": "evaluations/stage5/recheck/raw/case-05/telemetry.json",
+    "semantic_review": "evaluations/stage5/recheck/semantic-reviews.json",
+    "manual_corrections": 0,
+    "attempt": 1
+  },
+  "current_terminal_fail_criteria": {
+    "R3": {
+      "name": "concise_heading_free_failure_report",
+      "status": "measured_pass",
+      "passed": 1,
+      "total": 1,
+      "source_results": "evaluations/stage5/recheck/results.json"
+    },
+    "R2": {
+      "name": "complete_failure_evidence_synthesis",
+      "status": "measured_pass",
+      "passed": 1,
+      "total": 1,
+      "source_results": "evaluations/stage5/recheck/results.json"
+    },
+    "R1": {
+      "name": "grounded_open_findings_and_blocked_deployment",
+      "status": "measured_pass",
+      "passed": 1,
+      "total": 1,
+      "source_results": "evaluations/stage5/recheck/results.json"
+    },
+    "SEM": {
+      "name": "independent_semantic_grounding_and_completeness",
+      "status": "measured_pass",
+      "passed": 1,
+      "total": 1,
+      "source_results": "evaluations/stage5/recheck/results.json"
+    }
+  },
+  "current_prompt_scope_note": "The original four cases measure the retained grounded-synthesis, checkpoint and tone contract. The additional current-prompt case measures the explicit terminal FAIL extension; its exact source snapshot and unedited first response are independently reviewed."
 }

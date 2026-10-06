@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "captures": [
+    {
+      "case_id": "critical-challenge-targeted-examiner",
+      "provider": "codex:native-subagent",
+      "invocation": "evaluation_only_codex_exec_fresh_context",
+      "thread_id": "01a10e9c-bb1a-7f72-bc8f-480e883c7bbf",
+      "response_id": "resp_035ac4c3d796a28b016ac440b202f487d1b56572e2d565491a",
+      "response_ids": [
+        "resp_035ac4c3d796a28b016ac440b202f487d1b56572e2d565491a"
+      ],
+      "model": "gpt-6-astra",
+      "prompt_sha256": "174f23ba6f9a2285cefc4a935778fe107bdf8985b036187bcb7ffa8cf9fdec04",
+      "packet_sha256": "3544e4b62a38504729258b2570e19c8a4e6c3ceceb1ed5d0afc9d6353ab9df94",
+      "raw_sha256": "52d3555ceeb19540eb0f3496bdd484e30805f979939e2a1830d4ddb7623a7547",
+      "raw_directory": "raw/case-01",
+      "raw_path": "raw/case-01/output.txt",
+      "telemetry_path": "raw/case-01/telemetry.json",
+      "events_path": "raw/case-01/events.jsonl",
+      "attempt": 1,
+      "manual_corrections": 0,
+      "host_tool_calls": [],
+      "token_usage": {
+        "input_tokens": 21211,
+        "cached_input_tokens": 16512,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 314,
+        "reasoning_output_tokens": 170,
+        "total_tokens": 21525
+      },
+      "cost_usd": null,
+      "cost_status": "not_exposed_by_native_host",
+      "standard_credit_equivalent": {
+        "value": 1.98005,
+        "unit": "standard_credit_equivalent",
+        "status": "estimate_only",
+        "rates_per_million_tokens": {
+          "gpt-6-astra": {
+            "input": 250,
+            "cached_input": 25,
+            "output": 1250
+          }
+        },
+        "unknown_models": [],
+        "missing_cached_input_usage": false,
+        "source": "https://learn.chatgpt.com/docs/pricing",
+        "rates_verified_on": "2026-10-05",
+        "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+      }
+    },
+    {
+      "case_id": "examiner-response-independent-rereview",
+      "provider": "codex:native-subagent",
+      "invocation": "evaluation_only_codex_exec_fresh_context",
+      "thread_id": "01a10e9c-f22c-7693-94fb-121792feb6d7",
+      "response_id": "resp_05830abd418de12a016ac440c0633c87d19dda1087b7b411fe",
+      "response_ids": [
+        "resp_05830abd418de12a016ac440c0633c87d19dda1087b7b411fe"
+      ],
+      "model": "gpt-6-astra",
+      "prompt_sha256": "174f23ba6f9a2285cefc4a935778fe107bdf8985b036187bcb7ffa8cf9fdec04",
+      "packet_sha256": "fe211a9bbee949f52edeaf4074766d15e0050052dfe1de7c00d49f1eae4bd286",
+      "raw_sha256": "f3a4282d02efe2ca81760dfd264bc9459111808f688df2e43fc12d6a3f99e5a8",
+      "raw_directory": "raw/case-02",
+      "raw_path": "raw/case-02/output.txt",
+      "telemetry_path": "raw/case-02/telemetry.json",
+      "events_path": "raw/case-02/events.jsonl",
+      "attempt": 1,
+      "manual_corrections": 0,
+      "host_tool_calls": [],
+      "token_usage": {
+        "input_tokens": 21732,
+        "cached_input_tokens": 13312,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 183,
+        "reasoning_output_tokens": 113,
+        "total_tokens": 21915
+      },
+      "cost_usd": null,
+      "cost_status": "not_exposed_by_native_host",
+      "standard_credit_equivalent": {
+        "value": 2.66655,
+        "unit": "standard_credit_equivalent",
+        "status": "estimate_only",
+        "rates_per_million_tokens": {
+          "gpt-6-astra": {
+            "input": 250,
+            "cached_input": 25,
+            "output": 1250
+          }
+        },
+        "unknown_models": [],
+        "missing_cached_input_usage": false,
+        "source": "https://learn.chatgpt.com/docs/pricing",
+        "rates_verified_on": "2026-10-05",
+        "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+      }
+    },
+    {
+      "case_id": "no-terminal-shortcut-around-examiner",
+      "provider": "codex:native-subagent",
+      "invocation": "evaluation_only_codex_exec_fresh_context",
+      "thread_id": "01a10e9d-2158-7f63-9073-9e95d02aa018",
+      "response_id": "resp_022d35c4a87a27a3016ac440cc0788819492f18795c2dfa0bd",
+      "response_ids": [
+        "resp_022d35c4a87a27a3016ac440cc0788819492f18795c2dfa0bd"
+      ],
+      "model": "gpt-6-astra",
+      "prompt_sha256": "174f23ba6f9a2285cefc4a935778fe107bdf8985b036187bcb7ffa8cf9fdec04",
+      "packet_sha256": "ad272e9416ad639db08ea81dc63f67ce26f5a30f9057b4ab903c95944b239984",
+      "raw_sha256": "41f98c490846fe1355f866b8dd9d97bd870035cc46cfd7685d8a54969d5a5861",
+      "raw_directory": "raw/case-03",
+      "raw_path": "raw/case-03/output.txt",
+      "telemetry_path": "raw/case-03/telemetry.json",
+      "events_path": "raw/case-03/events.jsonl",
+      "attempt": 1,
+      "manual_corrections": 0,
+      "host_tool_calls": [],
+      "token_usage": {
+        "input_tokens": 21362,
+        "cached_input_tokens": 16512,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 292,
+        "reasoning_output_tokens": 140,
+        "total_tokens": 21654
+      },
+      "cost_usd": null,
+      "cost_status": "not_exposed_by_native_host",
+      "standard_credit_equivalent": {
+        "value": 1.9903,
+        "unit": "standard_credit_equivalent",
+        "status": "estimate_only",
+        "rates_per_million_tokens": {
+          "gpt-6-astra": {
+            "input": 250,
+            "cached_input": 25,
+            "output": 1250
+          }
+        },
+        "unknown_models": [],
+        "missing_cached_input_usage": false,
+        "source": "https://learn.chatgpt.com/docs/pricing",
+        "rates_verified_on": "2026-10-05",
+        "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+      }
+    },
+    {
+      "case_id": "reviewed-failure-terminal-report",
+      "provider": "codex:native-subagent",
+      "invocation": "evaluation_only_codex_exec_fresh_context",
+      "thread_id": "01a10e9d-537c-7631-8539-ccb2f26d5d7e",
+      "response_id": "resp_09098055809227f8016ac440d8dca087d1a6dab0116b0e5a2f",
+      "response_ids": [
+        "resp_09098055809227f8016ac440d8dca087d1a6dab0116b0e5a2f"
+      ],
+      "model": "gpt-6-astra",
+      "prompt_sha256": "174f23ba6f9a2285cefc4a935778fe107bdf8985b036187bcb7ffa8cf9fdec04",
+      "packet_sha256": "d3b7c18e64654b5fd970cb55feb866b3c24cf2950131f8b43ef05db4a976e42e",
+      "raw_sha256": "750956ff54e0d0457c78bd045f161c0cfd6674a02310a503b1280b8e5064f635",
+      "raw_directory": "raw/case-04",
+      "raw_path": "raw/case-04/output.txt",
+      "telemetry_path": "raw/case-04/telemetry.json",
+      "events_path": "raw/case-04/events.jsonl",
+      "attempt": 1,
+      "manual_corrections": 0,
+      "host_tool_calls": [],
+      "token_usage": {
+        "input_tokens": 21618,
+        "cached_input_tokens": 13312,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 478,
+        "reasoning_output_tokens": 334,
+        "total_tokens": 22096
+      },
+      "cost_usd": null,
+      "cost_status": "not_exposed_by_native_host",
+      "standard_credit_equivalent": {
+        "value": 3.0068,
+        "unit": "standard_credit_equivalent",
+        "status": "estimate_only",
+        "rates_per_million_tokens": {
+          "gpt-6-astra": {
+            "input": 250,
+            "cached_input": 25,
+            "output": 1250
+          }
+        },
+        "unknown_models": [],
+        "missing_cached_input_usage": false,
+        "source": "https://learn.chatgpt.com/docs/pricing",
+        "rates_verified_on": "2026-10-05",
+        "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+      }
+    },
+    {
+      "case_id": "terminal-fail-grounded-synthesis",
+      "provider": "codex:native-subagent",
+      "invocation": "evaluation_only_codex_exec_fresh_context",
+      "thread_id": "01a10e9d-978d-7c11-9651-8fd27fb6cb99",
+      "response_id": "resp_07fd2f26c819ede4016ac440ea8f8087d18e9e52ce4f0632e9",
+      "response_ids": [
+        "resp_07fd2f26c819ede4016ac440ea8f8087d18e9e52ce4f0632e9"
+      ],
+      "model": "gpt-6-astra",
+      "prompt_sha256": "5a7c12c64e8d370e3ae5c8eaa4de791e34d6fcb7f4e117ecf6162cbbd50da811",
+      "packet_sha256": "5d9e71adbacd1f2a43c1f76756218e2ac2db77f3c230b053d961876e7ffb3ae9",
+      "raw_sha256": "ad6e561cf9cbb214b255e3a5efd7aebae8bd7af259c9b5d143d9b1becfe15b56",
+      "raw_directory": "raw/case-05",
+      "raw_path": "raw/case-05/output.txt",
+      "telemetry_path": "raw/case-05/telemetry.json",
+      "events_path": "raw/case-05/events.jsonl",
+      "attempt": 1,
+      "manual_corrections": 0,
+      "host_tool_calls": [],
+      "token_usage": {
+        "input_tokens": 19511,
+        "cached_input_tokens": 16512,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 595,
+        "reasoning_output_tokens": 372,
+        "total_tokens": 20106
+      },
+      "cost_usd": null,
+      "cost_status": "not_exposed_by_native_host",
+      "standard_credit_equivalent": {
+        "value": 1.9063,
+        "unit": "standard_credit_equivalent",
+        "status": "estimate_only",
+        "rates_per_million_tokens": {
+          "gpt-6-astra": {
+            "input": 250,
+            "cached_input": 25,
+            "output": 1250
+          }
+        },
+        "unknown_models": [],
+        "missing_cached_input_usage": false,
+        "source": "https://learn.chatgpt.com/docs/pricing",
+        "rates_verified_on": "2026-10-05",
+        "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+      }
+    },
+    {
+      "case_id": "upheld-fail-new-finding-needs-examiner",
+      "provider": "codex:native-subagent",
+      "invocation": "evaluation_only_codex_exec_fresh_context",
+      "thread_id": "01a10ea0-6331-7312-9d2d-ff32bc5dc1f7",
+      "response_id": "resp_07d5cf65b63c8904016ac441a1a73c87d1ade093ff279bc492",
+      "response_ids": [
+        "resp_07d5cf65b63c8904016ac441a1a73c87d1ade093ff279bc492"
+      ],
+      "model": "gpt-6-astra",
+      "prompt_sha256": "2481de7b25ec8da9e8f08b3127cfcd2aa211831588e0f8ad64b88c2b51cee128",
+      "packet_sha256": "481b03b10ad0339e138189d4672c13f5711fcbd67f606d2b44721e4064bd6549",
+      "raw_sha256": "61293ad8db6b2dd7271af65e479e251855d1fc57b723ea3912c7cc26003dfa92",
+      "raw_directory": "raw/case-06",
+      "raw_path": "raw/case-06/output.txt",
+      "telemetry_path": "raw/case-06/telemetry.json",
+      "events_path": "raw/case-06/events.jsonl",
+      "attempt": 1,
+      "manual_corrections": 0,
+      "host_tool_calls": [],
+      "token_usage": {
+        "input_tokens": 22126,
+        "cached_input_tokens": 13312,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 288,
+        "reasoning_output_tokens": 134,
+        "total_tokens": 22414
+      },
+      "cost_usd": null,
+      "cost_status": "not_exposed_by_native_host",
+      "standard_credit_equivalent": {
+        "value": 2.8963,
+        "unit": "standard_credit_equivalent",
+        "status": "estimate_only",
+        "rates_per_million_tokens": {
+          "gpt-6-astra": {
+            "input": 250,
+            "cached_input": 25,
+            "output": 1250
+          }
+        },
+        "unknown_models": [],
+        "missing_cached_input_usage": false,
+        "source": "https://learn.chatgpt.com/docs/pricing",
+        "rates_verified_on": "2026-10-05",
+        "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+      }
+    }
+  ]
+}

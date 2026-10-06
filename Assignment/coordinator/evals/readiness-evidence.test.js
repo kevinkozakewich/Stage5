@@ -5,7 +5,7 @@ import path from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { verifyArchivedTelemetry, verifyGovernedRun, verifyRuntimeBoundary } from '../../scripts/check-readiness.js';
+import { verifyArchivedTelemetry, verifyGovernedRun, verifyRuntimeBoundary, verifySourceArchive, verifyCurrentPolicyRecheck, verifyCriticalChallengeCoverage } from '../../scripts/check-readiness.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const archiveRoot = path.join(root, 'evaluations/stage5/governed');
@@ -99,4 +99,51 @@ test('runtime CLI capability cannot be hidden in a workflow or imported from eva
   assert.throws(() => verifyRuntimeBoundary(directory), /Runtime shell\/process capability/);
   fs.writeFileSync(implementation, "import '../../evaluations/stage5/native-cli-provider.js';\n");
   assert.throws(() => verifyRuntimeBoundary(directory), /Runtime imports evaluation-only inference/);
+});
+
+test('current nested source archives validate their complete bundle and detect changed prompt bytes', (t) => {
+  const run = temporary(t);
+  const files = { 'harness/lib/governedDelegation.js': 'export const frozen = true;\n', 'coordinator/prompt/Prompt.md': 'Dispatch only.\n' };
+  const digests = {};
+  for (const [name, contents] of Object.entries(files)) {
+    const target = path.join(run, 'source', name);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, contents);
+    digests[name] = `sha256:${sha(contents)}`;
+  }
+  const manifest = { hash_algorithm: 'sha256', source_bundle_hash: `sha256:${sha(JSON.stringify(digests))}`, files: digests };
+  fs.writeFileSync(path.join(run, 'source/manifest.json'), JSON.stringify(manifest));
+  assert.equal(verifySourceArchive(run).bundleHash, manifest.source_bundle_hash);
+  fs.appendFileSync(path.join(run, 'source/coordinator/prompt/Prompt.md'), 'Hidden tool access.');
+  assert.throws(() => verifySourceArchive(run), /Archived source file changed/);
+});
+
+test('old passing evidence cannot replace missing or stale current-policy measurements', (t) => {
+  const directory = temporary(t);
+  assert.throws(() => verifyCurrentPolicyRecheck(directory), /Mandatory current-policy.*measurements are missing/);
+  const recheck = path.join(directory, 'evaluations/stage5/recheck');
+  fs.mkdirSync(recheck, { recursive: true });
+  const promptPath = path.join(directory, 'coordinator/prompt/Prompt.md');
+  fs.mkdirSync(path.dirname(promptPath), { recursive: true });
+  fs.writeFileSync(promptPath, 'Changed coordinator policy.\n');
+  fs.writeFileSync(path.join(recheck, 'cases.json'), JSON.stringify({ source_manifest: {
+    coordinator_prompt_sha256: sha('Previous coordinator policy.\n'),
+    hash_normalization: 'Exact source file bytes; individual prompt_sha256 values identify LF-normalized packet text.',
+  } }));
+  fs.writeFileSync(path.join(recheck, 'results.json'), '{}');
+  assert.throws(() => verifyCurrentPolicyRecheck(directory), /Current-policy measurement is stale for coordinator\/prompt\/Prompt.md/);
+});
+
+test('critical review coverage includes new findings on an UPHELD FAIL, not just changed verdicts', () => {
+  const finding = { id: 'A1', label: 'Missing examiner checklist finding', evidence: 'The examiner omitted the failed source checklist item.', artifact: 'review.json' };
+  const caseFor = (challenge, findings = [finding]) => ({
+    id: challenge, workflow: 'Coordinator',
+    input: { artifacts: [{ review: { output: { challenge, original_verdict: challenge === 'UPHELD' ? 'FAIL' : 'PASS', recommended_verdict: 'FAIL', findings } } }] },
+    expected: { name: 'launch_trigger_review', required_challenges: [finding] },
+  });
+  assert.throws(() => verifyCriticalChallengeCoverage([caseFor('OVERTURNED')]), /UPHELD\/FAIL with new evidenced findings/);
+  assert.throws(() => verifyCriticalChallengeCoverage([caseFor('OVERTURNED'), caseFor('UPHELD', [])]), /UPHELD\/FAIL with new evidenced findings/);
+  const coverage = verifyCriticalChallengeCoverage([caseFor('OVERTURNED'), caseFor('UPHELD')]);
+  assert.equal(coverage.overturned.length, 1);
+  assert.equal(coverage.upheldWithFindings.length, 1);
 });

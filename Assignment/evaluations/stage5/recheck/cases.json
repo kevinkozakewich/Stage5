@@ -1,0 +1,2378 @@
+{
+  "schema_version": 1,
+  "description": "Additive current-policy recheck. Source fixtures and expected assertions are not inference outputs. The original 22-case suite remains unchanged.",
+  "source_manifest": {
+    "coordinator_prompt_sha256": "ac4fb2a6287c7d8437164c419bbdb7e1f65a16228b1e8a8567d843eaf09b8088",
+    "W6_prompt_sha256": "efd3cdbd323470a0a1c2e096ca358792d43f05e5bba540840dc4f5055f6308bc",
+    "coordinator_schema_sha256": "42d306d17947d25bfcc30e49e3e42e5f101cafaa1dac19569b0aba8968d8d394",
+    "governedHarness_sha256": "94e7d570d4e53c8ada7ea7027ddad24ff9af6df8ce3118fdd7845ff9f53e384b",
+    "hash_normalization": "Exact source file bytes; individual prompt_sha256 values identify LF-normalized packet text."
+  },
+  "cases": [
+    {
+      "id": "critical-challenge-targeted-examiner",
+      "workflow": "Coordinator",
+      "input": {
+        "brief": "Generate an IUD trigger on PurinaNA.VendorContact with composite key vendor_id and contact_seq.",
+        "brief_ref": "brief.md",
+        "artifacts": [
+          {
+            "artifact_id": "002-requirements.json",
+            "workflow_id": "W1",
+            "canonical_name": "requirements.json",
+            "current": true,
+            "output": {
+              "table": "VendorContact",
+              "schema": "PurinaNA",
+              "pk": [
+                "vendor_id",
+                "contact_seq"
+              ],
+              "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+            },
+            "review": {
+              "id": "004-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          },
+          {
+            "artifact_id": "006-trigger.sql",
+            "workflow_id": "W2",
+            "canonical_name": "trigger.sql",
+            "current": true,
+            "output": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+            "review": {
+              "id": "012-adversarial.json",
+              "output": {
+                "challenge": "OVERTURNED",
+                "original_verdict": "PASS",
+                "recommended_verdict": "FAIL",
+                "findings": [
+                  {
+                    "id": "A1",
+                    "severity": "critical",
+                    "type": "requirement_mismatch",
+                    "label": "Generated trigger targets the wrong table",
+                    "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                    "artifact": "006-trigger.sql"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "artifact_id": "010-review.json",
+            "workflow_id": "W3",
+            "canonical_name": "review.json",
+            "current": true,
+            "output": {
+              "verdict": "PASS",
+              "command_detection": {
+                "correct": true,
+                "expected": "RU",
+                "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+              },
+              "structure_checklist": {
+                "passed": [
+                  "SET NOCOUNT ON",
+                  "SET XACT_ABORT OFF",
+                  "Command detection block (inserted/deleted → RI/RU/RD)",
+                  "BEGIN TRY / BEGIN CATCH",
+                  "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                  "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                  "IF XACT_STATE() = -1 rethrow pattern",
+                  "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                ],
+                "failed": [],
+                "missing": []
+              },
+              "forbidden_patterns": {
+                "found": [],
+                "clean": true
+              },
+              "violations": []
+            },
+            "review": {
+              "id": "011-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          }
+        ],
+        "required_reviews": [],
+        "current_artifact_ids": {
+          "requirements.json": "002-requirements.json",
+          "trigger.sql": "006-trigger.sql",
+          "review.json": "010-review.json"
+        },
+        "challenges": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql"
+          }
+        ],
+        "challenge_history": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "target_workflow_id": "W2",
+            "origin": "adversarial"
+          }
+        ],
+        "pending_challenge_obligations": [
+          {
+            "id": "challenge:012-adversarial.json",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "target_workflow_id": "W2",
+            "required_workflow": "W3",
+            "status": "pending_response",
+            "response_artifact_id": null,
+            "challenges": [
+              {
+                "id": "A1",
+                "severity": "critical",
+                "type": "requirement_mismatch",
+                "label": "Generated trigger targets the wrong table",
+                "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                "artifact": "006-trigger.sql"
+              }
+            ]
+          }
+        ],
+        "last_results": [
+          {
+            "request_id": "request-012",
+            "tool": "launch_adversarial_reviewer",
+            "result": {
+              "ok": true,
+              "artifact_id": "012-adversarial.json",
+              "output": {
+                "challenge": "OVERTURNED",
+                "original_verdict": "PASS",
+                "recommended_verdict": "FAIL",
+                "findings": [
+                  {
+                    "id": "A1",
+                    "severity": "critical",
+                    "type": "requirement_mismatch",
+                    "label": "Generated trigger targets the wrong table",
+                    "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                    "artifact": "006-trigger.sql"
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "remediations_used": 0,
+        "max_remediations": 2,
+        "human_checkpoints": {
+          "substance": "not_approved",
+          "deployment": "not_approved"
+        }
+      },
+      "expected": {
+        "name": "launch_trigger_review",
+        "target_step": "W3",
+        "artifact_focus": "006-trigger.sql",
+        "required_challenges": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql"
+          }
+        ],
+        "concepts": [
+          [
+            "A1",
+            "critical",
+            "challenge"
+          ],
+          [
+            "examin",
+            "review"
+          ]
+        ]
+      },
+      "prompt_source": "coordinator/prompt/Prompt.md",
+      "declared_tools": [
+        {
+          "name": "launch_spec_parser",
+          "description": "Dispatch W1 spec parser: migration brief → requirements.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W1"
+                ]
+              },
+              "brief_ref": {
+                "type": "string"
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_codegen",
+          "description": "Dispatch W2 trigger codegen: requirements.json → trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W2"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_review",
+          "description": "Dispatch W3 trigger review: trigger.sql → review.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W3"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_remediator",
+          "description": "Dispatch W4 remediator: review.json + trigger.sql → revised trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W4"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_adversarial_reviewer",
+          "description": "Dispatch W5 in a fresh context to challenge one immutable W1/W2/W3/W4/W6 output against its source artifacts",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W5"
+                ]
+              },
+              "artifact_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "target_step",
+              "artifact_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_delivery_report_writer",
+          "description": "Dispatch W6 delivery report body synthesis (headings assembled by harness)",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "terminal_outcome": {
+                "type": "string",
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ],
+                "description": "Defaults to PASS. Explicit FAIL synthesizes reviewed unresolved findings without granting deployment approval."
+              },
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W6"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        }
+      ],
+      "prompt_sha256": "174f23ba6f9a2285cefc4a935778fe107bdf8985b036187bcb7ffa8cf9fdec04",
+      "packet": "packets/case-01.md",
+      "packet_sha256": "3544e4b62a38504729258b2570e19c8a4e6c3ceceb1ed5d0afc9d6353ab9df94"
+    },
+    {
+      "id": "examiner-response-independent-rereview",
+      "workflow": "Coordinator",
+      "input": {
+        "brief": "Generate an IUD trigger on PurinaNA.VendorContact with composite key vendor_id and contact_seq.",
+        "brief_ref": "brief.md",
+        "artifacts": [
+          {
+            "artifact_id": "002-requirements.json",
+            "workflow_id": "W1",
+            "canonical_name": "requirements.json",
+            "current": true,
+            "output": {
+              "table": "VendorContact",
+              "schema": "PurinaNA",
+              "pk": [
+                "vendor_id",
+                "contact_seq"
+              ],
+              "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+            },
+            "review": {
+              "id": "004-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          },
+          {
+            "artifact_id": "006-trigger.sql",
+            "workflow_id": "W2",
+            "canonical_name": "trigger.sql",
+            "current": true,
+            "output": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+            "review": {
+              "id": "012-adversarial.json",
+              "output": {
+                "challenge": "OVERTURNED",
+                "original_verdict": "PASS",
+                "recommended_verdict": "FAIL",
+                "findings": [
+                  {
+                    "id": "A1",
+                    "severity": "critical",
+                    "type": "requirement_mismatch",
+                    "label": "Generated trigger targets the wrong table",
+                    "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                    "artifact": "006-trigger.sql"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "artifact_id": "010-review.json",
+            "workflow_id": "W3",
+            "canonical_name": "review.json",
+            "current": false,
+            "output": {
+              "verdict": "PASS",
+              "command_detection": {
+                "correct": true,
+                "expected": "RU",
+                "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+              },
+              "structure_checklist": {
+                "passed": [
+                  "SET NOCOUNT ON",
+                  "SET XACT_ABORT OFF",
+                  "Command detection block (inserted/deleted → RI/RU/RD)",
+                  "BEGIN TRY / BEGIN CATCH",
+                  "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                  "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                  "IF XACT_STATE() = -1 rethrow pattern",
+                  "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                ],
+                "failed": [],
+                "missing": []
+              },
+              "forbidden_patterns": {
+                "found": [],
+                "clean": true
+              },
+              "violations": []
+            },
+            "review": {
+              "id": "011-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          },
+          {
+            "artifact_id": "014-review.json",
+            "workflow_id": "W3",
+            "canonical_name": "review.json",
+            "current": true,
+            "output": {
+              "verdict": "FAIL",
+              "command_detection": {
+                "correct": true,
+                "expected": "RU",
+                "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+              },
+              "structure_checklist": {
+                "passed": [
+                  "SET NOCOUNT ON",
+                  "SET XACT_ABORT OFF",
+                  "Command detection block (inserted/deleted → RI/RU/RD)",
+                  "BEGIN TRY / BEGIN CATCH",
+                  "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                  "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                  "IF XACT_STATE() = -1 rethrow pattern",
+                  "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                ],
+                "failed": [],
+                "missing": []
+              },
+              "forbidden_patterns": {
+                "found": [],
+                "clean": true
+              },
+              "violations": [
+                {
+                  "id": "V1",
+                  "severity": "critical",
+                  "detail": "Trigger targets BatchCampaign but approved requirements specify VendorContact.",
+                  "fix": "Retarget the trigger and prep table literal to VendorContact."
+                }
+              ]
+            },
+            "review": null
+          }
+        ],
+        "required_reviews": [
+          "014-review.json"
+        ],
+        "current_artifact_ids": {
+          "requirements.json": "002-requirements.json",
+          "trigger.sql": "006-trigger.sql",
+          "review.json": "014-review.json"
+        },
+        "challenges": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql"
+          }
+        ],
+        "challenge_history": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "target_workflow_id": "W2",
+            "origin": "adversarial"
+          }
+        ],
+        "pending_challenge_obligations": [
+          {
+            "id": "challenge:012-adversarial.json",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "target_workflow_id": "W2",
+            "required_workflow": "W3",
+            "status": "pending_review",
+            "response_artifact_id": "014-review.json",
+            "challenges": [
+              {
+                "id": "A1",
+                "severity": "critical",
+                "type": "requirement_mismatch",
+                "label": "Generated trigger targets the wrong table",
+                "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                "artifact": "006-trigger.sql"
+              }
+            ]
+          }
+        ],
+        "last_results": [
+          {
+            "request_id": "request-014",
+            "tool": "launch_trigger_review",
+            "result": {
+              "ok": true,
+              "artifact_id": "014-review.json",
+              "output": {
+                "verdict": "FAIL",
+                "command_detection": {
+                  "correct": true,
+                  "expected": "RU",
+                  "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+                },
+                "structure_checklist": {
+                  "passed": [
+                    "SET NOCOUNT ON",
+                    "SET XACT_ABORT OFF",
+                    "Command detection block (inserted/deleted → RI/RU/RD)",
+                    "BEGIN TRY / BEGIN CATCH",
+                    "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                    "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                    "IF XACT_STATE() = -1 rethrow pattern",
+                    "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                  ],
+                  "failed": [],
+                  "missing": []
+                },
+                "forbidden_patterns": {
+                  "found": [],
+                  "clean": true
+                },
+                "violations": [
+                  {
+                    "id": "V1",
+                    "severity": "critical",
+                    "detail": "Trigger targets BatchCampaign but approved requirements specify VendorContact.",
+                    "fix": "Retarget the trigger and prep table literal to VendorContact."
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "remediations_used": 0,
+        "max_remediations": 2,
+        "human_checkpoints": {
+          "substance": "not_approved",
+          "deployment": "not_approved"
+        }
+      },
+      "expected": {
+        "name": "launch_adversarial_reviewer",
+        "target_step": "W5",
+        "artifact_id": "014-review.json",
+        "concepts": [
+          [
+            "independent",
+            "adversarial",
+            "review"
+          ],
+          [
+            "014-review.json",
+            "examiner"
+          ]
+        ]
+      },
+      "prompt_source": "coordinator/prompt/Prompt.md",
+      "declared_tools": [
+        {
+          "name": "launch_spec_parser",
+          "description": "Dispatch W1 spec parser: migration brief → requirements.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W1"
+                ]
+              },
+              "brief_ref": {
+                "type": "string"
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_codegen",
+          "description": "Dispatch W2 trigger codegen: requirements.json → trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W2"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_review",
+          "description": "Dispatch W3 trigger review: trigger.sql → review.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W3"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_remediator",
+          "description": "Dispatch W4 remediator: review.json + trigger.sql → revised trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W4"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_adversarial_reviewer",
+          "description": "Dispatch W5 in a fresh context to challenge one immutable W1/W2/W3/W4/W6 output against its source artifacts",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W5"
+                ]
+              },
+              "artifact_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "target_step",
+              "artifact_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_delivery_report_writer",
+          "description": "Dispatch W6 delivery report body synthesis (headings assembled by harness)",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "terminal_outcome": {
+                "type": "string",
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ],
+                "description": "Defaults to PASS. Explicit FAIL synthesizes reviewed unresolved findings without granting deployment approval."
+              },
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W6"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        }
+      ],
+      "prompt_sha256": "174f23ba6f9a2285cefc4a935778fe107bdf8985b036187bcb7ffa8cf9fdec04",
+      "packet": "packets/case-02.md",
+      "packet_sha256": "fe211a9bbee949f52edeaf4074766d15e0050052dfe1de7c00d49f1eae4bd286"
+    },
+    {
+      "id": "no-terminal-shortcut-around-examiner",
+      "workflow": "Coordinator",
+      "input": {
+        "brief": "Generate an IUD trigger on PurinaNA.VendorContact with composite key vendor_id and contact_seq.",
+        "brief_ref": "brief.md",
+        "artifacts": [
+          {
+            "artifact_id": "002-requirements.json",
+            "workflow_id": "W1",
+            "canonical_name": "requirements.json",
+            "current": true,
+            "output": {
+              "table": "VendorContact",
+              "schema": "PurinaNA",
+              "pk": [
+                "vendor_id",
+                "contact_seq"
+              ],
+              "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+            },
+            "review": {
+              "id": "004-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          },
+          {
+            "artifact_id": "006-trigger.sql",
+            "workflow_id": "W2",
+            "canonical_name": "trigger.sql",
+            "current": true,
+            "output": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+            "review": {
+              "id": "012-adversarial.json",
+              "output": {
+                "challenge": "OVERTURNED",
+                "original_verdict": "PASS",
+                "recommended_verdict": "FAIL",
+                "findings": [
+                  {
+                    "id": "A1",
+                    "severity": "critical",
+                    "type": "requirement_mismatch",
+                    "label": "Generated trigger targets the wrong table",
+                    "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                    "artifact": "006-trigger.sql"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "artifact_id": "010-review.json",
+            "workflow_id": "W3",
+            "canonical_name": "review.json",
+            "current": true,
+            "output": {
+              "verdict": "PASS",
+              "command_detection": {
+                "correct": true,
+                "expected": "RU",
+                "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+              },
+              "structure_checklist": {
+                "passed": [
+                  "SET NOCOUNT ON",
+                  "SET XACT_ABORT OFF",
+                  "Command detection block (inserted/deleted → RI/RU/RD)",
+                  "BEGIN TRY / BEGIN CATCH",
+                  "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                  "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                  "IF XACT_STATE() = -1 rethrow pattern",
+                  "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                ],
+                "failed": [],
+                "missing": []
+              },
+              "forbidden_patterns": {
+                "found": [],
+                "clean": true
+              },
+              "violations": []
+            },
+            "review": {
+              "id": "011-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          }
+        ],
+        "required_reviews": [],
+        "current_artifact_ids": {
+          "requirements.json": "002-requirements.json",
+          "trigger.sql": "006-trigger.sql",
+          "review.json": "010-review.json"
+        },
+        "challenges": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql"
+          }
+        ],
+        "challenge_history": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "target_workflow_id": "W2",
+            "origin": "adversarial"
+          }
+        ],
+        "pending_challenge_obligations": [
+          {
+            "id": "challenge:012-adversarial.json",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "target_workflow_id": "W2",
+            "required_workflow": "W3",
+            "status": "pending_response",
+            "response_artifact_id": null,
+            "challenges": [
+              {
+                "id": "A1",
+                "severity": "critical",
+                "type": "requirement_mismatch",
+                "label": "Generated trigger targets the wrong table",
+                "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                "artifact": "006-trigger.sql"
+              }
+            ]
+          }
+        ],
+        "last_results": [
+          {
+            "request_id": "request-012",
+            "tool": "launch_adversarial_reviewer",
+            "result": {
+              "ok": true,
+              "artifact_id": "012-adversarial.json",
+              "output": {
+                "challenge": "OVERTURNED",
+                "original_verdict": "PASS",
+                "recommended_verdict": "FAIL",
+                "findings": [
+                  {
+                    "id": "A1",
+                    "severity": "critical",
+                    "type": "requirement_mismatch",
+                    "label": "Generated trigger targets the wrong table",
+                    "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                    "artifact": "006-trigger.sql"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "request_id": "request-013",
+            "tool": "launch_delivery_report_writer",
+            "result": {
+              "ok": false,
+              "code": "VALIDATION_ERROR",
+              "guardrail": "PREREQUISITE",
+              "findings": [
+                "Unresolved critical challenge requires targeted W3 and independent re-review before terminal FAIL."
+              ]
+            }
+          }
+        ],
+        "remediations_used": 2,
+        "max_remediations": 2,
+        "human_checkpoints": {
+          "substance": "not_approved",
+          "deployment": "not_approved"
+        },
+        "coordinator_dispositions": [
+          {
+            "name": "launch_delivery_report_writer",
+            "arguments": {
+              "target_step": "W6",
+              "terminal_outcome": "FAIL"
+            },
+            "disposition": "Earlier proposed shortcut: terminate because the remediation budget is exhausted."
+          }
+        ]
+      },
+      "expected": {
+        "name": "launch_trigger_review",
+        "target_step": "W3",
+        "artifact_focus": "006-trigger.sql",
+        "required_challenges": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql"
+          }
+        ],
+        "concepts": [
+          [
+            "challenge",
+            "obligation",
+            "examiner"
+          ],
+          [
+            "before",
+            "pending",
+            "must",
+            "required"
+          ]
+        ]
+      },
+      "prompt_source": "coordinator/prompt/Prompt.md",
+      "declared_tools": [
+        {
+          "name": "launch_spec_parser",
+          "description": "Dispatch W1 spec parser: migration brief → requirements.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W1"
+                ]
+              },
+              "brief_ref": {
+                "type": "string"
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_codegen",
+          "description": "Dispatch W2 trigger codegen: requirements.json → trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W2"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_review",
+          "description": "Dispatch W3 trigger review: trigger.sql → review.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W3"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_remediator",
+          "description": "Dispatch W4 remediator: review.json + trigger.sql → revised trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W4"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_adversarial_reviewer",
+          "description": "Dispatch W5 in a fresh context to challenge one immutable W1/W2/W3/W4/W6 output against its source artifacts",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W5"
+                ]
+              },
+              "artifact_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "target_step",
+              "artifact_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_delivery_report_writer",
+          "description": "Dispatch W6 delivery report body synthesis (headings assembled by harness)",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "terminal_outcome": {
+                "type": "string",
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ],
+                "description": "Defaults to PASS. Explicit FAIL synthesizes reviewed unresolved findings without granting deployment approval."
+              },
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W6"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        }
+      ],
+      "prompt_sha256": "174f23ba6f9a2285cefc4a935778fe107bdf8985b036187bcb7ffa8cf9fdec04",
+      "packet": "packets/case-03.md",
+      "packet_sha256": "ad272e9416ad639db08ea81dc63f67ce26f5a30f9057b4ab903c95944b239984"
+    },
+    {
+      "id": "reviewed-failure-terminal-report",
+      "workflow": "Coordinator",
+      "input": {
+        "brief": "Generate an IUD trigger on PurinaNA.VendorContact with composite key vendor_id and contact_seq.",
+        "brief_ref": "brief.md",
+        "artifacts": [
+          {
+            "artifact_id": "002-requirements.json",
+            "workflow_id": "W1",
+            "canonical_name": "requirements.json",
+            "current": true,
+            "output": {
+              "table": "VendorContact",
+              "schema": "PurinaNA",
+              "pk": [
+                "vendor_id",
+                "contact_seq"
+              ],
+              "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+            },
+            "review": {
+              "id": "004-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          },
+          {
+            "artifact_id": "006-trigger.sql",
+            "workflow_id": "W2",
+            "canonical_name": "trigger.sql",
+            "current": true,
+            "output": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+            "review": {
+              "id": "012-adversarial.json",
+              "output": {
+                "challenge": "OVERTURNED",
+                "original_verdict": "PASS",
+                "recommended_verdict": "FAIL",
+                "findings": [
+                  {
+                    "id": "A1",
+                    "severity": "critical",
+                    "type": "requirement_mismatch",
+                    "label": "Generated trigger targets the wrong table",
+                    "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                    "artifact": "006-trigger.sql"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "artifact_id": "010-review.json",
+            "workflow_id": "W3",
+            "canonical_name": "review.json",
+            "current": false,
+            "output": {
+              "verdict": "PASS",
+              "command_detection": {
+                "correct": true,
+                "expected": "RU",
+                "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+              },
+              "structure_checklist": {
+                "passed": [
+                  "SET NOCOUNT ON",
+                  "SET XACT_ABORT OFF",
+                  "Command detection block (inserted/deleted → RI/RU/RD)",
+                  "BEGIN TRY / BEGIN CATCH",
+                  "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                  "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                  "IF XACT_STATE() = -1 rethrow pattern",
+                  "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                ],
+                "failed": [],
+                "missing": []
+              },
+              "forbidden_patterns": {
+                "found": [],
+                "clean": true
+              },
+              "violations": []
+            },
+            "review": {
+              "id": "011-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          },
+          {
+            "artifact_id": "014-review.json",
+            "workflow_id": "W3",
+            "canonical_name": "review.json",
+            "current": true,
+            "output": {
+              "verdict": "FAIL",
+              "command_detection": {
+                "correct": true,
+                "expected": "RU",
+                "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+              },
+              "structure_checklist": {
+                "passed": [
+                  "SET NOCOUNT ON",
+                  "SET XACT_ABORT OFF",
+                  "Command detection block (inserted/deleted → RI/RU/RD)",
+                  "BEGIN TRY / BEGIN CATCH",
+                  "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                  "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                  "IF XACT_STATE() = -1 rethrow pattern",
+                  "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                ],
+                "failed": [],
+                "missing": []
+              },
+              "forbidden_patterns": {
+                "found": [],
+                "clean": true
+              },
+              "violations": [
+                {
+                  "id": "V1",
+                  "severity": "critical",
+                  "detail": "Trigger targets BatchCampaign but approved requirements specify VendorContact.",
+                  "fix": "Retarget the trigger and prep table literal to VendorContact."
+                }
+              ]
+            },
+            "review": {
+              "id": "016-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "FAIL",
+                "recommended_verdict": "FAIL",
+                "findings": []
+              }
+            }
+          }
+        ],
+        "required_reviews": [],
+        "current_artifact_ids": {
+          "requirements.json": "002-requirements.json",
+          "trigger.sql": "006-trigger.sql",
+          "review.json": "014-review.json"
+        },
+        "challenges": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql"
+          }
+        ],
+        "challenge_history": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "target_workflow_id": "W2",
+            "origin": "adversarial"
+          }
+        ],
+        "pending_challenge_obligations": [],
+        "last_results": [
+          {
+            "request_id": "request-016",
+            "tool": "launch_adversarial_reviewer",
+            "result": {
+              "ok": true,
+              "artifact_id": "016-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "FAIL",
+                "recommended_verdict": "FAIL",
+                "findings": []
+              }
+            }
+          }
+        ],
+        "remediations_used": 2,
+        "max_remediations": 2,
+        "human_checkpoints": {
+          "substance": "not_approved",
+          "deployment": "not_approved"
+        },
+        "challenge_obligation_history": [
+          {
+            "id": "challenge:012-adversarial.json",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "target_workflow_id": "W2",
+            "required_workflow": "W3",
+            "status": "satisfied",
+            "response_artifact_id": "014-review.json",
+            "challenges": [
+              {
+                "id": "A1",
+                "severity": "critical",
+                "type": "requirement_mismatch",
+                "label": "Generated trigger targets the wrong table",
+                "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                "artifact": "006-trigger.sql"
+              }
+            ],
+            "independent_review_id": "016-adversarial.json"
+          }
+        ],
+        "available_budget": {
+          "inference_requests_remaining": 4,
+          "remediation_attempts_remaining": 0
+        },
+        "terminal_context": "The critical challenge was examined by W3 and independently re-reviewed by W5. All accepted outputs have reviews. The current supported wrong-table finding remains unresolved. The remediation budget is exhausted."
+      },
+      "expected": {
+        "name": "launch_delivery_report_writer",
+        "target_step": "W6",
+        "terminal_outcome": "FAIL",
+        "concepts": [
+          [
+            "fail"
+          ],
+          [
+            "exhaust",
+            "budget",
+            "unresolved"
+          ]
+        ]
+      },
+      "prompt_source": "coordinator/prompt/Prompt.md",
+      "declared_tools": [
+        {
+          "name": "launch_spec_parser",
+          "description": "Dispatch W1 spec parser: migration brief → requirements.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W1"
+                ]
+              },
+              "brief_ref": {
+                "type": "string"
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_codegen",
+          "description": "Dispatch W2 trigger codegen: requirements.json → trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W2"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_review",
+          "description": "Dispatch W3 trigger review: trigger.sql → review.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W3"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_remediator",
+          "description": "Dispatch W4 remediator: review.json + trigger.sql → revised trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W4"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_adversarial_reviewer",
+          "description": "Dispatch W5 in a fresh context to challenge one immutable W1/W2/W3/W4/W6 output against its source artifacts",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W5"
+                ]
+              },
+              "artifact_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "target_step",
+              "artifact_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_delivery_report_writer",
+          "description": "Dispatch W6 delivery report body synthesis (headings assembled by harness)",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "terminal_outcome": {
+                "type": "string",
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ],
+                "description": "Defaults to PASS. Explicit FAIL synthesizes reviewed unresolved findings without granting deployment approval."
+              },
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W6"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        }
+      ],
+      "prompt_sha256": "174f23ba6f9a2285cefc4a935778fe107bdf8985b036187bcb7ffa8cf9fdec04",
+      "packet": "packets/case-04.md",
+      "packet_sha256": "d3b7c18e64654b5fd970cb55feb866b3c24cf2950131f8b43ef05db4a976e42e"
+    },
+    {
+      "id": "terminal-fail-grounded-synthesis",
+      "workflow": "W6",
+      "input": {
+        "terminal_outcome": "FAIL",
+        "artifacts": [
+          {
+            "id": "002-requirements.json",
+            "workflow_id": "W1",
+            "verdict": "PASS",
+            "evidence_id": "E1",
+            "output": {
+              "table": "VendorContact",
+              "schema": "PurinaNA",
+              "pk": [
+                "vendor_id",
+                "contact_seq"
+              ],
+              "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+            },
+            "summary": "Approved requirements name VendorContact with both primary-key columns."
+          },
+          {
+            "id": "006-trigger.sql",
+            "workflow_id": "W2",
+            "verdict": "FAIL",
+            "evidence_id": "E2",
+            "output": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT OFF;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+            "summary": "Trigger still targets BatchCampaign; A1 remains open."
+          },
+          {
+            "id": "014-review.json",
+            "workflow_id": "W3",
+            "verdict": "FAIL",
+            "evidence_id": "E3",
+            "output": {
+              "verdict": "FAIL",
+              "command_detection": {
+                "correct": true,
+                "expected": "RU",
+                "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+              },
+              "structure_checklist": {
+                "passed": [
+                  "SET NOCOUNT ON",
+                  "SET XACT_ABORT OFF",
+                  "Command detection block (inserted/deleted → RI/RU/RD)",
+                  "BEGIN TRY / BEGIN CATCH",
+                  "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                  "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                  "IF XACT_STATE() = -1 rethrow pattern",
+                  "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                ],
+                "failed": [],
+                "missing": []
+              },
+              "forbidden_patterns": {
+                "found": [],
+                "clean": true
+              },
+              "violations": [
+                {
+                  "id": "V1",
+                  "severity": "critical",
+                  "detail": "Trigger targets BatchCampaign but approved requirements specify VendorContact.",
+                  "fix": "Retarget the trigger and prep table literal to VendorContact."
+                }
+              ]
+            },
+            "summary": "Targeted examiner confirms wrong-table finding V1 after considering A1."
+          },
+          {
+            "id": "016-adversarial.json",
+            "workflow_id": "W5",
+            "verdict": "FAIL",
+            "evidence_id": "E4",
+            "output": {
+              "challenge": "UPHELD",
+              "original_verdict": "FAIL",
+              "recommended_verdict": "FAIL",
+              "findings": []
+            },
+            "summary": "Independent reviewer upholds the examiner FAIL."
+          }
+        ],
+        "findings": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql",
+            "evidence_id": "E2",
+            "disposition": "OPEN",
+            "raised_by": "W5"
+          },
+          {
+            "id": "V1",
+            "severity": "critical",
+            "detail": "Trigger targets BatchCampaign but approved requirements specify VendorContact.",
+            "fix": "Retarget the trigger and prep table literal to VendorContact.",
+            "artifact": "014-review.json",
+            "evidence_id": "E3",
+            "disposition": "OPEN",
+            "raised_by": "W3"
+          }
+        ],
+        "coordinator_disposition": {
+          "status": "TERMINAL_FAIL",
+          "evidence_id": "D1",
+          "reason": "Targeted W3 examination and W5 re-review completed; the wrong-table failure remains unresolved and the remediation budget is exhausted. Stop with a failed examination."
+        },
+        "human_gate": {
+          "status": "NOT_AUTHORIZED",
+          "evidence_id": "G1",
+          "reason": "Human approval cannot promote this failed examination to PASS."
+        },
+        "substance_gate": {
+          "status": "PENDING",
+          "evidence_id": "G2",
+          "reason": "Two peripheral workflows require a recorded Continue/Reject decision; no decision exists."
+        }
+      },
+      "prompt_source": "agents/delivery-report/prompt/Prompt.md",
+      "expected": {
+        "artifact_ids": [
+          "002-requirements.json",
+          "006-trigger.sql",
+          "014-review.json",
+          "016-adversarial.json"
+        ],
+        "evidence_ids": [
+          "E1",
+          "E2",
+          "E3",
+          "E4",
+          "A1",
+          "V1",
+          "D1",
+          "G1",
+          "G2"
+        ],
+        "concepts": [
+          [
+            "VendorContact"
+          ],
+          [
+            "BatchCampaign"
+          ],
+          [
+            "open",
+            "unresolved"
+          ],
+          [
+            "fail"
+          ],
+          [
+            "exhaust",
+            "budget"
+          ],
+          [
+            "not authorized",
+            "unauthorized",
+            "cannot"
+          ],
+          [
+            "pending",
+            "await"
+          ]
+        ],
+        "forbidden": [
+          "deployed successfully",
+          "deployment is authorized",
+          "all findings resolved",
+          "SQL injection"
+        ]
+      },
+      "prompt_sha256": "5a7c12c64e8d370e3ae5c8eaa4de791e34d6fcb7f4e117ecf6162cbbd50da811",
+      "packet": "packets/case-05.md",
+      "packet_sha256": "5d9e71adbacd1f2a43c1f76756218e2ac2db77f3c230b053d961876e7ffb3ae9"
+    },
+    {
+      "id": "upheld-fail-new-finding-needs-examiner",
+      "workflow": "Coordinator",
+      "input": {
+        "brief": "Generate an IUD trigger on PurinaNA.VendorContact with composite key vendor_id and contact_seq.",
+        "brief_ref": "brief.md",
+        "artifacts": [
+          {
+            "artifact_id": "002-requirements.json",
+            "workflow_id": "W1",
+            "canonical_name": "requirements.json",
+            "current": true,
+            "output": {
+              "table": "VendorContact",
+              "schema": "PurinaNA",
+              "pk": [
+                "vendor_id",
+                "contact_seq"
+              ],
+              "trigger_type": "AFTER INSERT, UPDATE, DELETE"
+            },
+            "review": {
+              "id": "004-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          },
+          {
+            "artifact_id": "006-trigger.sql",
+            "workflow_id": "W2",
+            "canonical_name": "trigger.sql",
+            "current": true,
+            "output": "CREATE OR ALTER TRIGGER [PurinaNA].[BatchCampaign_DownstreamMigration]\nON [PurinaNA].[BatchCampaign]\nAFTER INSERT, UPDATE, DELETE\nAS\nBEGIN\n    SET NOCOUNT ON;\n    SET XACT_ABORT ON;\n    DECLARE @Command VARCHAR(2);\n    IF EXISTS (SELECT 1 FROM inserted) AND EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RU';\n    ELSE IF EXISTS (SELECT 1 FROM inserted)\n        SET @Command = 'RI';\n    ELSE IF EXISTS (SELECT 1 FROM deleted)\n        SET @Command = 'RD';\n    ELSE RETURN;\n    BEGIN TRY\n        DECLARE @Schema SYSNAME = N'PurinaNA';\n        DECLARE @Table SYSNAME = N'BatchCampaign';\n        DECLARE @Sql NVARCHAR(MAX);\n        EXEC [PurinaNA].[ToGpmq_EnqueueRecordByTriggerPrep]\n            @Schema = @Schema, @TableName = @Table, @Command = @Command, @Sql = @Sql OUTPUT;\n        EXEC sp_executesql @Sql, N'@TableName SYSNAME, @Command VARCHAR(2)',\n            @TableName = @Table, @Command = @Command;\n    END TRY\n    BEGIN CATCH\n        DECLARE @ErrNum INT = ERROR_NUMBER();\n        DECLARE @ErrMsg NVARCHAR(4000) = ERROR_MESSAGE();\n        DECLARE @ErrLine INT = ERROR_LINE();\n        DECLARE @ErrProc NVARCHAR(200) = ERROR_PROCEDURE();\n        EXEC [PurinaNA].[ToGpmq_LogTriggerError]\n            @TriggerName = N'BatchCampaign_DownstreamMigration', @Command = @Command,\n            @ErrNum = @ErrNum, @ErrMsg = @ErrMsg, @ErrLine = @ErrLine, @ErrProc = @ErrProc;\n        IF XACT_STATE() = -1 THROW;\n    END CATCH\nEND\n",
+            "review": {
+              "id": "012-adversarial.json",
+              "output": {
+                "challenge": "OVERTURNED",
+                "original_verdict": "PASS",
+                "recommended_verdict": "FAIL",
+                "findings": [
+                  {
+                    "id": "A1",
+                    "severity": "critical",
+                    "type": "requirement_mismatch",
+                    "label": "Generated trigger targets the wrong table",
+                    "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+                    "artifact": "006-trigger.sql"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "artifact_id": "010-review.json",
+            "workflow_id": "W3",
+            "canonical_name": "review.json",
+            "current": false,
+            "output": {
+              "verdict": "PASS",
+              "command_detection": {
+                "correct": true,
+                "expected": "RU",
+                "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+              },
+              "structure_checklist": {
+                "passed": [
+                  "SET NOCOUNT ON",
+                  "SET XACT_ABORT OFF",
+                  "Command detection block (inserted/deleted → RI/RU/RD)",
+                  "BEGIN TRY / BEGIN CATCH",
+                  "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                  "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                  "IF XACT_STATE() = -1 rethrow pattern",
+                  "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                ],
+                "failed": [],
+                "missing": []
+              },
+              "forbidden_patterns": {
+                "found": [],
+                "clean": true
+              },
+              "violations": []
+            },
+            "review": {
+              "id": "011-adversarial.json",
+              "output": {
+                "challenge": "UPHELD",
+                "original_verdict": "PASS",
+                "recommended_verdict": "PASS",
+                "findings": []
+              }
+            }
+          },
+          {
+            "artifact_id": "014-review.json",
+            "workflow_id": "W3",
+            "canonical_name": "review.json",
+            "current": true,
+            "output": {
+              "verdict": "FAIL",
+              "command_detection": {
+                "correct": true,
+                "expected": "RU",
+                "notes": "Standard inserted/deleted IF EXISTS chain assigns RU when both have rows, RI on insert-only, RD on delete-only; matches full IUD trigger semantics."
+              },
+              "structure_checklist": {
+                "passed": [
+                  "SET NOCOUNT ON",
+                  "SET XACT_ABORT OFF",
+                  "Command detection block (inserted/deleted → RI/RU/RD)",
+                  "BEGIN TRY / BEGIN CATCH",
+                  "ToGpmq_LogTriggerError OR inline NAF.BaseLog insert in CATCH",
+                  "@Source = N'Trigger' OR source = N'Trigger' in queue insert",
+                  "IF XACT_STATE() = -1 rethrow pattern",
+                  "Dynamic column discovery (no hard-coded business column names like scm_id, cm_id in static SELECT lists)"
+                ],
+                "failed": [],
+                "missing": []
+              },
+              "forbidden_patterns": {
+                "found": [],
+                "clean": true
+              },
+              "violations": [
+                {
+                  "id": "V1",
+                  "severity": "critical",
+                  "detail": "Trigger targets BatchCampaign but approved requirements specify VendorContact.",
+                  "fix": "Retarget the trigger and prep table literal to VendorContact."
+                }
+              ]
+            },
+            "review": {
+              "id": "016-adversarial.json",
+              "output": {
+                "artifact_id": "014-review.json",
+                "workflow_id": "W3",
+                "challenge": "UPHELD",
+                "original_verdict": "FAIL",
+                "recommended_verdict": "FAIL",
+                "confidence": "high",
+                "findings": [
+                  {
+                    "id": "A1",
+                    "severity": "critical",
+                    "type": "checklist_gap",
+                    "label": "SET XACT_ABORT OFF incorrectly marked passed",
+                    "evidence": "006-trigger.sql contains SET XACT_ABORT ON; 014-review.json lists SET XACT_ABORT OFF under structure_checklist.passed.",
+                    "artifact": "014-review.json"
+                  }
+                ],
+                "notes": "The wrong-table violation correctly keeps the examination at FAIL, but the examiner must also correct the XACT_ABORT checklist and add its missing violation."
+              }
+            }
+          }
+        ],
+        "required_reviews": [],
+        "current_artifact_ids": {
+          "requirements.json": "002-requirements.json",
+          "trigger.sql": "006-trigger.sql",
+          "review.json": "014-review.json"
+        },
+        "challenges": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "checklist_gap",
+            "label": "SET XACT_ABORT OFF incorrectly marked passed",
+            "evidence": "006-trigger.sql contains SET XACT_ABORT ON; 014-review.json lists SET XACT_ABORT OFF under structure_checklist.passed.",
+            "artifact": "014-review.json"
+          }
+        ],
+        "challenge_history": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "requirement_mismatch",
+            "label": "Generated trigger targets the wrong table",
+            "evidence": "006-trigger.sql: ON [PurinaNA].[BatchCampaign]; 002-requirements.json requires table VendorContact.",
+            "artifact": "006-trigger.sql",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "target_workflow_id": "W2",
+            "origin": "adversarial"
+          },
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "checklist_gap",
+            "label": "SET XACT_ABORT OFF incorrectly marked passed",
+            "evidence": "006-trigger.sql contains SET XACT_ABORT ON; 014-review.json lists SET XACT_ABORT OFF under structure_checklist.passed.",
+            "artifact": "014-review.json",
+            "review_id": "016-adversarial.json",
+            "target_artifact_id": "014-review.json",
+            "target_workflow_id": "W3",
+            "origin": "adversarial"
+          }
+        ],
+        "pending_challenge_obligations": [
+          {
+            "id": "challenge:016-adversarial.json",
+            "review_id": "016-adversarial.json",
+            "target_artifact_id": "014-review.json",
+            "target_workflow_id": "W3",
+            "required_workflow": "W3",
+            "status": "pending_response",
+            "response_artifact_id": null,
+            "challenges": [
+              {
+                "id": "A1",
+                "severity": "critical",
+                "type": "checklist_gap",
+                "label": "SET XACT_ABORT OFF incorrectly marked passed",
+                "evidence": "006-trigger.sql contains SET XACT_ABORT ON; 014-review.json lists SET XACT_ABORT OFF under structure_checklist.passed.",
+                "artifact": "014-review.json"
+              }
+            ]
+          }
+        ],
+        "last_results": [
+          {
+            "request_id": "request-016",
+            "tool": "launch_adversarial_reviewer",
+            "result": {
+              "ok": true,
+              "artifact_id": "016-adversarial.json",
+              "output": {
+                "artifact_id": "014-review.json",
+                "workflow_id": "W3",
+                "challenge": "UPHELD",
+                "original_verdict": "FAIL",
+                "recommended_verdict": "FAIL",
+                "confidence": "high",
+                "findings": [
+                  {
+                    "id": "A1",
+                    "severity": "critical",
+                    "type": "checklist_gap",
+                    "label": "SET XACT_ABORT OFF incorrectly marked passed",
+                    "evidence": "006-trigger.sql contains SET XACT_ABORT ON; 014-review.json lists SET XACT_ABORT OFF under structure_checklist.passed.",
+                    "artifact": "014-review.json"
+                  }
+                ],
+                "notes": "The wrong-table violation correctly keeps the examination at FAIL, but the examiner must also correct the XACT_ABORT checklist and add its missing violation."
+              }
+            }
+          }
+        ],
+        "remediations_used": 2,
+        "max_remediations": 2,
+        "human_checkpoints": {
+          "substance": "not_approved",
+          "deployment": "not_approved"
+        },
+        "challenge_obligation_history": [
+          {
+            "id": "challenge:012-adversarial.json",
+            "review_id": "012-adversarial.json",
+            "target_artifact_id": "006-trigger.sql",
+            "required_workflow": "W3",
+            "status": "satisfied",
+            "response_artifact_id": "014-review.json",
+            "independent_review_id": "016-adversarial.json"
+          }
+        ],
+        "terminal_context": "The earlier wrong-table challenge was examined and independently reviewed. The independent reviewer upheld FAIL but raised an additional material A1 checklist error. That new criticism has not yet received its required targeted examiner response and independent re-review. No human decision is recorded."
+      },
+      "expected": {
+        "name": "launch_trigger_review",
+        "target_step": "W3",
+        "artifact_focus": "014-review.json",
+        "optional_challenges": [
+          {
+            "id": "A1",
+            "severity": "critical",
+            "type": "checklist_gap",
+            "label": "SET XACT_ABORT OFF incorrectly marked passed",
+            "evidence": "006-trigger.sql contains SET XACT_ABORT ON; 014-review.json lists SET XACT_ABORT OFF under structure_checklist.passed.",
+            "artifact": "014-review.json"
+          }
+        ],
+        "concepts": [
+          [
+            "A1",
+            "finding",
+            "checklist"
+          ],
+          [
+            "examin",
+            "review"
+          ]
+        ]
+      },
+      "prompt_source": "coordinator/prompt/Prompt.md",
+      "prompt_sha256": "2481de7b25ec8da9e8f08b3127cfcd2aa211831588e0f8ad64b88c2b51cee128",
+      "source_manifest": {
+        "coordinator_prompt_sha256": "cc4826727e22e51d8e3b449c0d09b9ff0d389cbcfb3b8c9925140d3f324a4069",
+        "W6_prompt_sha256": "efd3cdbd323470a0a1c2e096ca358792d43f05e5bba540840dc4f5055f6308bc",
+        "coordinator_schema_sha256": "42d306d17947d25bfcc30e49e3e42e5f101cafaa1dac19569b0aba8968d8d394",
+        "governedHarness_sha256": "947d71b1c19bab3d29ff82f7617986248db57dc15ed74c8533334d6dd0c4e401",
+        "hash_normalization": "Exact source file bytes; individual prompt_sha256 values identify LF-normalized packet text."
+      },
+      "declared_tools": [
+        {
+          "name": "launch_spec_parser",
+          "description": "Dispatch W1 spec parser: migration brief → requirements.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W1"
+                ]
+              },
+              "brief_ref": {
+                "type": "string"
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_codegen",
+          "description": "Dispatch W2 trigger codegen: requirements.json → trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W2"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_trigger_review",
+          "description": "Dispatch W3 trigger review: trigger.sql → review.json",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W3"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_remediator",
+          "description": "Dispatch W4 remediator: review.json + trigger.sql → revised trigger.sql",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W4"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_adversarial_reviewer",
+          "description": "Dispatch W5 in a fresh context to challenge one immutable W1/W2/W3/W4/W6 output against its source artifacts",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W5"
+                ]
+              },
+              "artifact_id": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "target_step",
+              "artifact_id"
+            ],
+            "additionalProperties": false
+          }
+        },
+        {
+          "name": "launch_delivery_report_writer",
+          "description": "Dispatch W6 delivery report body synthesis (headings assembled by harness)",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "terminal_outcome": {
+                "type": "string",
+                "enum": [
+                  "PASS",
+                  "FAIL"
+                ],
+                "description": "Defaults to PASS. Explicit FAIL synthesizes reviewed unresolved findings without granting deployment approval."
+              },
+              "target_step": {
+                "type": "string",
+                "enum": [
+                  "W6"
+                ]
+              },
+              "challenges": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "artifact_focus": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "target_step"
+            ],
+            "additionalProperties": false
+          }
+        }
+      ],
+      "packet": "packets/case-06.md",
+      "packet_sha256": "481b03b10ad0339e138189d4672c13f5711fcbd67f606d2b44721e4064bd6549"
+    }
+  ],
+  "source_manifests": [
+    {
+      "coordinator_prompt_sha256": "ac4fb2a6287c7d8437164c419bbdb7e1f65a16228b1e8a8567d843eaf09b8088",
+      "W6_prompt_sha256": "efd3cdbd323470a0a1c2e096ca358792d43f05e5bba540840dc4f5055f6308bc",
+      "coordinator_schema_sha256": "42d306d17947d25bfcc30e49e3e42e5f101cafaa1dac19569b0aba8968d8d394",
+      "governedHarness_sha256": "94e7d570d4e53c8ada7ea7027ddad24ff9af6df8ce3118fdd7845ff9f53e384b",
+      "hash_normalization": "Exact source file bytes; individual prompt_sha256 values identify LF-normalized packet text."
+    },
+    {
+      "coordinator_prompt_sha256": "cc4826727e22e51d8e3b449c0d09b9ff0d389cbcfb3b8c9925140d3f324a4069",
+      "W6_prompt_sha256": "efd3cdbd323470a0a1c2e096ca358792d43f05e5bba540840dc4f5055f6308bc",
+      "coordinator_schema_sha256": "42d306d17947d25bfcc30e49e3e42e5f101cafaa1dac19569b0aba8968d8d394",
+      "governedHarness_sha256": "947d71b1c19bab3d29ff82f7617986248db57dc15ed74c8533334d6dd0c4e401",
+      "hash_normalization": "Exact source file bytes; individual prompt_sha256 values identify LF-normalized packet text."
+    }
+  ],
+  "final_source_manifest": {
+    "coordinator_prompt_sha256": "cc4826727e22e51d8e3b449c0d09b9ff0d389cbcfb3b8c9925140d3f324a4069",
+    "W6_prompt_sha256": "efd3cdbd323470a0a1c2e096ca358792d43f05e5bba540840dc4f5055f6308bc",
+    "coordinator_schema_sha256": "42d306d17947d25bfcc30e49e3e42e5f101cafaa1dac19569b0aba8968d8d394",
+    "governedHarness_sha256": "947d71b1c19bab3d29ff82f7617986248db57dc15ed74c8533334d6dd0c4e401",
+    "hash_normalization": "Exact source file bytes; individual prompt_sha256 values identify LF-normalized packet text."
+  },
+  "version_note": "Cases 1-5 retain their original frozen prompt/source manifest and unchanged outputs. Case 6 measures the additional current policy for material findings in an UPHELD FAIL review. W6 prompt and tool schema did not change between versions."
+}

@@ -22,4 +22,10 @@ The packaged replay needs only Node.js. `historical/test-contexts.json` contains
 
 Native inference is invoked only inside `evaluations/`, the certification's explicit CLI exemption. The application runtime itself accepts callbacks or JSONL responses and never invokes a CLI. The native host's billed USD is not exposed; records retain that fact and a separately labelled Standard credit-equivalent estimate derived from measured tokens. Current terminal-FAIL handling and frozen session-source binding were added after the archived run and are covered by explicit regression tests; the archived run is not misrepresented as exercising that later extension.
 
+## Direct requirements recheck
+
+The later clause-by-clause recheck found that original challenges could be lost after repair and that terminal FAIL could bypass required examiner re-invocation. `stage5/recheck/` adds six source-bound native measurements for targeted examination, independent re-review, prevention of terminal shortcuts, permitted terminal FAIL, grounded FAIL synthesis, and added criticism that preserves an existing FAIL verdict. The revised harness carries the original findings and immutable target until both the response and its independent review exist.
+
+The earlier 22 cases remain intact as a measured baseline. In particular, the old isolated W4-first coordinator decision was not evidence of a complete examination/re-review cycle; the added measurements and current runtime cycle tests establish that behavior. Five new calls measured the initial correction, and a sixth measured its later extension to added findings without a verdict change. Versioned source manifests retain that distinction. `npm run eval:stage5` replays both suites, and readiness requires the new evidence rather than accepting the old baseline alone.
+
 Original Stage 5 scorer source is retained under `historical/original-scorers/` for inspection. Its original relative paths assumed the development checkout; use `replay-historical.js` for the self-contained packaged replay.

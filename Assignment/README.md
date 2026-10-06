@@ -24,6 +24,8 @@ Each coordinator request exposes exactly six purpose-built launch tools. The mod
 
 Worker output passes deterministic validation before becoming coordinator context. Invalid output is retained in the audit, while the coordinator receives a structured error. Accepted versions are immutable; a revision invalidates dependent reviews. Every producing output, including W6 prose, requires an independent W5 review. The writer receives the complete moderated evidence and dispositions; the harness derives PASS/FAIL headings.
 
+Adversarial findings also create an outstanding response obligation, including additional findings that preserve an existing FAIL. SQL/examiner findings require targeted W3 re-examination with the original canonical challenge context and then independent W5 review of that response. W1/W6 findings require their own scoped producer and independent review. A repair cannot erase the original challenge, a historical examination cannot approve current revised SQL, and neither PASS nor terminal FAIL may bypass the required cycle.
+
 An inference adapter must honor the request's application tools and separate review context. It returns the exact output plus provider-reported model, measured input/output tokens, and cost provenance. The included evaluation adapter exercises this interface using fresh signed-in native sessions only under `evaluations/`, where the certification explicitly permits CLI inference. The broader evaluation host is not claimed as a production sandbox. Its archived event records establish whether any host tool was used.
 
 ## Evidence and telemetry
@@ -32,6 +34,7 @@ An inference adapter must honor the request's application tools and separate rev
 - `guardrails/` and `coordinator/evals/`: boundary, governance, scope, report and checkpoint regressions.
 - `evaluations/historical/`: original 34 S1–S4 outputs with archived assertions and documented provenance limits.
 - `evaluations/stage5/`: fresh W5, W6 and coordinator evaluations, exact packets/responses, independent semantic judgments, measured tokens and model identities, and replay scorers.
+- `evaluations/stage5/recheck/`: additional measured challenge/re-examination cycles and terminal FAIL synthesis. Its source manifests distinguish the original verdict-overturn fix from the later added-findings extension; the earlier results are not relabelled as executions of later code. The prior source copy was recovered after the calls and verified against the hashes recorded before inference, as its provenance file explains. Original packets and raw responses remain unchanged.
 - `evaluations/stage5/governed/`: native-model application trace and retained earlier integration failure. Raw responses are never manually corrected.
 - `repository/` and `package-integrity.json`: meaningful Git history and every packaged file's SHA-256.
 

@@ -47,6 +47,15 @@ async function reviewArtifact(session, target, output = upheld(target)) {
   return produce(session, 'W5', output, { artifact_id: target.id });
 }
 function latest(session) { return session.snapshot().artifacts.at(-1); }
+function xactFailReview() {
+  return { ...review, verdict: 'FAIL', structure_checklist: { passed: REVIEW_REQUIRED_ELEMENTS.filter((label) => label !== 'SET XACT_ABORT OFF'), failed: [], missing: ['SET XACT_ABORT OFF'] },
+    violations: [{ id: 'V1', severity: 'major', detail: 'SET XACT_ABORT OFF is absent.', fix: 'Add SET XACT_ABORT OFF.' }] };
+}
+function overturn(target, evidenceArtifact = target.id) {
+  return { ...upheld(target), challenge: 'OVERTURNED', recommended_verdict: 'FAIL', findings: [{
+    id: 'A1', type: 'missing_element', label: 'SET XACT_ABORT OFF', evidence: 'SET XACT_ABORT OFF is absent from the assigned immutable SQL.', artifact: evidenceArtifact,
+  }] };
+}
 
 test('governed coordinator receives only declared launch tools and cannot dispatch a real-work tool', async (t) => {
   const session = sessionFor(t);
@@ -192,11 +201,23 @@ test('explicit terminal FAIL is synthesized, independently reviewed, and cannot 
   }] });
   const rejectedPass = await choose(session, 'W6');
   assert.equal(rejectedPass.result.guardrail, 'PREREQUISITE');
+  const rejectedEarlyFail = await choose(session, 'W6', { terminal_outcome: 'FAIL' });
+  assert.match(rejectedEarlyFail.result.findings.join(' '), /targeted response and independent re-review/,
+    'UPHELD FAIL with additional evidenced criticism still requires examiner response');
+  const qualification = session.snapshot().challenge_obligations[0].challenges;
+  const responseToCriticism = await produce(session, 'W3', { ...failedReview,
+    command_detection: { ...failedReview.command_detection, notes: `${failedReview.command_detection.notes} The additional examiner qualification A1 has been considered; the supported XACT_ABORT failure remains.` },
+  }, { artifact_focus: examiner.id, challenges: qualification });
+  assert.deepEqual(responseToCriticism.request.context.challenges, qualification);
+  const correctedExaminer = latest(session);
+  assert.equal(session.snapshot().challenge_obligations[0].status, 'pending_review');
+  await reviewArtifact(session, correctedExaminer);
+  assert.equal(session.snapshot().challenge_obligations[0].status, 'resolved');
   const writer = await choose(session, 'W6', { terminal_outcome: 'FAIL' });
   assert.equal(writer.result.ok, true);
   assert.equal(writer.request.context.terminal_outcome, 'FAIL');
   assert.deepEqual(writer.request.context.required_finding_ids, ['V1', 'A1'], 'UPHELD FAIL may retain additional source-grounded criticism');
-  assert.deepEqual(writer.request.context.artifact_verdicts.filter((item) => item.verdict === 'FAIL').map((item) => item.artifact_id), [trigger.id, examiner.id]);
+  assert.deepEqual(writer.request.context.artifact_verdicts.filter((item) => item.verdict === 'FAIL').map((item) => item.artifact_id), [trigger.id, correctedExaminer.id]);
   const body = `Thank you for the examination of ${writer.request.context.current_artifact_ids.join(', ')}. Finding V1 remains open: SET XACT_ABORT OFF is absent. A1 preserves the independent reviewer's additional qualification without overturning the correct FAIL. The coordinator ended with FAIL after the configured repair budget was exhausted. Deployment is not authorized, and human substance review remains pending.`;
   const response = await session.submitResponse({ requestId: writer.request.requestId, output: body, usage });
   assert.equal(response.ok, true);
@@ -208,7 +229,7 @@ test('explicit terminal FAIL is synthesized, independently reviewed, and cannot 
   const reportPath = join(session.runDir, 'delivery-report.md');
   const report = readFileSync(reportPath, 'utf8');
   assert.match(report, new RegExp(`## FAIL — ${trigger.id.replace('.', '\\.')}`));
-  assert.match(report, new RegExp(`## FAIL — ${examiner.id.replace('.', '\\.')}`));
+  assert.match(report, new RegExp(`## FAIL — ${correctedExaminer.id.replace('.', '\\.')}`));
   assert.equal((report.match(/^## PASS/gm) ?? []).length, 1);
   const overridesPath = join(session.runDir, 'test-human-decisions.jsonl');
   recordSubstanceDecision({ overridesPath, correlationId: 'unit-governed', decision: 'Continue', reviewer: 'Unit test human', reportPath });
@@ -304,4 +325,120 @@ test('dispatch rejects malformed members of schema-declared challenge arrays', a
   }
   assert.deepEqual(session.snapshot().dispositions, []);
   assert.deepEqual(session.snapshot().artifacts, []);
+});
+
+test('a critical SQL challenge requires targeted examiner invocation and independent review before even terminal FAIL', async (t) => {
+  const session = sessionFor(t);
+  await produce(session, 'W1', requirements);
+  await reviewArtifact(session, latest(session));
+  const badSql = sql.replace('SET XACT_ABORT OFF;', '');
+  await produce(session, 'W2', badSql);
+  const challenged = latest(session);
+  const challenge = overturn(challenged);
+  await reviewArtifact(session, challenged, challenge);
+  const obligations = (await session.nextRequest()).context.pending_challenge_obligations;
+  assert.equal(obligations[0].required_workflow, 'W3');
+  assert.equal(obligations[0].status, 'pending_response');
+  const earlyReport = await choose(session, 'W6', { terminal_outcome: 'FAIL' });
+  assert.match(earlyReport.result.findings.join(' '), /targeted response and independent re-review/);
+  const unscopedExam = await choose(session, 'W3');
+  assert.match(unscopedExam.result.findings.join(' '), /artifact_focus/);
+  const inventedChallenge = await choose(session, 'W3', { artifact_focus: challenged.id,
+    challenges: [{ ...challenge.findings[0], evidence: 'Fabricated replacement evidence' }] });
+  assert.equal(inventedChallenge.result.guardrail, 'DISPATCH');
+  assert.match(inventedChallenge.result.findings.join(' '), /unchanged recorded findings/);
+  const examiner = await choose(session, 'W3', { artifact_focus: challenged.id, challenges: challenge.findings });
+  assert.equal(examiner.result.ok, true, 'W3 can examine challenged SQL without an UPHELD SQL review');
+  assert.equal(examiner.request.context.examined_artifact_id, challenged.id);
+  assert.equal(examiner.request.context.trigger_sql, badSql);
+  assert.deepEqual(examiner.request.context.challenges, challenge.findings);
+  assert.equal(examiner.request.context.challenge_context[0].target_artifact_id, challenged.id);
+  await session.submitResponse({ requestId: examiner.request.requestId, output: xactFailReview(), usage });
+  const response = latest(session);
+  assert.equal(session.snapshot().challenge_obligations[0].status, 'pending_review');
+  const premature = await choose(session, 'W6', { terminal_outcome: 'FAIL' });
+  assert.match(premature.result.findings.join(' '), /independent re-review/);
+  const reviewed = await reviewArtifact(session, response);
+  assert.equal(reviewed.request.context.addressed_challenges[0].target_artifact_id, challenged.id);
+  assert.equal(session.snapshot().challenge_obligations[0].status, 'resolved');
+  const writer = await choose(session, 'W6', { terminal_outcome: 'FAIL' });
+  assert.equal(writer.result.ok, true);
+  await session.submitResponse({ requestId: writer.request.requestId,
+    output: `Thank you. ${writer.request.context.current_artifact_ids.join(', ')} were examined. A1 and V1 retain the supported missing SET XACT_ABORT OFF finding after targeted examination and independent re-review. This FAIL is awaiting substance review and does not authorize deployment.`, usage });
+  await reviewArtifact(session, latest(session));
+  assert.equal(session.snapshot().terminal_outcome, 'FAIL');
+  assert.equal(session.snapshot().status, 'pending_human');
+});
+
+test('examiner challenges retain immutable context after repair and historical re-examination cannot approve revised SQL', async (t) => {
+  const session = sessionFor(t);
+  await produce(session, 'W1', requirements);
+  await reviewArtifact(session, latest(session));
+  const badSql = sql.replace('SET XACT_ABORT OFF;', '');
+  await produce(session, 'W2', badSql);
+  const originalSql = latest(session);
+  await reviewArtifact(session, originalSql);
+  await produce(session, 'W3', review);
+  const originalExaminer = latest(session);
+  const challenge = overturn(originalExaminer, originalSql.id);
+  await reviewArtifact(session, originalExaminer, challenge);
+  await produce(session, 'W4', sql, { artifact_focus: originalSql.id, challenges: challenge.findings });
+  const revisedSql = latest(session);
+  await reviewArtifact(session, revisedSql);
+  assert.equal(session.snapshot().current['review.json'], undefined);
+  const historical = await choose(session, 'W3', { artifact_focus: originalExaminer.id, challenges: challenge.findings });
+  assert.equal(historical.result.ok, true);
+  assert.equal(historical.request.context.examined_artifact_id, originalSql.id);
+  assert.equal(historical.request.context.trigger_sql, badSql);
+  assert.deepEqual(historical.request.context.challenges, challenge.findings, 'original findings survive producer invalidation and evidence-file focus differs from review target');
+  assert.equal(historical.request.context.prior_examinations[0].artifact_id, originalExaminer.id);
+  await session.submitResponse({ requestId: historical.request.requestId, output: xactFailReview(), usage });
+  const historicalResponse = latest(session);
+  assert.ok(historicalResponse.source_artifacts.includes(originalSql.id));
+  assert.equal(session.snapshot().current['review.json'], undefined, 'historical SQL review is never current approval');
+  const independent = await reviewArtifact(session, historicalResponse);
+  assert.ok(independent.request.context.allowed_files.includes(originalExaminer.id));
+  assert.deepEqual(independent.request.context.addressed_challenges[0].findings, challenge.findings);
+  assert.equal(session.snapshot().challenge_obligations[0].status, 'resolved');
+  const blocked = await choose(session, 'W6');
+  assert.match(blocked.result.findings.join(' '), /examiner/);
+  await produce(session, 'W3', review, { artifact_focus: revisedSql.id });
+  const currentExaminer = latest(session);
+  assert.equal(session.snapshot().current['review.json'], currentExaminer.id);
+  assert.ok(currentExaminer.source_artifacts.includes(revisedSql.id));
+  await reviewArtifact(session, currentExaminer);
+  assert.equal((await choose(session, 'W6')).result.ok, true);
+});
+
+test('W1 and W6 critical challenges require their own producer and independent review, preserving workflow scope', async (t) => {
+  const session = sessionFor(t);
+  await produce(session, 'W1', { ...requirements, table: 'WrongTable' });
+  const firstRequirements = latest(session);
+  const requirementsChallenge = { ...overturn(firstRequirements), findings: [{ id: 'A1', type: 'requirement_mismatch', label: 'table mismatch', evidence: 'The brief names BatchCampaign.', artifact: 'brief.md' }] };
+  await reviewArtifact(session, firstRequirements, requirementsChallenge);
+  assert.equal(session.snapshot().challenge_obligations[0].required_workflow, 'W1');
+  const corrected = await produce(session, 'W1', requirements, { artifact_focus: firstRequirements.id, challenges: requirementsChallenge.findings });
+  assert.deepEqual(corrected.request.context.challenges, requirementsChallenge.findings);
+  await reviewArtifact(session, latest(session));
+  assert.equal(session.snapshot().challenge_obligations[0].status, 'resolved');
+  for (const [workflowId, output] of [['W2', sql], ['W3', review]]) {
+    await produce(session, workflowId, output);
+    await reviewArtifact(session, latest(session));
+  }
+  const firstWriter = await choose(session, 'W6');
+  const firstBody = `${firstWriter.request.context.current_artifact_ids.join(', ')} and A1 were processed. Deployment approval is complete.`;
+  await session.submitResponse({ requestId: firstWriter.request.requestId, output: firstBody, usage });
+  const badReport = latest(session);
+  const reportChallenge = { ...overturn(badReport), findings: [{ id: 'A1', type: 'unsupported_claim', label: 'premature approval', evidence: 'Deployment approval is complete.', artifact: badReport.id }] };
+  await reviewArtifact(session, badReport, reportChallenge);
+  assert.equal(session.snapshot().challenge_obligations.at(-1).required_workflow, 'W6');
+  const replacement = await choose(session, 'W6', { artifact_focus: badReport.id, challenges: reportChallenge.findings });
+  assert.equal(replacement.result.ok, true, 'targeted W6 repair is allowed while its own obligation remains open');
+  assert.deepEqual(replacement.request.context.challenges, reportChallenge.findings);
+  await session.submitResponse({ requestId: replacement.request.requestId,
+    output: `${replacement.request.context.current_artifact_ids.join(', ')} passed. A1 records the corrected table and unsupported approval claim in their respective source reviews. Human substance and deployment decisions remain pending.`, usage });
+  assert.equal(session.snapshot().status, 'running');
+  await reviewArtifact(session, latest(session));
+  assert.ok(session.snapshot().challenge_obligations.every((entry) => entry.status === 'resolved'));
+  assert.equal(session.snapshot().status, 'pending_human');
 });

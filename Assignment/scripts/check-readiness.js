@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
+import { isDeepStrictEqual } from 'node:util';
 import { DISPATCH_TOOL_NAMES } from '../harness/lib/coordinatorSchema.js';
 import { AuditLogger } from '../harness/lib/auditLogger.js';
 import { validateAdversarialJson } from '../guardrails/validate-adversarial-json.js';
@@ -10,6 +11,7 @@ import { buildDeterministicHeadings, assembleFinalReport, validateReportBody } f
 import { verifyExaminationArtifacts } from '../harness/lib/examinationIntegrity.js';
 import { replayHistorical } from '../evaluations/replay-historical.js';
 import { scoreCase, scoreSemanticJudge } from '../evaluations/stage5/score.js';
+import { scoreRecheckCase } from '../evaluations/stage5/recheck/score.js';
 import { estimateStandardCredits } from '../evaluations/stage5/native-telemetry.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -17,7 +19,7 @@ const hash = (value) => createHash('sha256').update(value).digest('hex');
 const read = (file) => fs.readFileSync(file, 'utf8');
 const json = (file) => JSON.parse(read(file));
 const jsonl = (file) => read(file).split(/\r?\n/).filter((line) => line.trim()).map((line) => JSON.parse(line));
-const equal = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+const equal = isDeepStrictEqual;
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 const names = (tools) => tools.map((tool) => tool.name).sort();
 const tokenFields = ['input_tokens', 'cached_input_tokens', 'cache_write_input_tokens', 'output_tokens', 'reasoning_output_tokens', 'total_tokens'];
@@ -35,6 +37,26 @@ function within(root, relative) {
 function sumUsage(records) {
   return Object.fromEntries(tokenFields.map((field) => [field, records.some((record) => record.usage[field] === null)
     ? null : records.reduce((sum, record) => sum + record.usage[field], 0)]));
+}
+
+/** New sessions freeze a complete source bundle; legacy runs retain their original source snapshot. */
+export function verifySourceArchive(runDir) {
+  const sourceDir = path.join(runDir, 'source');
+  const manifestPath = path.join(sourceDir, 'manifest.json');
+  if (fs.existsSync(manifestPath)) {
+    const manifest = json(manifestPath);
+    assert(manifest.hash_algorithm === 'sha256' && manifest.files && Object.keys(manifest.files).length > 0, 'Invalid archived source bundle manifest');
+    assert(manifest.source_bundle_hash === AuditLogger.hash(manifest.files), 'Archived source bundle manifest hash differs');
+    for (const [name, digest] of Object.entries(manifest.files)) {
+      assert(AuditLogger.hash(fs.readFileSync(within(sourceDir, name))) === digest, `Archived source file changed: ${name}`);
+    }
+    const harnessHash = manifest.files['harness/lib/governedDelegation.js'];
+    assert(harnessHash, 'Archived source bundle omitted the governed harness');
+    return { harnessHashes: [harnessHash], bundleHash: manifest.source_bundle_hash, files: manifest.files };
+  }
+  const source = path.join(sourceDir, 'governedDelegation.js');
+  assert(fs.existsSync(source), 'Historical governed source snapshot is missing');
+  return { harnessHashes: [AuditLogger.hash(fs.readFileSync(source))], bundleHash: null, files: null };
 }
 
 /** Validate only archived, allowlisted telemetry; no access to native log paths. */
@@ -165,6 +187,136 @@ export function verifyFreshEvaluations(root) {
   return { cases: suite.cases.length, fresh_producer_contexts: threads.size, semantic_judge_context: judgeCapture.threadId };
 }
 
+/** Both a changed verdict and new criticism accompanying a preserved FAIL require a response. */
+export function verifyCriticalChallengeCoverage(cases) {
+  function reviewsIn(value) {
+    if (!value || typeof value !== 'object') return [];
+    const own = ['UPHELD', 'OVERTURNED'].includes(value.challenge) && Array.isArray(value.findings) ? [value] : [];
+    return [...own, ...Object.values(value).flatMap(reviewsIn)];
+  }
+  const originalChallenges = (item) => item.expected.required_challenges ?? item.expected.optional_challenges ?? [];
+  const targeted = cases.filter((item) => item.workflow === 'Coordinator' && item.expected.name === 'launch_trigger_review' && originalChallenges(item).length);
+  const demonstrates = (item, type) => reviewsIn(item.input).some((review) => review.challenge === type
+    && (type !== 'UPHELD' || review.original_verdict === 'FAIL' && review.recommended_verdict === 'FAIL')
+    && originalChallenges(item).some((challenge) => review.findings.some((finding) => equal(finding, challenge))));
+  const overturned = targeted.filter((item) => demonstrates(item, 'OVERTURNED'));
+  const upheldWithFindings = targeted.filter((item) => demonstrates(item, 'UPHELD'));
+  assert(overturned.length > 0, 'A verdict overturn with evidenced findings lacks targeted examiner measurement');
+  assert(upheldWithFindings.length > 0, 'UPHELD/FAIL with new evidenced findings lacks targeted examiner measurement');
+  return { overturned, upheldWithFindings };
+}
+
+/** Supersedes the old coordinator policy without rewriting its historical measurements. */
+export function verifyCurrentPolicyRecheck(root) {
+  const base = path.join(root, 'evaluations/stage5/recheck');
+  assert(fs.existsSync(path.join(base, 'cases.json')) && fs.existsSync(path.join(base, 'results.json')), 'Mandatory current-policy targeted-examination and terminal-FAIL measurements are missing');
+  const suite = json(path.join(base, 'cases.json'));
+  const manifest = suite.final_source_manifest ?? suite.source_manifest;
+  const sourceManifests = suite.source_manifests ?? [suite.source_manifest];
+  assert(manifest?.hash_normalization === 'Exact source file bytes; individual prompt_sha256 values identify LF-normalized packet text.', 'Current-policy source hash normalization is missing or unsupported');
+  assert(sourceManifests.some((entry) => equal(entry, manifest)) && sourceManifests.some((entry) => equal(entry, suite.source_manifest)), 'Current and original source manifest versions must both be retained');
+  const definitions = {
+    coordinator_prompt_sha256: 'coordinator/prompt/Prompt.md',
+    W6_prompt_sha256: 'agents/delivery-report/prompt/Prompt.md',
+    coordinator_schema_sha256: 'coordinator/tools/schema.json',
+    governedHarness_sha256: 'harness/lib/governedDelegation.js',
+  };
+  for (const [key, name] of Object.entries(definitions)) assert(manifest[key] === hash(fs.readFileSync(path.join(root, name))), `Current-policy measurement is stale for ${name}`);
+  const sourceRoot = path.join(base, 'source');
+  const snapshots = fs.readdirSync(sourceRoot, { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => {
+    const directory = path.join(sourceRoot, entry.name);
+    const snapshot = json(path.join(directory, 'snapshot.json'));
+    assert(snapshot.schema_version === 1 && snapshot.hash_algorithm === 'sha256' && typeof snapshot.provenance === 'string' && snapshot.provenance.trim(), 'Current-policy source snapshot lacks provenance');
+    for (const [name, digest] of Object.entries(snapshot.files ?? {})) assert(hash(fs.readFileSync(within(directory, name))) === digest, `Recheck source snapshot changed: ${entry.name}/${name}`);
+    return { directory, snapshot };
+  });
+  const sourceVersions = sourceManifests.map((version) => {
+    const archived = snapshots.find(({ snapshot }) => Object.entries(definitions).every(([key, name]) => snapshot.files[name] === version[key]));
+    assert(archived, 'A measured recheck source version has no matching byte-verified archive');
+    return { manifest: version, ...archived };
+  });
+  const required = {
+    'critical-challenge-targeted-examiner': 'launch_trigger_review',
+    'examiner-response-independent-rereview': 'launch_adversarial_reviewer',
+    'no-terminal-shortcut-around-examiner': 'launch_trigger_review',
+    'reviewed-failure-terminal-report': 'launch_delivery_report_writer',
+    'terminal-fail-grounded-synthesis': null,
+  };
+  assert(suite.cases.length === new Set(suite.cases.map((item) => item.id)).size, 'Duplicate current-policy case IDs');
+  for (const [id, tool] of Object.entries(required)) {
+    const item = suite.cases.find((entry) => entry.id === id);
+    assert(item && (tool ? item.workflow === 'Coordinator' && item.expected.name === tool : item.workflow === 'W6'), `Required current-policy behavior is unmeasured: ${id}`);
+  }
+  const challengeCoverage = verifyCriticalChallengeCoverage(suite.cases);
+  assert(challengeCoverage.upheldWithFindings.some((item) => equal(item.source_manifest ?? suite.source_manifest, manifest)), 'The preserved-FAIL criticism branch has no measurement of the final current coordinator source');
+  const captures = json(path.join(base, 'captures.json')).captures;
+  const measured = json(path.join(base, 'results.json'));
+  assert(captures.length === suite.cases.length && measured.results.length === suite.cases.length, 'Current-policy case/capture/result inventory differs');
+  const reviews = json(path.join(base, 'semantic-reviews.json')).reviews;
+  const judgeDir = path.join(base, 'semantic-review');
+  const judgeCapture = json(path.join(judgeDir, 'capture.json'));
+  const judgeRaw = read(path.join(judgeDir, 'output.txt'));
+  const judgePacket = read(path.join(judgeDir, 'packet.md'));
+  verifyCapture({ capture: judgeCapture, raw: judgeRaw, packet: judgePacket, telemetry: json(path.join(judgeDir, 'telemetry.json')), events: jsonl(path.join(judgeDir, 'events.jsonl')) });
+  const judgeInputs = JSON.parse(judgePacket.slice(judgePacket.lastIndexOf('\nINPUT\n') + '\nINPUT\n'.length));
+  const judgeVerdicts = JSON.parse(judgeRaw).reviews;
+  const threads = new Set();
+  const caseVersions = [];
+  for (const [index, item] of suite.cases.entries()) {
+    const capture = captures.find((entry) => entry.case_id === item.id);
+    assert(capture, `Missing current-policy native capture ${item.id}`);
+    const directory = within(base, capture.raw_directory ?? `raw/case-${String(index + 1).padStart(2, '0')}`);
+    const raw = read(path.join(directory, 'output.txt'));
+    const packet = read(within(base, item.packet));
+    assert(read(path.join(directory, 'packet.md')) === packet && hash(packet) === item.packet_sha256, `Current-policy input packet changed: ${item.id}`);
+    const caseManifest = item.source_manifest ?? suite.source_manifest;
+    assert(sourceManifests.some((entry) => equal(entry, caseManifest)), `Case source revision was not retained: ${item.id}`);
+    const promptMarker = 'WORKFLOW PROMPT\n';
+    const promptEnd = item.workflow === 'Coordinator' ? '\n\nDECLARED TOOLS\n' : '\n\nEVALUATION INPUT\n';
+    const promptSource = packet.slice(packet.indexOf(promptMarker) + promptMarker.length).split(promptEnd)[0];
+    assert(hash(promptSource) === item.prompt_sha256, `Measured prompt snapshot differs: ${item.id}`);
+    const version = sourceVersions.find((entry) => equal(entry.manifest, caseManifest));
+    assert(read(within(version.directory, item.prompt_source)).replaceAll('\r\n', '\n') === promptSource, `Packet prompt differs from its archived source revision: ${item.id}`);
+    const currentPrompt = read(within(root, item.prompt_source)).replaceAll('\r\n', '\n');
+    const promptKey = item.workflow === 'Coordinator' ? 'coordinator_prompt_sha256' : 'W6_prompt_sha256';
+    if (caseManifest[promptKey] === manifest[promptKey]) assert(promptSource === currentPrompt, `Case claims the current prompt but used different text: ${item.id}`);
+    caseVersions.push({ case_id: item.id, workflow: item.workflow, prompt_sha256: item.prompt_sha256, current_prompt: promptSource === currentPrompt, current_source_bundle: equal(caseManifest, manifest) });
+    const inputMarker = item.workflow === 'Coordinator' ? '\nVALIDATED CONTEXT\n' : '\nEVALUATION INPUT\n';
+    assert(equal(JSON.parse(packet.slice(packet.lastIndexOf(inputMarker) + inputMarker.length)), item.input), `Current-policy source input differs: ${item.id}`);
+    if (item.workflow === 'Coordinator') {
+      const declared = JSON.parse(packet.split('\nDECLARED TOOLS\n')[1].split(inputMarker)[0]);
+      assert(equal(declared, item.declared_tools) && equal(names(declared), [...DISPATCH_TOOL_NAMES].sort()) && declared.length === 6, 'Measured coordinator dispatch schema differs from its archived declaration');
+      if (caseManifest.coordinator_schema_sha256 === manifest.coordinator_schema_sha256) assert(equal(declared, json(path.join(root, 'coordinator/tools/schema.json')).tools), 'Case claims the current dispatch schema but used a different schema');
+    }
+    const provenance = verifyCapture({ capture, raw, packet, telemetry: json(path.join(directory, 'telemetry.json')), events: jsonl(path.join(directory, 'events.jsonl')) });
+    assert(!threads.has(provenance.threadId) && provenance.threadId !== judgeCapture.threadId, 'Current-policy producer/judge context was shared');
+    threads.add(provenance.threadId);
+    const checks = scoreRecheckCase(item, raw);
+    assert(checks.length >= 3 && checks.every((check) => check.pass), `Current-policy criterion failed: ${item.id}: ${checks.filter((check) => !check.pass).map((check) => check.id).join(',')}`);
+    if (item.workflow === 'Coordinator') {
+      const output = JSON.parse(raw);
+      if (item.expected.terminal_outcome) assert(output.arguments.terminal_outcome === item.expected.terminal_outcome, 'Terminal FAIL was not explicitly dispatched');
+      for (const challenge of item.expected.required_challenges ?? []) assert(output.arguments.challenges?.some((entry) => equal(entry, challenge)), 'Targeted examiner did not receive the actual critical challenge');
+      if (item.id === 'reviewed-failure-terminal-report') assert(item.expected.terminal_outcome === 'FAIL', 'Terminal report test omitted the failed disposition');
+    }
+    const judge = reviews.find((entry) => entry.case_id === item.id);
+    const verdict = judgeVerdicts.find((entry) => entry.case_id === judge?.blind_case_id);
+    const judgeInput = judgeInputs.find((entry) => entry.case_id === judge?.blind_case_id);
+    assert(judge && judge.thread_id === judgeCapture.threadId && judge.response_id === judgeCapture.responseId && judge.model === judgeCapture.model, 'Current-policy semantic reviewer identity differs');
+    assert(judge.raw_sha256 === hash(judgeRaw) && judge.packet_sha256 === hash(judgePacket) && equal({ ...verdict, case_id: item.id }, judge.verdict), 'Current-policy semantic verdict changed');
+    assert(judgeInput?.candidate_output === raw && equal(judgeInput.source_input, item.input) && judgeInput.workflow_prompt === promptSource, 'Current-policy judge reviewed different source/output');
+    assert(scoreSemanticJudge(item, judge, provenance.threadId).pass, `Independent current-policy semantic review failed: ${item.id}`);
+    const saved = measured.results.find((entry) => entry.case_id === item.id);
+    assert(saved?.pass === true && saved.workflow === item.workflow && saved.checks.length >= 3 && saved.checks.every((check) => check.pass), `Saved current-policy measured criteria failed: ${item.id}`);
+  }
+  assert(measured.pass === true && measured.total === suite.cases.length && measured.passed === measured.total, 'Current-policy recheck is incomplete or failed');
+  assert(caseVersions.some((item) => item.workflow === 'W6' && item.current_prompt), 'The current W6 prompt lacks an actual measured synthesis');
+  return { cases: suite.cases.length, actual_producer_contexts: threads.size, current_source_manifest: manifest, case_source_versions: caseVersions,
+    source_archive_provenance: sourceVersions.map((entry) => ({ source: path.relative(base, entry.directory).replaceAll('\\', '/'), provenance: entry.snapshot.provenance })),
+    challenge_coverage: { overturned_case_ids: challengeCoverage.overturned.map((item) => item.id), upheld_fail_with_findings_case_ids: challengeCoverage.upheldWithFindings.map((item) => item.id) },
+    supersedes: 'The old c1-adversarial-overturn baseline is retained as previous-policy evidence. Earlier corrected-policy cases retain their actual prompt/source versions; the latest preserved-FAIL criticism branch is measured against the final source.' };
+}
+
 export function verifyGovernedRun(root, runDir) {
   const state = json(path.join(runDir, 'governed-session.json'));
   const result = json(path.join(runDir, 'evaluation-result.json'));
@@ -180,7 +332,7 @@ export function verifyGovernedRun(root, runDir) {
   const sessions = new Set();
   const requestByArtifact = new Map();
   const sourceHashes = new Set();
-  const archivedSources = fs.readdirSync(path.join(runDir, 'source')).filter((name) => name.endsWith('.js')).map((name) => AuditLogger.hash(fs.readFileSync(path.join(runDir, 'source', name))));
+  const archivedSources = verifySourceArchive(runDir);
   for (const capture of captures) {
     const request = json(within(runDir, `requests/${capture.request_id}.json`));
     const response = json(within(runDir, `responses/${capture.request_id}.json`));
@@ -195,7 +347,8 @@ export function verifyGovernedRun(root, runDir) {
     assert(equal(JSON.parse(packet.slice(packet.lastIndexOf('APPLICATION REQUEST:') + 'APPLICATION REQUEST:'.length).trim()), request), 'Native model received a different application request');
     assert(request.implementation.prompt_sha256 === AuditLogger.hash(request.prompt), 'Executed prompt hash differs');
     sourceHashes.add(request.implementation.harness_sha256);
-    assert(archivedSources.includes(request.implementation.harness_sha256), 'Executed harness fingerprint has no archived source version');
+    assert(archivedSources.harnessHashes.includes(request.implementation.harness_sha256), 'Executed harness fingerprint has no archived source version');
+    if (archivedSources.bundleHash) assert(request.implementation.source_bundle_sha256 === archivedSources.bundleHash, 'Executed request differs from its frozen source bundle');
     const auditRow = audit.find((entry) => entry.request_id === request.requestId && ['coordinator', 'agent'].includes(entry.step_type));
     let parsed = raw;
     if (request.role === 'coordinator' || ['W1', 'W3', 'W5'].includes(request.workflowId)) { try { parsed = JSON.parse(raw); } catch { /* Failed responses are retained in their audit. */ } }
@@ -290,7 +443,8 @@ export function checkReadiness({ root = ROOT, log = false } = {}) {
     assert(replay.overall.tests === 34 && replay.overall.passed === replay.overall.tests && Object.values(replay.agents).every((agent) => agent.criteria.length >= 3 && agent.criteria.every((criterion) => criterion.passed === criterion.evaluated)), 'Historical measured criteria no longer replay');
     return { tests: replay.overall.tests, provenance: 'Saved original outputs; original model/usage/manual-edit provenance remains unavailable and is not fabricated.' };
   });
-  record('Fresh C/W5/W6 criteria, source bindings, native usage and independent semantic judge', () => verifyFreshEvaluations(root));
+  record('Archived 22-case policy baseline: source bindings, native usage and independent semantic judge', () => verifyFreshEvaluations(root));
+  record('Source-bound examination, independent re-review and terminal FAIL measurements including the final policy', () => verifyCurrentPolicyRecheck(root));
   record('Full governed model execution, every-output review, persisted audit and human punch-out', () => {
     const base = path.join(root, 'evaluations/stage5/governed');
     const candidates = fs.readdirSync(base, { withFileTypes: true }).filter((entry) => entry.isDirectory() && fs.existsSync(path.join(base, entry.name, 'evaluation-result.json'))).map((entry) => path.join(base, entry.name));

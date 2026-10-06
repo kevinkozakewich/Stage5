@@ -1,0 +1,45 @@
+{
+  "rawPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\recheck\\raw\\case-05\\output.txt",
+  "telemetryPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\recheck\\raw\\case-05\\telemetry.json",
+  "packetPath": "C:\\Projects\\Improving\\Memory\\Tasks\\In Progress\\2026-09-14 - Certifications\\Level 5\\Assignment\\evaluations\\stage5\\recheck\\raw\\case-05\\packet.md",
+  "threadId": "01a10e9d-978d-7c11-9651-8fd27fb6cb99",
+  "model": "gpt-6-astra",
+  "responseId": "resp_07fd2f26c819ede4016ac440ea8f8087d18e9e52ce4f0632e9",
+  "responseIds": [
+    "resp_07fd2f26c819ede4016ac440ea8f8087d18e9e52ce4f0632e9"
+  ],
+  "usage": {
+    "input_tokens": 19511,
+    "cached_input_tokens": 16512,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 595,
+    "reasoning_output_tokens": 372,
+    "total_tokens": 20106
+  },
+  "cost_usd": null,
+  "cost_status": "not_exposed_by_native_host",
+  "standard_credit_equivalent": {
+    "value": 1.9063,
+    "unit": "standard_credit_equivalent",
+    "status": "estimate_only",
+    "rates_per_million_tokens": {
+      "gpt-6-astra": {
+        "input": 250,
+        "cached_input": 25,
+        "output": 1250
+      }
+    },
+    "unknown_models": [],
+    "missing_cached_input_usage": false,
+    "source": "https://learn.chatgpt.com/docs/pricing",
+    "rates_verified_on": "2026-10-05",
+    "basis": "Standard-speed credit rate equivalent of measured tokens. Not actual credits consumed, included subscription allowance, API cost, or billed USD. No separate cache-write charge; output already includes reasoning."
+  },
+  "packet_sha256": "5d9e71adbacd1f2a43c1f76756218e2ac2db77f3c230b053d961876e7ffb3ae9",
+  "raw_sha256": "ad6e561cf9cbb214b255e3a5efd7aebae8bd7af259c9b5d143d9b1becfe15b56",
+  "attempt": 1,
+  "manual_corrections": 0,
+  "provider": "codex:native-subagent",
+  "invocation": "evaluation_only_codex_exec_fresh_context",
+  "host_tool_calls": []
+}

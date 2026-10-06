@@ -18,9 +18,11 @@
     "delegation:golden": "node harness/run-delegation.js --fixture golden-pass",
     "delegation:batch": "node harness/batch-run-delegation.js",
     "eval:historical": "node evaluations/replay-historical.js",
-    "eval:stage5": "node evaluations/stage5/score.js",
+    "eval:stage5": "node evaluations/stage5/score.js && node evaluations/stage5/recheck/score.js",
     "governed": "node harness/run-governed.js",
-    "eval:governed:native": "node evaluations/stage5/run-governed-native.js"
+    "eval:governed:native": "node evaluations/stage5/run-governed-native.js",
+    "eval:stage5:baseline": "node evaluations/stage5/score.js",
+    "eval:stage5:recheck": "node evaluations/stage5/recheck/score.js"
   },
   "devDependencies": {
     "promptfoo": "^0.123.0"

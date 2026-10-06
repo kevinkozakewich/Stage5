@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "reviews": [
+    {
+      "case_id": "critical-challenge-targeted-examiner",
+      "blind_case_id": "case-01",
+      "thread_id": "01a10ea2-08f4-7500-97ff-1ba9b4bfacf7",
+      "model": "gpt-6-astra",
+      "response_id": "resp_0d4de5c0afb32566016ac4420d95d087d1a4c41fa9e061e985",
+      "raw_path": "semantic-review/output.txt",
+      "raw_sha256": "170e007258e6471b45a51b02eccdadb630cf81c020ebd41fbac033d92b321257",
+      "packet_sha256": "fc8dd000d177ad6eccd1b1ff7a54f1470b7df77b56d82b79dbe9a637a502a627",
+      "verdict": {
+        "case_id": "critical-challenge-targeted-examiner",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly dispatches W3 on challenged immutable SQL 006-trigger.sql with canonical A1 unchanged. Preserves the earlier PASS and adversarial FAIL recommendation and requires W5 review of the new examiner output."
+      }
+    },
+    {
+      "case_id": "examiner-response-independent-rereview",
+      "blind_case_id": "case-02",
+      "thread_id": "01a10ea2-08f4-7500-97ff-1ba9b4bfacf7",
+      "model": "gpt-6-astra",
+      "response_id": "resp_0d4de5c0afb32566016ac4420d95d087d1a4c41fa9e061e985",
+      "raw_path": "semantic-review/output.txt",
+      "raw_sha256": "170e007258e6471b45a51b02eccdadb630cf81c020ebd41fbac033d92b321257",
+      "packet_sha256": "fc8dd000d177ad6eccd1b1ff7a54f1470b7df77b56d82b79dbe9a637a502a627",
+      "verdict": {
+        "case_id": "examiner-response-independent-rereview",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly targets 014-review.json for W5 review, matching both required_reviews and the pending_review obligation's response_artifact_id. The stated wrong-table FAIL is supported by V1."
+      }
+    },
+    {
+      "case_id": "no-terminal-shortcut-around-examiner",
+      "blind_case_id": "case-03",
+      "thread_id": "01a10ea2-08f4-7500-97ff-1ba9b4bfacf7",
+      "model": "gpt-6-astra",
+      "response_id": "resp_0d4de5c0afb32566016ac4420d95d087d1a4c41fa9e061e985",
+      "raw_path": "semantic-review/output.txt",
+      "raw_sha256": "170e007258e6471b45a51b02eccdadb630cf81c020ebd41fbac033d92b321257",
+      "packet_sha256": "fc8dd000d177ad6eccd1b1ff7a54f1470b7df77b56d82b79dbe9a637a502a627",
+      "verdict": {
+        "case_id": "no-terminal-shortcut-around-examiner",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly dispatches targeted W3 examination of 006-trigger.sql with canonical A1 unchanged, followed by required W5 review. Respects the prerequisite validation error and does not treat exhausted remediation or the earlier shortcut disposition as permission to bypass the obligation."
+      }
+    },
+    {
+      "case_id": "reviewed-failure-terminal-report",
+      "blind_case_id": "case-04",
+      "thread_id": "01a10ea2-08f4-7500-97ff-1ba9b4bfacf7",
+      "model": "gpt-6-astra",
+      "response_id": "resp_0d4de5c0afb32566016ac4420d95d087d1a4c41fa9e061e985",
+      "raw_path": "semantic-review/output.txt",
+      "raw_sha256": "170e007258e6471b45a51b02eccdadb630cf81c020ebd41fbac033d92b321257",
+      "packet_sha256": "fc8dd000d177ad6eccd1b1ff7a54f1470b7df77b56d82b79dbe9a637a502a627",
+      "verdict": {
+        "case_id": "reviewed-failure-terminal-report",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Terminal FAIL synthesis is justified: targeted 014-review.json confirmed the defect, 016-adversarial.json upheld FAIL, no review obligations remain, and remediation is exhausted. The dispatch preserves the earlier PASS history, requires report review, and accurately retains unapproved human checkpoints."
+      }
+    },
+    {
+      "case_id": "terminal-fail-grounded-synthesis",
+      "blind_case_id": "case-05",
+      "thread_id": "01a10ea2-08f4-7500-97ff-1ba9b4bfacf7",
+      "model": "gpt-6-astra",
+      "response_id": "resp_0d4de5c0afb32566016ac4420d95d087d1a4c41fa9e061e985",
+      "raw_path": "semantic-review/output.txt",
+      "raw_sha256": "170e007258e6471b45a51b02eccdadb630cf81c020ebd41fbac033d92b321257",
+      "packet_sha256": "fc8dd000d177ad6eccd1b1ff7a54f1470b7df77b56d82b79dbe9a637a502a627",
+      "verdict": {
+        "case_id": "terminal-fail-grounded-synthesis",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "The three heading-free paragraphs cover every supplied artifact and both OPEN findings, A1 and V1, with matching E1–E4 references. D1 supports terminal failure and the stopping reason; G1 and G2 support unauthorized deployment and pending Continue/Reject decisions. No findings or approvals are invented."
+      }
+    },
+    {
+      "case_id": "upheld-fail-new-finding-needs-examiner",
+      "blind_case_id": "case-06",
+      "thread_id": "01a10ea2-08f4-7500-97ff-1ba9b4bfacf7",
+      "model": "gpt-6-astra",
+      "response_id": "resp_0d4de5c0afb32566016ac4420d95d087d1a4c41fa9e061e985",
+      "raw_path": "semantic-review/output.txt",
+      "raw_sha256": "170e007258e6471b45a51b02eccdadb630cf81c020ebd41fbac033d92b321257",
+      "packet_sha256": "fc8dd000d177ad6eccd1b1ff7a54f1470b7df77b56d82b79dbe9a637a502a627",
+      "verdict": {
+        "case_id": "upheld-fail-new-finding-needs-examiner",
+        "supported_by_sources": true,
+        "complete": true,
+        "tone_appropriate": true,
+        "unsupported_claims": [],
+        "reason": "Correctly targets challenged examiner artifact 014-review.json with the canonical checklist-gap A1 unchanged. Recognizes that UPHELD FAIL leaves the additional criticism pending and requires a targeted W3 response followed by W5 review despite exhausted remediation."
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "hash_algorithm": "sha256",
+  "provenance": "The engine and coordinator prompt bytes were recovered by reversing the exact subsequent additional-findings policy edit; their SHA-256 hashes were verified equal to the hashes already recorded in cases.json before the five inference calls. W6 prompt and schema were unchanged. This snapshot was saved after those calls; no inference outputs were rewritten.",
+  "files": {
+    "harness/lib/governedDelegation.js": "94e7d570d4e53c8ada7ea7027ddad24ff9af6df8ce3118fdd7845ff9f53e384b",
+    "coordinator/prompt/Prompt.md": "ac4fb2a6287c7d8437164c419bbdb7e1f65a16228b1e8a8567d843eaf09b8088",
+    "agents/delivery-report/prompt/Prompt.md": "efd3cdbd323470a0a1c2e096ca358792d43f05e5bba540840dc4f5055f6308bc",
+    "coordinator/tools/schema.json": "42d306d17947d25bfcc30e49e3e42e5f101cafaa1dac19569b0aba8968d8d394"
+  }
+}
